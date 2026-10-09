@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/concepts/binary-rewriting/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binary rewriting for systematic testing - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Binary rewriting for systematic testing", url: "#_top", children: [
+              {title: "Configuration", url: "#configuration" },
+              {title: "Which DLLs to rewrite?", url: "#which-dlls-to-rewrite" },
+              {title: "Quality of life improvements through rewriting", url: "#quality-of-life-improvements-through-rewriting" },
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../specifications/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../specifications/" class="btn btn-xs btn-link">
+        Program specifications
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../concurrency-unit-testing/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../concurrency-unit-testing/" class="btn btn-xs btn-link">
+        Concurrency unit testing
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="binary-rewriting-for-systematic-testing">Binary rewriting for systematic testing</h2>
+<p>To enable systematic testing of unmodified programs, Coyote performs <em>binary rewriting</em> of managed
+.NET assemblies. This process loads one or more of your assemblies (<code>*.dll</code>, <code>*.exe</code>) and rewrites
+them for systematic testing (for production just use the original unmodified assemblies). The
+rewritten code maintains exact semantics with the production version (so you don&rsquo;t need to worry
+about false bugs), but has stubs and hooks injected that allow Coyote to take control of concurrent
+execution and various sources of nondeterminism in a program.</p>
+<p>To invoke the rewriter use the following command:</p>
+<pre><code class="language-plain">coyote rewrite ${PATH}
+</code></pre>
+<p><code>${PATH}</code> is the path to the assembly (<code>*.dll</code>, <code>*.exe</code>) to rewrite or to a <a href="#configuration">JSON rewriting
+configuration file</a> (<code>*.json</code>). For automation, this can be conveniently done in a
+post-build task, like this:</p>
+<pre><code class="language-xml">&lt;Target Name=&quot;CoyoteRewrite&quot; AfterTargets=&quot;AfterBuild&quot;&gt;
+  &lt;Exec Command=&quot;dotnet $(PathToCoyote)/coyote.dll rewrite ${PATH}&quot;/&gt;
+&lt;/Target&gt;
+</code></pre>
+<p>To learn how to test your application after rewriting your binaries with Coyote, read
+<a href="../../get-started/using-coyote/">here</a>, as well as check out our tutorial on <a href="../../tutorials/first-concurrency-unit-test/">writing your first
+concurrency unit test</a>.</p>
+<h3 id="configuration">Configuration</h3>
+<p>If you have multiple binaries to rewrite, then you should provide a JSON rewriting configuration
+file, which looks like this example:</p>
+<pre><code class="language-json">{
+  &quot;AssembliesPath&quot;: &quot;bin/net8.0&quot;,
+  &quot;OutputPath&quot;: &quot;bin/net8.0/rewritten&quot;,
+  &quot;Assemblies&quot;: [
+    &quot;BoundedBuffer.dll&quot;,
+    &quot;MyOtherLibrary.dll&quot;,
+    &quot;FooBar123.dll&quot;
+  ]
+}
+</code></pre>
+<ul>
+<li>
+<p><code>AssembliesPath</code> is the folder containing the original binaries.  This property is required.</p>
+</li>
+<li>
+<p><code>OutputPath</code> allows you to specify a different location for the rewritten assemblies. The
+<code>OutputPath</code> can be omitted in which case it is assumed to be the same as <code>AssembliesPath</code> and in
+that case the original assemblies will be replaced.</p>
+</li>
+<li>
+<p><code>Assemblies</code> is the list of specific assemblies in <code>AssembliesPath</code> to be rewritten. You must
+  explicitly list all the assemblies to rewrite (pattern matching, <code>*</code> and <code>.</code> are not supported).</p>
+</li>
+</ul>
+<p>Then pass this JSON file on the command line: <code>coyote rewrite config.json</code>.</p>
+<h3 id="which-dlls-to-rewrite">Which DLLs to rewrite?</h3>
+<p><strong>TLDR:</strong> The short answer (and our recommendation) is that ideally you should just rewrite your
+test DLLs, as well as your production code DLLs (which means the code that you and your team owns),
+and to not rewrite any external dependencies (which you assume are correct after all).</p>
+<p>The reason behind this recommendation is that there are certain trade-offs when rewriting DLLs
+because of two issues: Coyote today does not support every single concurrency API in C# (instead
+mostly focuses on the popular <a href="https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/">task-asynchronous programming
+model</a>); and
+dealing with the infamous state (schedule) space explosion problem.</p>
+<p>Regarding the 1st issue, Coyote is focused on <a href="https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/">asynchronous
+task-based</a>
+concurrency (basically common things like <code>Task</code> objects and <code>async</code>/<code>await</code>). So if an external
+library (or some &ldquo;low-level&rdquo; dependency DLL) is written with &ldquo;lower-level&rdquo; threading APIs (such as
+explicitly spawning threads and waiting on synchronization primitives such as a <code>WaitHandle</code>) or
+uses custom concurrency semantics (for example via a custom <code>TaskScheduler</code> or custom threadpools),
+and you decide to rewrite these DLLs, then Coyote will either (a) not be able to intercept these
+concurrency mechanisms properly (if the C# APIs is not supported by Coyote yet) which can end up
+regressing exploration, or (b) be able to intercept them but the state (schedule) space in your test
+will explode (more on this below). The good news is that using these &ldquo;low-level&rdquo; APIs is uncommon in
+<em>most</em> user applications/services, but of course some frameworks/library dependencies do use them.</p>
+<p>Regarding the 2nd issue, the more concurrent code you instrument, the more scheduling decisions
+Coyote must explore in every test iteration. This <em>exponentially</em> increases how much time you need
+to test to cover the same code surface of your application. This is known as state space explosion.
+Since Coyote explores under a test &ldquo;budget&rdquo; (such as number of test iterations) the bigger the state
+space to explore, the less efficient Coyote will be. Ideally, you just want to focus on testing your
+own concurrent code, and not the code of 3rd party frameworks/libraries (which you assume is
+correct!). For this reason, its recommended instead of rewriting every single dependency, to just
+rewrite DLLs that you (and your team) owns. This basically means to focus rewriting the test DLL as
+well as your production code DLLs, assuming these DLLs only use tasks, <code>async</code>/<code>await</code> and these
+kind of &ldquo;high-level&rdquo; concurrency primitives. Think about this as &ldquo;component-wise&rdquo; testing.</p>
+<p>Under the hood, Coyote deals with both of the above problems using a feature called
+<em>partially-controlled exploration</em>. In this mode, which is enabled by default when testing a
+partially-rewritten program (rewritten DLLs you own, and un-rewritten 3rd party DLLs), Coyote will
+treat any un-rewritten DLLs as &ldquo;pass-through&rdquo;, and their methods are invoked <em>atomically</em>. This
+means that while Coyote sequentializes the program execution to explore different execution paths
+and scheduling decisions (see <a href="../concurrency-unit-testing/">here</a>), if it encounters a call to an
+un-rewritten method (or unsupported C# system API), instead of giving up, or immediately scheduling
+something else (resulting in lost coverage), Coyote will instead have a chance to wait for the
+uncontrolled call to complete (with some tunable time bound, which is a heuristic inside Coyote).
+This means that coverage wont regress in most cases.</p>
+<p>Ideally, you want to mock important external dependencies (for example storage backends such as
+CosmosDB) with some in-memory mock implementation to make your test fast and efficient, but at least
+you can already get tests up and running without requiring to mock every single thing, making the
+experience pay-as-you-go. And our plan is that as partially-controlled exploration improves over
+time, you transparently also get better coverage without having to do much from your side.</p>
+<h3 id="quality-of-life-improvements-through-rewriting">Quality of life improvements through rewriting</h3>
+<p>Coyote will automatically rewrite certain parts of your test code (without changing the application
+semantics) to improve the testing experience. For example:</p>
+<p>During testing coyote needs to be able to terminate a test iteration at any time in order to support
+the <code>--max-steps</code> command line argument. This termination is done using a special coyote
+<code>ExecutionCancelledException</code>. The problem is when your code contains one of the following:</p>
+<pre><code class="language-csharp">} catch {
+} catch (Exception) {
+} catch (RuntimeException) {
+</code></pre>
+<p>These will inadvertently catch the special Coyote exception, which then stops <code>--max-steps</code> from
+working. The recommended fix is to add a <code>when (!(e is Microsoft.Coyote.RuntimeException))</code> filter.
+The good news is that <code>coyote rewrite</code> can take care of this for you automatically so you do not
+need to modify any of your exception handlers.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../specifications/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../specifications/" class="btn btn-xs btn-link">
+        Program specifications
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../concurrency-unit-testing/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../concurrency-unit-testing/" class="btn btn-xs btn-link">
+        Concurrency unit testing
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

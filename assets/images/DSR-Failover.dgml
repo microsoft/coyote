@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="FailoverDriver" Bounds="630.271666666667,0,92.2866666666666,25.96" />
+    <Node Id="LivenessMonitor" Bounds="584.111666666666,201.4875,106.606666666667,25.96" />
+    <Node Id="MockCognitiveService" Bounds="0,143.84,136.83,25.96" />
+    <Node Id="MockRoutePlanner" Bounds="167.381666666666,143.84,120.066666666667,25.96" />
+    <Node Id="MockStorage" Bounds="318.405,143.84,90.02,25.96" />
+    <Node Id="Navigator" Category="Product" Bounds="387.325,71.9200000000001,72.1799999999998,25.96" />
+    <Node Id="Robot" Category="Product" Bounds="611.411666666667,143.84,52.0066666666667,25.96" />
+  </Nodes>
+  <Links>
+    <Link Source="FailoverDriver" Target="Navigator" Bounds="468.149322509766,25.632022857666,163.758392333984,46.5514030456543" Label="start, terminate" LabelBounds="549.915,40.96,80.3933333333334,15.96" />
+    <Link Source="FailoverDriver" Target="Robot" Bounds="671.89697265625,25.9599990844727,66.5180053710938,118.583061218262" Label="start" LabelBounds="714.908333333333,76.9200000000001,23.5066666666667,15.96" />
+    <Link Source="MockStorage" Target="Navigator" Bounds="334.874450683594,99.9967651367188,44.879150390625,43.8432312011719" Label="confirmed" LabelBounds="280.494459459459,112.88,53.88,15.96" />
+    <Link Source="Navigator" Target="MockCognitiveService" Bounds="92.9492416381836,89.1273498535156,294.375770568848,49.3237609863281" Label="recognize" LabelBounds="64.9249999999998,112.88,51.49,15.96" />
+    <Link Source="Navigator" Target="MockRoutePlanner" Bounds="228.581939697266,91.5214080810547,158.743072509766,43.3945617675781" Label="get directions" LabelBounds="157.85276960801,115.886476785415,72.55,15.96" />
+    <Link Source="Navigator" Target="MockStorage" Bounds="385.367218017578,97.879997253418,31.5156555175781,40.0954513549805" Label="write" LabelBounds="405.318333333333,112.88,26.0966666666667,15.96" />
+    <Link Source="Navigator" Target="Robot" Bounds="459.505004882813,92.6194610595703,154.260437011719,45.6754302978516" Label="confirmed" LabelBounds="591.535,112.88,53.8800000000001,15.96" />
+    <Link Source="Robot" Target="FailoverDriver" Bounds="651.492309570313,34.9599990844727,24.9226684570313,108.879997253418" Label="ready" LabelBounds="646.985,76.9200000000001,29.43,15.96" />
+    <Link Source="Robot" Target="LivenessMonitor" Bounds="637.414978027344,169.800003051758,0,22.6875" />
+    <Link Source="Robot" Target="Navigator" Bounds="461.632629394531,101.457908630371,149.779052734375,48.2240829467773" Label="getdrink" LabelBounds="462.105,112.88,44.3100000000001,15.96" />
+  </Links>
+  <Categories>
+    <Category Id="Product" Label="Product" IsTag="True" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsTag" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Product" ValueLabel="True">
+      <Condition Expression="HasCategory('Product')" />
+      <Setter Property="Background" Value="#FF3CB166" />
+    </Style>
+  </Styles>
+</DirectedGraph>

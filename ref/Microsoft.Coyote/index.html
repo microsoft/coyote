@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/ref/Microsoft.Coyote/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Microsoft.Coyote assembly", url: "#_top", children: [
+              {title: "Microsoft.Coyote namespace", url: "#microsoftcoyote-namespace" },
+              {title: "Microsoft.Coyote.Coverage namespace", url: "#microsoftcoyotecoverage-namespace" },
+              {title: "Microsoft.Coyote.Logging namespace", url: "#microsoftcoyotelogging-namespace" },
+              {title: "Microsoft.Coyote.Random namespace", url: "#microsoftcoyoterandom-namespace" },
+              {title: "Microsoft.Coyote.Runtime namespace", url: "#microsoftcoyoteruntime-namespace" },
+              {title: "Microsoft.Coyote.Specifications namespace", url: "#microsoftcoyotespecifications-namespace" },
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../Microsoft.CoyoteNamespace/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../Microsoft.CoyoteNamespace/" class="btn btn-xs btn-link">
+        Namespace Overview
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../case-studies/azure-blockchain-workbench/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../case-studies/azure-blockchain-workbench/" class="btn btn-xs btn-link">
+        Azure Blockchain Workbench
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h1 id="microsoftcoyote-assembly">Microsoft.Coyote assembly</h1>
+<h2 id="microsoftcoyote-namespace">Microsoft.Coyote namespace</h2>
+<table>
+<thead>
+<tr>
+<th>public type</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>class <a href="Configuration/">Configuration</a></td>
+<td>The Coyote runtime and testing configuration.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="microsoftcoyotecoverage-namespace">Microsoft.Coyote.Coverage namespace</h2>
+<table>
+<thead>
+<tr>
+<th>public type</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>class <a href="./Microsoft.Coyote.Coverage/CoverageGraph.md">CoverageGraph</a></td>
+<td>A directed graph made up of <a href="./Microsoft.Coyote.Coverage/CoverageGraph.Node.md"><code>Node</code></a> and <a href="./Microsoft.Coyote.Coverage/CoverageGraph.Link.md"><code>Link</code></a> objects.</td>
+</tr>
+<tr>
+<td>class <a href="./Microsoft.Coyote.Coverage/CoverageInfo.md">CoverageInfo</a></td>
+<td>Class for storing coverage-specific data across multiple test iterations.</td>
+</tr>
+<tr>
+<td>class <a href="./Microsoft.Coyote.Coverage/MonitorEventCoverage.md">MonitorEventCoverage</a></td>
+<td>This class maintains information about events received in each state of each specification monitor.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="microsoftcoyotelogging-namespace">Microsoft.Coyote.Logging namespace</h2>
+<table>
+<thead>
+<tr>
+<th>public type</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>class <a href="../Microsoft.Coyote.Logging/ConsoleLogger/">ConsoleLogger</a></td>
+<td>Logger that writes text to the console.</td>
+</tr>
+<tr>
+<td>interface <a href="../Microsoft.Coyote.Logging/ILogger/">ILogger</a></td>
+<td>A logger is used to capture messages, warnings and errors.</td>
+</tr>
+<tr>
+<td>enum <a href="../Microsoft.Coyote.Logging/LogSeverity/">LogSeverity</a></td>
+<td>The severity of the log message being provided to the <a href="../Microsoft.Coyote.Logging/ILogger/"><code>ILogger</code></a>.</td>
+</tr>
+<tr>
+<td>class <a href="../Microsoft.Coyote.Logging/MemoryLogger/">MemoryLogger</a></td>
+<td>Logger that writes all messages to memory.</td>
+</tr>
+<tr>
+<td>class <a href="../Microsoft.Coyote.Logging/TextWriterLogger/">TextWriterLogger</a></td>
+<td>Logger that writes to the specified TextWriter.</td>
+</tr>
+<tr>
+<td>enum <a href="../Microsoft.Coyote.Logging/VerbosityLevel/">VerbosityLevel</a></td>
+<td>The level of verbosity used during logging.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="microsoftcoyoterandom-namespace">Microsoft.Coyote.Random namespace</h2>
+<table>
+<thead>
+<tr>
+<th>public type</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>class <a href="../Microsoft.Coyote.Random/Generator/">Generator</a></td>
+<td>Represents a pseudo-random value generator, which is an algorithm that produces a sequence of values that meet certain statistical requirements for randomness. During systematic testing, the generation of random values is controlled, which allows the runtime to explore combinations of choices to find bugs.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="microsoftcoyoteruntime-namespace">Microsoft.Coyote.Runtime namespace</h2>
+<table>
+<thead>
+<tr>
+<th>public type</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>class <a href="../Microsoft.Coyote.Runtime/AssertionFailureException/">AssertionFailureException</a></td>
+<td>The exception that is thrown by the Coyote runtime upon assertion failure.</td>
+</tr>
+<tr>
+<td>interface <a href="../Microsoft.Coyote.Runtime/ICoyoteRuntime/">ICoyoteRuntime</a></td>
+<td>Interface that exposes base runtime methods for Coyote.</td>
+</tr>
+<tr>
+<td>interface <a href="../Microsoft.Coyote.Runtime/IOperationBuilder/">IOperationBuilder</a></td>
+<td>Interface of a controlled operation builder.</td>
+</tr>
+<tr>
+<td>interface <a href="../Microsoft.Coyote.Runtime/IRuntimeExtension/">IRuntimeExtension</a></td>
+<td>Interface for a Coyote runtime extension.</td>
+</tr>
+<tr>
+<td>interface <a href="../Microsoft.Coyote.Runtime/IRuntimeLog/">IRuntimeLog</a></td>
+<td>Interface that allows an external module to track what is happening in the <a href="../Microsoft.Coyote.Runtime/ICoyoteRuntime/"><code>ICoyoteRuntime</code></a>.</td>
+</tr>
+<tr>
+<td>delegate <a href="../Microsoft.Coyote.Runtime/OnFailureHandler/">OnFailureHandler</a></td>
+<td>Handles the <a href="../Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure/"><code>OnFailure</code></a> event.</td>
+</tr>
+<tr>
+<td>static class <a href="../Microsoft.Coyote.Runtime/Operation/">Operation</a></td>
+<td>Provides a set of static methods for instrumenting concurrency primitives that can then be controlled during testing.</td>
+</tr>
+<tr>
+<td>class <a href="../Microsoft.Coyote.Runtime/RuntimeException/">RuntimeException</a></td>
+<td>An exception that is thrown by the Coyote runtime.</td>
+</tr>
+<tr>
+<td>class <a href="../Microsoft.Coyote.Runtime/RuntimeLogTextFormatter/">RuntimeLogTextFormatter</a></td>
+<td>This class implements <a href="../Microsoft.Coyote.Runtime/IRuntimeLog/"><code>IRuntimeLog</code></a> and generates output in a a human readable text format.</td>
+</tr>
+<tr>
+<td>static class <a href="../Microsoft.Coyote.Runtime/RuntimeProvider/">RuntimeProvider</a></td>
+<td>Provides methods for creating or accessing a <a href="../Microsoft.Coyote.Runtime/ICoyoteRuntime/"><code>ICoyoteRuntime</code></a> runtime.</td>
+</tr>
+<tr>
+<td>static class <a href="../Microsoft.Coyote.Runtime/SchedulingPoint/">SchedulingPoint</a></td>
+<td>Provides a set of static methods for declaring points in the execution where interleavings between operations should be explored during testing.</td>
+</tr>
+<tr>
+<td>static class <a href="../Microsoft.Coyote.Runtime/TaskServices/">TaskServices</a></td>
+<td>Provides methods for interacting with tasks using the runtime.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="microsoftcoyotespecifications-namespace">Microsoft.Coyote.Specifications namespace</h2>
+<table>
+<thead>
+<tr>
+<th>public type</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>abstract class <a href="../Microsoft.Coyote.Specifications/Monitor/">Monitor</a></td>
+<td>Abstract class representing a specification monitor.</td>
+</tr>
+<tr>
+<td>static class <a href="../Microsoft.Coyote.Specifications/Specification/">Specification</a></td>
+<td>Provides static methods that are useful for writing specifications and interacting with the systematic testing engine.</td>
+</tr>
+</tbody>
+</table>
+<!-- DO NOT EDIT: generated by xmldocmd for Microsoft.Coyote.dll -->
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../Microsoft.CoyoteNamespace/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../Microsoft.CoyoteNamespace/" class="btn btn-xs btn-link">
+        Namespace Overview
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../case-studies/azure-blockchain-workbench/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../case-studies/azure-blockchain-workbench/" class="btn btn-xs btn-link">
+        Azure Blockchain Workbench
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

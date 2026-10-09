@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/tutorials/first-concurrency-unit-test/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Write your first concurrency unit test - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Write your first concurrency unit test with Coyote", url: "#_top", children: [
+          ]},
+          {title: "What you will need", url: "#what-you-will-need", children: [
+          ]},
+          {title: "Watch this tutorial", url: "#watch-this-tutorial", children: [
+          ]},
+          {title: "Walkthrough", url: "#walkthrough", children: [
+          ]},
+          {title: "Get the sample source code", url: "#get-the-sample-source-code", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../test-concurrent-operations/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../test-concurrent-operations/" class="btn btn-xs btn-link">
+        Test concurrent CRUD operations
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../overview/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../overview/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="write-your-first-concurrency-unit-test-with-coyote">Write your first concurrency unit test with Coyote</h2>
+<p>Modern software systems are inherently concurrent in nature as they perform many different
+activities at the same time, across different threads, processes and machines. Concurrency is
+notoriously hard to test, and concurrent bugs can be hard to reproduce and understand. Coyote is a
+very effective tool in taming this complexity. By giving you the ability to easily test for
+concurrency bugs, Coyote helps you build more reliable applications and services.</p>
+<p>In this tutorial, you will write a simple <code>AccountManager</code> class to create, get and delete <em>account</em>
+records in a backend NoSQL database. We&rsquo;ll design our class to be used in a concurrent setting,
+where methods in multiple instances of the class can be called concurrently, either within the same
+process or across processes and machines. This latter condition means that using locks will not help
+you in writing correct concurrent code.</p>
+<h2 id="what-you-will-need">What you will need</h2>
+<p>To run the code in this tutorial, you will need to:</p>
+<ul>
+<li>Install <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio 2022</a>.</li>
+<li>Install the <a href="../../get-started/install/">.NET 8.0 version of the coyote tool</a>.</li>
+<li>Be familiar with the <code>coyote</code> tool. See <a href="../../get-started/using-coyote/">using Coyote</a>.</li>
+<li>Clone the <a href="https://github.com/microsoft/coyote">Coyote git repo</a>.</li>
+</ul>
+<h2 id="watch-this-tutorial">Watch this tutorial</h2>
+<p>Optionally, you can watch this tutorial on YouTube:</p>
+<p><a href="https://youtu.be/wuKo-9iRm6o"><img alt="image" src="../../assets/images/coyote_tutorial_intro.png" /></a></p>
+<h2 id="walkthrough">Walkthrough</h2>
+<p>Without further ado, let&rsquo;s look at the signature of the <code>AccountManager</code> class:</p>
+<pre><code class="language-csharp">public class AccountManager
+{
+  private IDbCollection AccountCollection;
+
+  // Returns true if the account is created, else false.
+  public async Task&lt;bool&gt; CreateAccount(string accountName, string accountPayload) { ... }
+
+  // Returns the accountPayload if the account is found, else null.
+  public async Task&lt;string&gt; GetAccount(string accountName) { ... }
+
+  // Returns true if the account is deleted, else false.
+  public async Task&lt;bool&gt; DeleteAccount(string accountName) { ... }
+}
+</code></pre>
+<p>Here are the methods available in the <code>IDbCollection</code> interface:</p>
+<pre><code class="language-csharp">public interface IDbCollection
+{
+  Task&lt;bool&gt; CreateRow(string key, string value);
+
+  Task&lt;bool&gt; DoesRowExist(string key);
+
+  Task&lt;string&gt; GetRow(string key);
+
+  Task&lt;bool&gt; DeleteRow(string key);
+}
+</code></pre>
+<p>The <code>CreateRow</code> method creates the row with the given key, unless it already exists in which case it
+returns the <code>RowAlreadyExistsException</code> exception. The <code>DoesRowExist</code> method returns <code>true</code> if the
+row exists, otherwise it returns <code>false</code>. The <code>GetRow</code> method returns the content of the given key
+and throws <code>RowNotFoundException</code> exception if it doesn&rsquo;t exist. Finally, the <code>DeleteRow</code> method
+deletes the row if it exists and throws <code>RowNotFoundException</code> exception if it doesn&rsquo;t exist.</p>
+<p>Before reading on, please open your editor and attempt to write an implementation of the
+<code>AccountManager</code> class.  You might write something like this:</p>
+<pre><code class="language-csharp">public class AccountManager
+{
+  private readonly IDbCollection AccountCollection;
+
+  public AccountManager(IDbCollection dbCollection)
+  {
+    this.AccountCollection = dbCollection;
+  }
+
+  // Returns true if the account is created, else false.
+  public async Task&lt;bool&gt; CreateAccount(string accountName, string accountPayload)
+  {
+    if (await this.AccountCollection.DoesRowExist(accountName))
+    {
+      return false;
+    }
+
+    return await this.AccountCollection.CreateRow(accountName, accountPayload);
+  }
+
+  // Returns the accountPayload if the account is found, else null.
+  public async Task&lt;string&gt; GetAccount(string accountName)
+  {
+    if (!await this.AccountCollection.DoesRowExist(accountName))
+    {
+      return null;
+    }
+
+    return await this.AccountCollection.GetRow(accountName);
+  }
+
+  // Returns true if the account is deleted, else false.
+  public async Task&lt;bool&gt; DeleteAccount(string accountName)
+  {
+    if (!await this.AccountCollection.DoesRowExist(accountName))
+    {
+      return false;
+    }
+
+    return await this.AccountCollection.DeleteRow(accountName);
+  }
+}
+</code></pre>
+<p>Does the above implementation look reasonable to you? Can you find any bugs? And how can you
+convince yourself of the absence of any bugs in the above program?</p>
+<p>Let&rsquo;s write a unit test to test the <code>AccountManager</code> code. In production, <code>IDbCollection</code> is
+implemented using a distributed NoSQL database. To keep things simple during testing, you can just
+replace it with a mock. The following code shows such a mock implementation:</p>
+<pre><code class="language-csharp">public class InMemoryDbCollection : IDbCollection
+{
+  private readonly ConcurrentDictionary&lt;string, string&gt; Collection;
+
+  public InMemoryDbCollection()
+  {
+    this.Collection = new ConcurrentDictionary&lt;string, string&gt;();
+  }
+
+  public Task&lt;bool&gt; CreateRow(string key, string value)
+  {
+    return Task.Run(() =&gt;
+    {
+      bool success = this.Collection.TryAdd(key, value);
+      if (!success)
+      {
+        throw new RowAlreadyExistsException();
+      }
+
+      return true;
+    });
+  }
+
+  public Task&lt;bool&gt; DoesRowExist(string key)
+  {
+    return Task.Run(() =&gt;
+    {
+      return this.Collection.ContainsKey(key);
+    });
+  }
+
+  public Task&lt;string&gt; GetRow(string key)
+  {
+    return Task.Run(() =&gt;
+    {
+      bool success = this.Collection.TryGetValue(key, out string value);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+      return value;
+    });
+  }
+
+  public Task&lt;bool&gt; DeleteRow(string key)
+  {
+    return Task.Run(() =&gt;
+    {
+      bool success = this.Collection.TryRemove(key, out string _);
+      if (!success)
+      {
+        throw new RowNotFoundException();
+      }
+
+      return true;
+    });
+  }
+}
+</code></pre>
+<p>The <code>InMemoryDbCollection</code> mock is very simple, it just maintains an in-memory
+<code>ConcurrentDictionary</code> to store the keys and values. Each method of the mock runs a new concurrent
+task (via <code>Task.Run</code>) to make the call execute asynchronously, modeling async I/O in a real database
+call. You can read later this <a href="../mocks/mock-dependencies/">follow-up tutorial</a> to delve into mock design
+for concurrency unit testing.</p>
+<p>Now that you have written this mock, you can write a simple test:</p>
+<pre><code class="language-csharp">[Test]
+public static async Task TestAccountCreation()
+{
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
+
+  // Create some dummy data.
+  string accountName = &quot;MyAccount&quot;;
+  string accountPayload = &quot;...&quot;;
+
+  // Create the account, it should complete successfully and return true.
+  var result = await accountManager.CreateAccount(accountName, accountPayload);
+  Assert.True(result);
+
+  // Create the same account again. The method should return false this time.
+  result = await accountManager.CreateAccount(accountName, accountPayload);
+  Assert.False(result);
+}
+</code></pre>
+<p>The above unit test clearly tests that the same account cannot be created twice. Try run it (check
+below for instructions on how to build and run this tutorial from our samples repository) and you
+will see that it always passes. But is the behavior still true if two requests happen
+<em>concurrently</em>? How can you test this?</p>
+<p>What happens if you spawn two tasks that create the same account concurrently? What if you assert
+that only one creation succeeds, while the other always fails? That should work because the
+<code>InMemoryDbCollection</code> uses a <code>ConcurrentDictionary</code> right?</p>
+<pre><code class="language-csharp">[Test]
+public static async Task TestConcurrentAccountCreation()
+{
+  // Initialize the mock in-memory DB and account manager.
+  var dbCollection = new InMemoryDbCollection();
+  var accountManager = new AccountManager(dbCollection);
+
+  // Create some dummy data.
+  string accountName = &quot;MyAccount&quot;;
+  string accountPayload = &quot;...&quot;;
+
+  // Call CreateAccount twice without awaiting, which makes both methods run
+  // asynchronously with each other.
+  var task1 = accountManager.CreateAccount(accountName, accountPayload);
+  var task2 = accountManager.CreateAccount(accountName, accountPayload);
+
+  // Then wait both requests to complete.
+  await Task.WhenAll(task1, task2);
+
+  // Finally, assert that only one of the two requests succeeded and the other
+  // failed. Note that we do not know which one of the two succeeded as the
+  // requests ran concurrently (this is why we use an exclusive OR).
+  Assert.True(task1.Result ^ task2.Result);
+}
+</code></pre>
+<p>Try run this concurrent test. The assertion will <em>most likely</em> fail. The reason it is not a
+guaranteed failure is that there are some task interleavings where it passes, and others where it
+fails with the following exception:</p>
+<pre><code class="language-plain">RowAlreadyExistsException: Exception of type 'RowAlreadyExistsException' was thrown.
+...
+</code></pre>
+<p>Let&rsquo;s dig into why the concurrent test failed.</p>
+<p>The test started two asynchronous <code>CreateAccount</code> calls, the first one checked whether the account
+existed through the <code>DoesRowExist</code> method which returned <code>false</code>. Due to the underlying concurrency,
+control passed to the second task which made a similar call to <code>DoesRowExist</code> which also returned
+<code>false</code>. Both tasks then resumed believing that the account does not exist and tried to add the
+account. One of them succeeded while the other threw an exception, indicating a bug in your
+<code>AccountManager</code> implementation.</p>
+<p>So writing out this test was useful and easily exposed this race condition. But why don&rsquo;t we
+write such tests a lot more often? The reason is they are often flaky and find bugs through <em>sheer
+luck</em> instead of a <em>systematic</em> exploration of the possible interleavings. The above test hits the bug
+fairly frequently due to the way .NET task scheduling works (on a reasonably fast machine with light
+CPU load).</p>
+<p>Let&rsquo;s tweak the test very slightly by adding a delay of a millisecond between the two <code>CreateAccount</code>
+calls:</p>
+<pre><code class="language-csharp">var task1 = accountManager.CreateAccount(accountName, accountPayload);
+await Task.Delay(1); // Artificial delay.
+var task2 = accountManager.CreateAccount(accountName, accountPayload);
+</code></pre>
+<p>If you run this test, chances are it will fail very rarely. If you run this test in a loop
+invoking it a hundred times it probably won&rsquo;t fail once.</p>
+<p>The race condition is still there but our concurrency unit test suddenly became ineffective at
+catching it. This explains why developers don&rsquo;t write such tests as they are very sensitive to
+timing issues. Instead, developers often write <em>stress</em> tests, where the system is bombarded with
+thousands of concurrent requests in the hopes that some rare interleaving would expose these kind of
+nondeterministic bugs (known as <a href="https://en.wikipedia.org/wiki/Heisenbug">Heizenbugs</a>) before the
+code is deployed in production. But stress testing can be complex to setup and it doesn&rsquo;t always
+find the most tricky bugs. Even if it does find a bug, it usually produces such long traces (or
+logs) that understanding the bug and fixing it becomes a very time consuming and frustrating task.</p>
+<p>Flakey tests is clearly not a satisfactory situation. What we need is a tool which can
+systematically explore the various task interleavings in test mode as opposed to leaving that to
+luck (i.e. the operating system scheduler). Coyote gives you <em>exactly</em> this.</p>
+<p>To use Coyote on your task-based program is very easy in most cases. All you need to do is to invoke
+the <code>coyote</code> tool to <a href="../../get-started/using-coyote/">rewrite</a> your assembly (for testing only)
+so that Coyote can inject logic that allows it to take control of the schedule of C# tasks. Then,
+you can invoke the <code>coyote test</code> tool which <a href="../../concepts/concurrency-unit-testing/">systematically
+explores</a> task interleavings to uncover bug. What is even
+better is that if a bug is uncovered, Coyote allows you to deterministically reproduce it every
+single time.</p>
+<p>Now run your test under the control of Coyote. First use Coyote to rewrite the assembly:</p>
+<pre><code class="language-plain">coyote rewrite .\AccountManager.dll
+. Rewriting AccountManager.dll
+... Rewriting the 'AccountManager.dll' assembly
+... Writing the modified 'AccountManager.dll' assembly to AccountManager.dll
+. Done rewriting in 0.6425808 sec
+</code></pre>
+<p><strong>Note</strong>: if your project contains multiple assemblies (which is usually the normal), then you need
+to rewrite all of them. This can be easily done by passing a JSON configuration file to <code>coyote
+rewrite</code> as discussed <a href="../../get-started/using-coyote/#configuration">here</a>.</p>
+<p>Awesome, now lets try use Coyote on the above concurrent test:</p>
+<pre><code class="language-plain">coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
+</code></pre>
+<p><strong>Note</strong>: for this to work the unit test method needs to use the
+<code>[Microsoft.Coyote.SystematicTesting.Test]</code> custom attribute to declare the test method.</p>
+<p>The above command tells Coyote to execute the test method <code>TestConcurrentAccountCreation</code> for 100
+iterations. Each iteration will try explore different interleavings to try unearth the bug. You can
+read more about other Coyote tool options <a href="../../get-started/using-coyote/">here</a>.</p>
+<p>Indeed after 20 iterations and 0.15 seconds Coyote finds a bug:</p>
+<pre><code class="language-plain">. Testing .\AccountManager.dll
+... Method TestConcurrentAccountCreation
+... Started the testing task scheduler (process:17368).
+... Created '1' testing task (process:17368).
+... Task 0 is using 'random' strategy (seed:1046544966).
+..... Iteration #1
+..... Iteration #2
+..... Iteration #3
+..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+..... Iteration #7
+..... Iteration #8
+..... Iteration #9
+..... Iteration #10
+..... Iteration #20
+... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.txt
+..... Writing AccountManager.dll\CoyoteOutput\AccountManager_0_0.trace
+... Elapsed 0.0743756 sec.
+... Testing statistics:
+..... Found 1 bug.
+... Exploration statistics:
+..... Explored 26 schedules: 26 fair and 0 unfair.
+..... Found 3.85% buggy schedules.
+..... Number of scheduling decisions in fair terminating schedules: 17 (min), 23 (avg), 31 (max).
+... Elapsed 0.1574494 sec.
+</code></pre>
+<p>Cool, the flakey test is no longer flakey! Coyote can also help you reproduce and debug it. You can
+simply run <code>coyote replay</code> giving the <code>.trace</code> file that Coyote outputs upon finding a bug:</p>
+<pre><code class="language-plain">coyote replay .\AccountManager.dll AccountManager_0_0.trace
+    -m TestConcurrentAccountCreation
+. Reproducing trace in .\Output\AccountManager.dll\CoyoteOutput\AccountManager_0_1.trace
+... Task 0 is using 'replay' strategy.
+... Reproduced 1 bug (use --break to attach the debugger).
+... Elapsed 0.0671654 sec.
+</code></pre>
+<p>Nice, the bug was reproduced. You can use the <code>--break</code> option to attach the VS debugger and happily
+debug the deterministic trace to figure out what is causing the bug and take as long as you want,
+stepping through the code in the debug, and that will not change any timing conditions, the same bug
+will still happen. You can repeat this as many times as you want!</p>
+<p>In this tutorial, you saw that you were able to use Coyote to reliably reproduce the race condition
+in <code>AccountManager</code>. You did this with a tiny test (just two <code>CreateAccount</code> calls racing with each
+other), as opposed to overloading the system with thousands of concurrent tasks through stress
+testing.</p>
+<p>This of course was a simple example, but it&rsquo;s easy to imagine how Coyote can find many non-trivial
+concurrency bugs in a much more complex codebase. Such bugs have very low probability of being
+caught during test time if you don&rsquo;t use a tool like Coyote. In the absence of such tools, these
+bugs can go undetected and occur sporadically in production, making them difficult to diagnose and
+debug. No more late nights debugging a live site!</p>
+<p>In the <a href="../test-concurrent-operations/">next tutorial</a>, you will write a few more concurrency unit
+tests for the <code>AccountManager</code> to increase our familiarity with Coyote.</p>
+<h2 id="get-the-sample-source-code">Get the sample source code</h2>
+<p>To get the complete source code for the <code>AccountManager</code> tutorial, clone the <a href="https://github.com/microsoft/coyote">Coyote git
+repo</a>. Note that the repo also contains the code from the <a href="../test-concurrent-operations/">next
+tutorial</a> which builds upon this <code>AccountManager</code> sample.</p>
+<p>You can build the sample by following the instructions
+<a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+<p>You can now run the tests (without Coyote) like this:</p>
+<pre><code class="language-plain">cd .\Samples\bin\net8.0
+.\AccountManager.exe
+</code></pre>
+<p>This version has some command line arguments to make it easy select which test to run:</p>
+<pre><code class="language-plain">Usage: AccountManager [option]
+Options:
+  -s    Run sequential test without Coyote
+  -c    Run concurrent test without Coyote
+</code></pre>
+<p>To rewrite and test the sample with Coyote you can use the following commands (as discussed above):</p>
+<pre><code class="language-plain">coyote rewrite .\AccountManager.dll
+coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
+</code></pre>
+<p>If you find a bug you can replay with the following command:</p>
+<pre><code class="language-plain">coyote replay .\AccountManager.dll AccountManager_0_0.trace
+    -m TestConcurrentAccountCreation
+</code></pre>
+<p>Enjoy!</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../test-concurrent-operations/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../test-concurrent-operations/" class="btn btn-xs btn-link">
+        Test concurrent CRUD operations
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../overview/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../overview/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

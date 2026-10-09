@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/case-studies/azure-blockchain-workbench/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Azure Blockchain Workbench - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Azure Blockchain Workbench", url: "#_top", children: [
+              {title: "Background", url: "#background" },
+              {title: "Challenge", url: "#challenge" },
+              {title: "Solution and Coyote\u0026rsquo;s key advantages", url: "#solution-and-coyotes-key-advantages" },
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../ref/Microsoft.Coyote/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../ref/Microsoft.Coyote/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../azure-blockchain-service/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../azure-blockchain-service/" class="btn btn-xs btn-link">
+        Azure Blockchain Service
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h1 id="azure-blockchain-workbench">Azure Blockchain Workbench</h1>
+<h2 id="background">Background</h2>
+<p><a href="https://azure.microsoft.com/en-in/features/blockchain-workbench/">Azure Blockchain Workbench</a>
+is a packaged solution that allows users to spin up end-to-end blockchain applications integrated
+with a number of Azure services with minimal effort on their part.
+The users provide Workbench with an Ethereum smart contract
+and associated metadata, and Workbench spins up the requisite Azure
+infrastructure. Users can authenticate and sign
+transactions using their AAD identities, submit transactions into
+the blockchain and consume events and transactions from the
+blockchain through the event grid as well as through a SQL database
+with no additional development effort on their part.</p>
+<h2 id="challenge">Challenge</h2>
+<p>Ethereum Transaction Submitter is the component within Workbench
+responsible for submitting transactions into the
+blockchain. Blockchains are distributed systems where
+user-submitted transactions are eventually included (or <em>mined</em>) into
+the blockchain. The node through which the transaction is
+submitted is typically not the one that mines it and can, in fact,
+even die before gossiping about the transaction to the rest of the network.
+This requires periodic resubmissions of transactions if they&rsquo;re not
+mined. Blockchains also exhibit <em>forks</em> where history can be rewound.
+In that case, transactions that were successfully mined previously
+need to be submitted again. Writing a high-throughput service component that
+can reliably submit transactions into the blockchain is thus a harder problem
+than it first appears.</p>
+<h2 id="solution-and-coyotes-key-advantages">Solution and Coyote&rsquo;s key advantages</h2>
+<p>An initial version of the Ethereum Transaction Submitter was facing a
+number of reliability issues and missed corner cases, so the team decided
+to write the service component using Coyote. The use of Coyote helped
+the team in a number of ways.</p>
+<ul>
+<li>
+<p>Coyote safety conditions force the user to think about what must be
+  true in all states (aka <em>invariants</em>) as opposed to the ways in
+  which the system can fail. This helped the team gain clarity in their design.</p>
+</li>
+<li>
+<p>Coyote helped find and fix a liveness condition that would have
+  been near <em>impossible</em> to detect without Coyote&rsquo;s testing methodology.
+  Blockchains can occasionally fork, which was causing an initial version of the
+  service component to permanently stall. Without a means of reproducing forks
+  in a controlled way, such issues are hard to debug. The Azure team implemented a mock
+  for the blockchain network using Coyote and were then able to systematically
+  introduce a fork during testing. Coyote was able to detect the liveness bug, a fix was
+  implemented, after which Coyote tests passed. As a result, the team
+  had a much higher confidence in deploying their fix.</p>
+</li>
+<li>
+<p>Developing the system using Coyote&rsquo;s state machine programming model
+  led to a highly concurrent and performant implementation.</p>
+</li>
+<li>
+<p>Coyote allowed the team to concisely state the various success and failure
+  conditions in the individual mocks, leaving the job of exploration to the tester.
+  This allowed the team to effectively have a very large number of (traditional) test
+  cases without having to write them all by hand.</p>
+</li>
+<li>
+<p>Coyote&rsquo;s deterministic repro of bugs allowed the team to debug and
+  understand the bugs much more easily than before.</p>
+</li>
+</ul>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../ref/Microsoft.Coyote/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../ref/Microsoft.Coyote/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../azure-blockchain-service/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../azure-blockchain-service/" class="btn btn-xs btn-link">
+        Azure Blockchain Service
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

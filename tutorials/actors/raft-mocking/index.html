@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/tutorials/actors/raft-mocking/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raft actor service (mocked) - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Raft consensus protocol with mocks for testing", url: "#_top", children: [
+          ]},
+          {title: "What you will need", url: "#what-you-will-need", children: [
+          ]},
+          {title: "Build the sample", url: "#build-the-sample", children: [
+          ]},
+          {title: "Run the Raft.Mocking application", url: "#run-the-raftmocking-application", children: [
+          ]},
+          {title: "Design", url: "#design", children: [
+          ]},
+          {title: "Summary", url: "#summary", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../test-failover/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../test-failover/" class="btn btn-xs btn-link">
+        Test failover and liveness
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../raft-azure/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../raft-azure/" class="btn btn-xs btn-link">
+        Raft actor service (on Azure)
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="raft-consensus-protocol-with-mocks-for-testing">Raft consensus protocol with mocks for testing</h2>
+<p>In the <a href="../raft-azure/">previous example</a> you created an Azure application that uses Coyote and performs
+messaging using <a href="https://azure.microsoft.com/en-us/services/service-bus/">Azure Service Bus</a>. This
+is a great way to build a reliable application or service. But there is overhead in using an
+enterprise scale service bus, which limits our ability to fully test the state machine.</p>
+<p>Clearly a fault-tolerant server consensus protocol needs to be thoroughly tested, which is what you
+will do in this tutorial. First you will <code>mock</code> the Azure Service Bus which allows the <a href="../../../get-started/using-coyote/">Coyote
+tester</a> to perform thousands of tests per second and thereby find
+bugs in the application code more efficiently.</p>
+<p>Then you will use the <code>coyote test</code> tool to explore the code using different test strategies until
+you achieve a high level of confidence that the code is rock solid.</p>
+<h2 id="what-you-will-need">What you will need</h2>
+<p>You will also need to:</p>
+<ul>
+<li>Install <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio 2022</a>.</li>
+<li>Install the <a href="../../../get-started/install/">.NET 8.0 version of the coyote tool</a>.</li>
+<li>Be familiar with the <code>coyote</code> tool. See <a href="../../../get-started/using-coyote/">using Coyote</a>.</li>
+<li>Clone the <a href="https://github.com/microsoft/coyote">Coyote git repo</a>.</li>
+</ul>
+<h2 id="build-the-sample">Build the sample</h2>
+<p>You can build the sample by following the instructions
+<a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+<h2 id="run-the-raftmocking-application">Run the Raft.Mocking application</h2>
+<p>Now you can run <code>coyote test</code> tool on the Raft.Mocking application:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
+</code></pre>
+<p>You should see the test succeed with output like this, including a coverage report and graph:</p>
+<pre><code class="language-plain">. Testing ./Samples/bin/net8.0/Raft.Mocking.dll
+Starting TestingProcessScheduler in process 34068
+... Created '1' testing task.
+... Task 0 is using 'random' strategy (seed:1388735316).
+..... Iteration #1
+..... Iteration #2
+..... Iteration #3
+.....
+..... Iteration #900
+..... Iteration #1000
+... Emitting coverage reports:
+..... Writing .\Samples\bin\net8.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
+..... Writing .\Samples\bin\net8.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
+..... Writing .\Samples\bin\net8.0\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.ser
+... Testing statistics:
+..... Found 0 bugs.
+... Exploration statistics:
+..... Explored 1000 schedules: 0 fair and 1000 unfair.
+..... Hit the max-steps bound of '200' in 100.00% of the unfair schedules.
+... Elapsed 61.3283634 sec.
+. Done
+</code></pre>
+<p>Now you are seeing a longer more realistic test run.  But if you create a <code>--verbose</code> log you will
+see that in these 61 seconds the test actually tested over 2.4 million async operations!!</p>
+<p>In this case you should see <code>Total event coverage: 100.0%</code> which is a great sign, this means every
+possible event has been sent and received by every state of every state machine that you tested here.
+This is not the same thing as 100% code coverage, but it is a higher level of abstraction on
+coverage. Both are important.</p>
+<p>The coverage report has a separate section for each <code>Actor</code> or <code>StateMachine</code> that was covered by
+the test. It then lists the overall event coverage as a percentage, then lists the details of each
+<code>State</code>. For actors there will be only one state listed, matching the name of the <code>Actor</code> type.</p>
+<p>For example, the <code>Server</code> section reports the <code>Candidate</code> state like this:</p>
+<pre><code class="language-plain">State: Candidate
+    State event coverage: 100.0%
+    Events received: Microsoft.Coyote.Actors.Timers.TimerElapsedEvent, AppendLogEntriesRequestEvent,
+    AppendLogEntriesResponseEvent, VoteRequestEvent, VoteResponseEvent
+    Events sent: AppendLogEntriesResponseEvent, VoteRequestEvent, VoteResponseEvent
+    Previous states: Candidate, Follower
+    Next states: Candidate, Follower, Leader
+</code></pre>
+<p>This shows 100% coverage for the state, meaning all expected events have been received, it lists
+those under <code>Events received</code>, and it also lists all <code>Events sent</code> while in this state. Lastly it
+shows all recorded state transitions in and out of this state. <code>Previous states</code> are the states
+that transitions to the <code>Candidate</code> state and <code>Next states</code> are the states that the <code>Candidate</code>
+state went to using <code>RaiseGotoStateEVent</code> transitions. The key thing to look for here is that
+during this test run some of the <code>Server</code> state machines did make it to the <code>Leader</code> state.</p>
+<p>Notice because of the mocking of Azure API&rsquo;s this application is now able to run 200 steps per
+iteration and a thousand iterations pretty quickly, much faster than if all those messages were
+going to Azure and back. This means the test can quickly explore every kind of asynchronous timing
+of events to find all the bugs. Not only is it faster but it is also systematic in how it explores
+every possible interleaving of asynchronous operations. This systematic approach ensures the test
+doesn&rsquo;t just test the same happy paths over and over (like a stress test does) but instead it is
+more likely to find one bad path where a bug is hiding.</p>
+<p>The <code>--coverage</code> report also generates a DGML diagram of all the messages sent during the test. You
+can browse these graphs using Visual Studio. The file name in this case is <code>Raft.Mocking.dgml</code> and
+it will look something like this:</p>
+<p><img alt="RaftMockCoverage" src="../../../assets/images/RaftMockCoverage.svg" /></p>
+<p>Here you see all the <code>Actor</code> objects in green, and <code>Monitor</code> in blue and <code>StateMachine</code> and
+<code>ExternalCode</code> objects in gray. You can see that all the states were explored in the <code>Server</code>,
+including the <code>Leader</code> state. The <code>MockStateMachineTimer</code> is a helper <code>Actor</code> provided as a mock
+implementation <code>CreateTimer</code> and <code>CreatePeriodicTimer</code> API&rsquo;s.</p>
+<p>There are many different <code>coyote test</code> command line options you can play with to test different things
+and really increase your confidence level in the code you are testing. For example there are 4 different
+test scheduling options you can play with:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--strategy random</code></td>
+<td>Choose the random scheduling strategy (this is the default)</td>
+</tr>
+<tr>
+<td><code>--strategy prioritization</code> <code>--strategy-value N</code></td>
+<td>Choose the priority-based scheduling strategy with <code>N</code> maximum number of priority switch points</td>
+</tr>
+<tr>
+<td><code>--strategy fair-prioritization</code> <code>--strategy-value N</code></td>
+<td>Choose the fair priority-based scheduling strategy with <code>N</code> maximum number of priority switch points</td>
+</tr>
+<tr>
+<td><code>--strategy portfolio</code></td>
+<td>Choose the portfolio scheduling strategy</td>
+</tr>
+</tbody>
+</table>
+<p>These options change how <code>coyote test</code> explores the large state space of possible schedules for your
+async operations. The last option is interesting because it allows you to test many different
+scheduling strategies at once:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity -s portfolio
+</code></pre>
+<p>When you use this the test will print the chosen strategies at the top of the test output:</p>
+<pre><code class="language-plain">... Task 3 is using 'fair-prioritization' strategy (seed:3922897588).
+... Task 4 is using 'probabilistic' strategy (seed:3469760925).
+... Task 2 is using 'probabilistic' strategy (seed:1642014516).
+... Task 1 is using 'fair-prioritization' strategy (seed:1466235705).
+... Task 0 is using 'random' strategy (seed:3931672516).
+</code></pre>
+<p>You can also increase the number of iterations to 10,000,000 if you want to, then come back tomorrow
+and see how it did. Clearly, you should now see that Coyote makes it possible to thoroughly test
+your code automatically, without you having to write a million individual boring unit tests that
+test every little possibility in terms of sending and receiving messages.</p>
+<p>Manual unit testing has a place in software engineering, but what Coyote does is more powerful. With
+Coyote you can explore a very large number of combinations and find lots of bugs which greatly
+increases confidence in your code.</p>
+<p>One interesting thing about Coyote is that every time you run a test you might explore a slightly
+different space and so continuous integration testing where you run tests on every checkin, or
+longer test suites every night, has a higher chance of finding that one ridiculously embarrassing
+bug before you go live with your service. You might wonder, if there is randomness in the testing,
+how will you reproduce bugs that are found? The answer lies in the random seed printed above
+<code>(seed:3469760925)</code>. This is all you need to re-run an identical test, so interesting random seeds
+can also become your regression test suite. Imagine, an entire interesting regression test is
+simply one integer. There is one restriction to this, if the product code you are testing changes
+the set of non-deterministic choices, then prior saved random seeds are no longer usable, but you
+can quickly build a new set by simply running more tests. Comparing this with the cost of
+maintaining large static regression test suite code bases, this is quite an improvement.</p>
+<p>Instead of building lots of little manual unit tests, you will find that when using Coyote your time
+is better spent designing interesting mocks that accurately model all the kinds of weird things that
+can happen when interacting with external systems. You also should write lots of interesting
+specifications throughout these mocks that use <code>Assert</code> to ensure everything is running properly
+during the test. You also should use the <code>Monitor</code> pattern to ensure all the global invariants you
+care about in your system remain true no matter what a specific test run is doing.</p>
+<h2 id="design">Design</h2>
+<p>The following diagram illustrates how the <code>MockClient</code> actor sends <code>ClientRequestEvents</code>, and how
+the <code>MockClusterManager</code> subclasses from <code>ClusterManager</code>. There is also a <code>MockServerHost</code> that
+implements the <code>IServerManager</code> interface and a <code>RaftTestScenario</code> class which sets everything up.
+Notice that the <code>Server</code> code you are testing here is the exact same production ready code you used
+in the <a href="../raft-azure/">Raft actor service (on Azure)</a> tutorial.  You should now see that this is <strong>very
+cool</strong>. You have switched the <code>Server</code> from running on Azure to running locally with a bunch of
+mocks and didn&rsquo;t have to change one line of <code>Server</code> code.</p>
+<p><img alt="RaftMocking" src="../../../assets/images/RaftMocking.svg" /></p>
+<p>For this test we also inject a <code>SafetyMonitor</code> into the process by simply registering it on the
+runtime like this:</p>
+<pre><code class="language-csharp">runtime.RegisterMonitor&lt;SafetyMonitor&gt;();
+</code></pre>
+<p>This enables the monitor so that when the <code>MockServerHost</code> sends the <code>NotifyLeaderElected</code>
+it can keep track and make sure there is only one leader per term.</p>
+<p>The <code>MockClusterManager</code> implementation is very simple, since at test time all <code>Server</code> instances
+are in the same process, a broadcast operation is simply a for-loop over those servers, sending the
+broadcast event to each one using <code>SendEvent</code>.</p>
+<p>The <code>MockServerHost</code> is a bit tricky, since all the <code>Server</code> actors have to be created before you
+start them using the <code>NotifyJoinedServiceEvent</code> otherwise the  <code>MockClusterManager</code> might be too
+quick and start sending events to a <code>Server</code> instance before it is ready. Now you can see why the
+<code>IServerManager</code> interface was designed this way in the original Raft.Azure example.</p>
+<p>The <code>RaftTestScenario</code> then creates all the actors needed to run the test including all the mock
+actors and the real <code>Server</code> instances. This is all relatively simple compared to the original
+Raft.Azure example that was also dealing with setting up the Azure Service Bus.</p>
+<p>This mock test setup is able to fully test the <code>Server</code> implementation and get good coverage. The
+<code>IServerManager</code> interface and the abstract <code>ClusterManager</code> state machine where originally designed
+with testability in mind and that&rsquo;s what makes this easy mocking of the external pieces possible.</p>
+<p>The test also includes a coyote <code>Monitor</code> called <code>SafetyMonitor</code> which provides a global invariant
+check, namely checking there is never more than one <code>Server</code> that is elected to be the <code>Leader</code> at
+the same time. The <code>Monitor</code> class in Coyote shows how to inject additional work that you want to do
+at test time only, and have almost no overhead in the production code. Hopefully you agree it is
+pretty easy to create a monitor and that monitoring like this is a powerful concept that adds
+a lot of value to your Coyote testing process.</p>
+<h2 id="summary">Summary</h2>
+<p>In this tutorial you learned:</p>
+<ol>
+<li>
+<p>How to mock external systems like Azure Service Bus to make a Coyote test run fast.</p>
+</li>
+<li>
+<p>How to use the <code>coyote test</code> command line to explore different test strategies.</p>
+</li>
+<li>
+<p>How to read a Coyote coverage report and view the coverage graph.</p>
+</li>
+<li>
+<p>How to inject test logic like the <code>SafetyMonitor</code> in to the <code>coyote test</code> scenario that monitors
+   the overall correctness of your system in a way that has minimal overhead in your production
+   code.</p>
+</li>
+<li>
+<p>How to think about model based testing using random seeds and integrate that into your continuous
+   integration testing process.</p>
+</li>
+</ol>
+<p>You can also explore the <code>Raft.Nondeterminism.dll</code> version of this sample that injects a bug in the
+system by randomly sending duplicate <code>VoteRequestEvents</code>. Then you can see how the <code>coyote test</code>
+tool is able to spot the resulting bugs because of the <code>SafetyMonitor</code>.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../test-failover/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../test-failover/" class="btn btn-xs btn-link">
+        Test failover and liveness
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../raft-azure/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../raft-azure/" class="btn btn-xs btn-link">
+        Raft actor service (on Azure)
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

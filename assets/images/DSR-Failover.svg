@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="778.41497802734375" height="267.4475" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="778.41497802734375" height="267.4475" fill="#1E1E1E" />
+  <g transform="translate(20,20)">
+    <g id="FailoverDriver-&gt;Navigator">
+      <path d="M 631.90774226703,25.6320236211669 L 468.149322440133,72.1834289727498" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 459.492309110848,74.644347544458 L 470.204954397479,75.7575550555756 C 468.513902969275,73.4659494659772 467.784741910991,70.9009084795223 468.017471222628,68.062432096211 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="549.915" y="53.910000000000039" fill="#A0A0A0">start, terminate</text>
+    </g>
+    <g id="FailoverDriver-&gt;Robot">
+      <path d="M 698.794310344827,25.9599999999999 L 707.415,30.96 C 728.081666666667,42.9466666666667 738.415,60.9266666666667 738.415,84.9000000000001 C 738.415,108.873333333333 721.581666666667,126.853333333333 687.915,138.84 L 671.896969309132,144.543053303402" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 663.418333333333,147.56178349835 L 674.180697837531,147.975921493207 C 672.344188597273,145.799147522039 671.449750020992,143.286959084765 671.497382108689,140.439356181386 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="714.9083333333333" y="89.870000000000076" fill="#A0A0A0">start</text>
+    </g>
+    <g id="MockStorage-&gt;Navigator">
+      <path d="M 347.532908787542,143.84 L 341.415,138.84 C 326.748333333333,126.853333333333 336.748333333333,114.866666666667 371.415,102.88 L 379.753600033823,99.9967686806131" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 388.259485460777,97.0556952195237 L 377.501357892566,96.5431610976432 C 379.317885446994,98.7366375062494 380.189314620651,101.256899854977 380.115645413534,104.103948143825 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="280.49445945945945" y="125.83000000000011" fill="#A0A0A0">confirmed</text>
+    </g>
+    <g id="Navigator-&gt;MockCognitiveService">
+      <path d="M 387.325,89.1273498371336 L 269.915,102.88 C 168.688344935115,114.737037511835 109.699757836472,126.59407502367 92.9492387040726,138.451112535505" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 85.7409176863181,143.84 L 96.1452243569323,141.056045491785 C 93.7475924025164,139.519011945542 92.1508850056288,137.383213125467 91.3551021662694,134.648649031559 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="64.924999999999841" y="125.83000000000011" fill="#A0A0A0">recognize</text>
+    </g>
+    <g id="Navigator-&gt;MockRoutePlanner">
+      <path d="M 387.325,91.5214102040817 L 325.415,102.88 C 267.210968523233,113.558658019921 234.933283578214,124.237316039843 228.581945164945,134.915974059764" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 227.415,143.84 L 232.677839490044,134.443057917491 C 229.904023082017,135.088854824941 227.259867247873,134.743093294587 224.745371987611,133.405773326429 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="157.85276960801002" y="128.83647678541462" fill="#A0A0A0">get directions</text>
+    </g>
+    <g id="Navigator-&gt;MockStorage">
+      <path d="M 416.882888394512,97.8800000000001 L 414.366666666667,102.88 C 408.479470698745,114.578484085823 398.81298957856,126.276968171647 385.36722330611,137.97545225747" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 378.54028550241,143.84 L 388.732237614312,140.358030421055 C 386.236045193892,138.98685045061 384.498401418327,136.964054064329 383.519306287618,134.289641262211 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="405.31833333333327" y="125.83000000000011" fill="#A0A0A0">write</text>
+    </g>
+    <g id="Navigator-&gt;Robot">
+      <path d="M 459.505,92.6194646680942 L 507.475,102.88 C 562.665496359293,114.684962223889 598.095651597859,126.489924447778 613.765465715698,138.294886671666" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 620.854310344828,143.84 L 615.442311125054,134.528165355572 C 614.586963986562,137.244687467351 612.943967444834,139.345085875982 610.513321499869,140.829360581465 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="591.53499999999985" y="125.83000000000011" fill="#A0A0A0">confirmed</text>
+    </g>
+    <g id="Robot-&gt;FailoverDriver">
+      <path d="M 651.492308120133,143.84 L 656.915,138.84 C 669.915,126.853333333333 676.415,102.88 676.415,66.9200000000001 L 676.415,34.96" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 676.415,25.9599999999999 L 672.415,35.9599999999999 C 675.081666666667,34.96 677.748333333333,34.96 680.415,35.9599999999999 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="646.98500000000013" y="89.870000000000076" fill="#A0A0A0">ready</text>
+    </g>
+    <g id="Robot-&gt;LivenessMonitor">
+      <path d="M 637.415,169.8 L 637.415,192.4875" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 637.415,201.4875 L 641.415,191.4875 C 638.748333333333,192.4875 636.081666666667,192.4875 633.415,191.4875 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Robot-&gt;Navigator">
+      <path d="M 611.411666666667,149.681985750636 L 571.915,138.84 C 528.248333333333,126.853333333333 492.581666666667,114.866666666667 464.915,102.88 L 461.632641935827,101.457908482076" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 453.374399332592,97.8800000000001 L 460.960042899708,105.525783914856 C 461.102581419964,102.681351830704 462.16270245169,100.234465133449 464.140405994887,98.1851238230915 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="462.1049999999999" y="125.83000000000011" fill="#A0A0A0">getdrink</text>
+    </g>
+    <g id="FailoverDriver">
+      <rect x="630.271666666667" rx="3" ry="3" width="92.2866666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="640.271666666667" y="17.950000000000003" fill="#3D3D3D">FailoverDriver</text>
+    </g>
+    <g id="LivenessMonitor">
+      <rect x="584.111666666666" y="201.4875" rx="3" ry="3" width="106.606666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="594.111666666666" y="219.4375" fill="#3D3D3D">LivenessMonitor</text>
+    </g>
+    <g id="MockCognitiveService">
+      <rect y="143.84" rx="3" ry="3" width="136.83" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="10" y="161.79" fill="#3D3D3D">MockCognitiveService</text>
+    </g>
+    <g id="MockRoutePlanner">
+      <rect x="167.381666666666" y="143.84" rx="3" ry="3" width="120.066666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="177.381666666666" y="161.79" fill="#3D3D3D">MockRoutePlanner</text>
+    </g>
+    <g id="MockStorage">
+      <rect x="318.405" y="143.84" rx="3" ry="3" width="90.02" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="328.405" y="161.79" fill="#3D3D3D">MockStorage</text>
+    </g>
+    <g id="Navigator">
+      <rect x="387.325" y="71.9200000000001" rx="3" ry="3" width="72.1799999999998" height="25.96" fill="#3CB166" stroke="#A5A6A9" stroke-width="1" />
+      <text x="397.325" y="89.8700000000001" fill="#FFFFFF">Navigator</text>
+    </g>
+    <g id="Robot">
+      <rect x="611.411666666667" y="143.84" rx="3" ry="3" width="52.0066666666667" height="25.96" fill="#3CB166" stroke="#A5A6A9" stroke-width="1" />
+      <text x="621.411666666667" y="161.79" fill="#FFFFFF">Robot</text>
+    </g>
+  </g>
+</svg>

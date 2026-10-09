@@ -1,0 +1,58 @@
+/* light theme
+.hljs-comment {
+  color: #008000;
+}
+
+.hljs-keyword {
+  color: #0000ff;
+  font-weight: normal;
+}
+
+.hljs-title {
+  color: black;
+  font-weight: normal;
+}
+
+.hljs-class .hljs-title {
+  color: #2B91AF;
+}
+
+.hljs-number {
+  color: black;
+}
+
+.hljs-string {
+  color: #AB1515
+}
+*/
+
+.hljs, .language-plain {
+  color: #DCDCDC;  /* default color */
+}
+
+/* dark theme */
+.hljs-comment {
+  color: #57A64A;
+}
+
+.hljs-keyword {
+  color: #569CD6;
+  font-weight: normal;
+}
+
+.hljs-title {
+  color: #DADADA;
+  font-weight: normal;
+}
+
+.hljs-class .hljs-title {
+  color: #4EC9B0;
+}
+
+.hljs-number {
+  color: #B5CEA8;
+}
+
+.hljs-string {
+  color: #D69D85
+}

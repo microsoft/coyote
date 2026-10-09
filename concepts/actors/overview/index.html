@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/concepts/actors/overview/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Programming model: asynchronous actors", url: "#_top", children: [
+              {title: "Declaring and creating actors", url: "#declaring-and-creating-actors" },
+              {title: "Starting a Coyote actor-based program", url: "#starting-a-coyote-actor-based-program" },
+              {title: "Assertions", url: "#assertions" },
+          ]},
+          {title: "Samples", url: "#samples", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../state-machines/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../state-machines/" class="btn btn-xs btn-link">
+        State machines
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../specifications/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../specifications/" class="btn btn-xs btn-link">
+        Program specifications
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="programming-model-asynchronous-actors">Programming model: asynchronous actors</h2>
+<p>The <em>asynchronous actors</em> programming model of Coyote is an actor-based programming model that
+encourages a message passing (or event based) programming model where all asynchronous actions
+happen by sending asynchronous events from one actor to another. This model is similar to how real
+people interact asynchronously via email.</p>
+<p>Each Coyote actor has an inbox for events, event handlers, as well as normal class fields and
+methods. Actors run concurrently with respect to each other, but individually they handle their
+input queue in a sequential way. When an event arrives, the actor dequeues that event from the
+input queue and handles it by executing a sequence of operations. Each operation might update a
+field, create a new actor, or send an event to another actor. In Coyote, creating actors and sending
+events are both non-blocking operations. In the case of a send operation the message (or event) is
+simply enqueued into the input queue of the target actor and, most importantly, it does not wait for
+the message to be processed at the target before returning control to the sender.</p>
+<p>The actor model also provides a specialized type of actor called a <a href="../state-machines/">StateMachine</a>.
+State machines are actors that have explicitly declared states and state transitions. Every object
+oriented class that has member variables is really also just a state machine where that state is
+updated as methods are called, but sometimes this gets really complicated and hard to test. Formal
+state machines help you model your states more explicitly and <a href="../../../get-started/using-coyote/">coyote
+tester</a> can help you find bugs by exploring different state transitions
+using information you provide declaring how various types of events causes those state transitions.</p>
+<p>See also: <a href="../why-actors/">how are Coyote Actors different from existing Microsoft Actor frameworks?</a>.</p>
+<h3 id="declaring-and-creating-actors">Declaring and creating actors</h3>
+<p>An actor based program in Coyote is a normal .NET program that also uses the <code>Actor</code>, <code>StateMachine</code>
+and <code>Event</code> base classes from the <code>Microsoft.Coyote.Actors</code> namespace, which is available in the
+<a href="https://www.nuget.org/packages/Microsoft.Coyote.Actors/">Microsoft.Coyote.Actors</a> NuGet package.
+Actors can be declared in the following way:</p>
+<pre><code class="language-csharp">using Microsoft.Coyote.Actors;
+
+class Client : Actor { ... }
+
+class Server : Actor { ... }
+</code></pre>
+<p>The above code declares two actors named <code>Client</code> and <code>Server</code>. Being a C# class you can also
+declare fields, properties and methods.</p>
+<p>An actor can create an instance of another actor and send Events using the following <code>Actor</code>
+methods:</p>
+<pre><code class="language-csharp">  ActorId clientId = this.CreateActor(typeof(Client));
+  this.SendEvent(this.ClientId, new PingEvent());
+</code></pre>
+<p>When an event is being sent, it is enqueued in the event queue of the target actor. The coyote
+runtime will at some point dequeue the received event, and allow the target actor to handle it
+asynchronously.</p>
+<p>All actors in Coyote have an associated unique <code>ActorId</code> which identifies a specific instance of
+that type. Note that Coyote never gives you the actual object reference for an actor instance. This
+ensures your code does not get too tightly coupled.</p>
+<p>By limiting yourself to the Coyote API&rsquo;s for interacting with an actor, you also get all the
+benefits of <code>coyote test</code> in terms of understanding more deeply how to test all asynchronous
+interactions and ensure your specifications are maintained correctly. There is a lot of literature
+on actor models that explain in more depth the importance of this message passing programming model
+which is especially popular in the world of distributed systems. Event based programming is also
+popular in User Interface development and even shows up in low level embedded systems. It is a
+powerful tool for solving the tangled web of complexity that happens with less disciplined
+architectures.</p>
+<h3 id="starting-a-coyote-actor-based-program">Starting a Coyote actor-based program</h3>
+<p>To create the first instance of an <code>Actor</code> you need to initialize the Coyote actor runtime inside
+your C# process (typically in the <code>Main</code> method). An example of this is the following:</p>
+<pre><code class="language-csharp">using System;
+using Microsoft.Coyote;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.SystematicTesting;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        IActorRuntime runtime = RuntimeFactory.Create();
+        Execute(runtime);
+        Console.ReadLine();
+    }
+
+    [Test]
+    public static void Execute(IActorRuntime runtime)
+    {
+        ActorId serverId = runtime.CreateActor(typeof(Server));
+    }
+}
+</code></pre>
+<p>You must first import the Coyote actor runtime library (<code>Microsoft.Coyote.Actors.dll</code>), which you
+can get from its <a href="https://www.nuget.org/packages/Microsoft.Coyote.Actors/">NuGet package</a>, then
+create a <code>runtime</code> instance (of type <code>IActorRuntime</code>) which you pass to a <code>[Test]</code> method.</p>
+<p>The test method named <code>Execute</code> will be the entry point that is used during testing of your Coyote
+program. In this case it simply invokes the <code>CreateActor</code> method of the <code>runtime</code> to instantiate the
+first Coyote actor (of type <code>Server</code> in the above example).</p>
+<p>The <code>CreateActor</code> method accepts as a parameter the type of the actor to be instantiated, and
+returns the <code>ActorId</code> representing that actor instance and this bootstraps a series of asynchronous
+events that handle initialization of that actor and any operations it performs during
+initialization.</p>
+<p>Because <code>CreateActor</code> is an asynchronous method, we call the <code>Console.ReadLine</code> method, which pauses
+the main thread until some console input has been given, so that the host C# program does not exit
+prematurely.</p>
+<p>The <code>IActorRuntime</code> interface also provides the <code>SendEvent</code> method for sending events to a Coyote
+actor. This method accepts as parameters an object of type <code>ActorId</code> and an event object. It also
+has a couple more advanced parameters which you don&rsquo;t need to worry about right now.</p>
+<p>An event can be created by sub-classing from <code>Microsoft.Coyote.Actors.Event</code>:</p>
+<pre><code class="language-csharp">class PingEvent : Event
+{
+    public readonly ActorId Caller;
+
+    public PingEvent(ActorId caller)
+    {
+        this.Caller = caller;
+    }
+}
+
+class PongEvent : Event { }
+</code></pre>
+<p>An event can contain members of any type (including scalar values or references to object) and when
+an event is sent to a target actor there is no deep-copying of those members, for performance
+reasons. The target actor will be able to see the Event object and cast it to a specific type to
+extract the information it needs.</p>
+<p>Now you can write a complete actor, declaring what type of events it can handle:</p>
+<pre><code class="language-csharp">[OnEventDoAction(typeof(PingEvent), nameof(HandlePing))]
+class Server : Actor
+{
+    public void HandlePing(Event e)
+    {
+        PingEvent ping = (PingEvent)e;
+        Console.WriteLine(&quot;Server handling ping&quot;);
+        Console.WriteLine(&quot;Server sending pong back to caller&quot;);
+        this.SendEvent(ping.Caller, new PongEvent());
+    }
+}
+</code></pre>
+<p>This <code>Server</code> is an <code>Actor</code> that can receive <code>PingEvent</code>.  The <code>PingEvent</code> contains the <code>ActorId</code> of
+the caller and the <code>Server</code> uses that to send back a <code>PongEvent</code> in response.</p>
+<p>An event handler controls how a machine <em>reacts</em> to a received event. It is clearly just a method so
+you can do anything there, including creating one or more actor instances, sending one or more
+events, updating some private state or invoking some 3rd party library.</p>
+<p>To complete this Coyote program, you can provide the following implementation of the <code>Client</code> actor:</p>
+<pre><code class="language-csharp">using System.Threading.Tasks;
+
+class SetupEvent : Event
+{
+    public readonly ActorId ServerId;
+
+    public SetupEvent(ActorId server)
+    {
+        this.ServerId = server;
+    }
+}
+
+[OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
+class Client : Actor
+{
+    public ActorId ServerId;
+
+    protected override Task OnInitializeAsync(Event initialEvent)
+    {
+        Console.WriteLine(&quot;{0} initializing&quot;, this.Id);
+        this.ServerId = ((SetupEvent)initialEvent).ServerId;
+        Console.WriteLine(&quot;{0} sending ping event to server&quot;, this.Id);
+        this.SendEvent(this.ServerId, new PingEvent(this.Id));
+        return base.OnInitializeAsync(initialEvent);
+    }
+
+    void HandlePong()
+    {
+        Console.WriteLine(&quot;{0} received pong event&quot;, this.Id);
+    }
+}
+</code></pre>
+<p>This <code>Client</code> is an <code>Actor</code> that sends <code>PingEvents</code> to a server.  This means the <code>Client</code> needs to
+know the <code>ActorId</code> of the <code>Server</code>.  This can be done using an initialEvent passed to
+<code>OnInitializeAsync</code>.  The <code>Client</code> then uses this <code>ActorId</code> to send a <code>PingEvent</code> to the <code>Server</code>.</p>
+<p>When the <code>Server</code> responds with a <code>PongEvent</code> the <code>HandlePong</code> method is called because of the
+<code>OnEventDoAction</code> declaration on the class.  Notice in this case the <code>HandlePong</code> event handler
+takes no <code>Event</code> argument.  The <code>Event</code> argument is optional on Coyote event handlers.</p>
+<p>Note that <code>HandlePong</code> could also be defined as an <code>async Task</code> method. Async handlers are allowed
+so that you can call external async systems in your production code, but this has some restrictions.
+You are not allowed to directly create parallel tasks inside an actor (e.g. by using <code>Task.Run</code>) as
+that can introduce race conditions (if you need to parallelize a workload, you can simply create
+more actors). Also, during testing, you should not use <code>Task.Delay</code> or <code>Task.Yield</code> in your event
+handlers. It is ok to have truly async behavior in production, but at test time the <code>coyote test</code>
+tool wants to know about, so that it can control, all async behavior of your actor. If it detects
+some uncontrolled async behavior an error will be reported.</p>
+<p>One last remaining bit of code is needed in your <code>Program</code> to complete this example, namely, you
+need to create the <code>Client</code> actor in the <code>Execute</code> method, in fact, you can create as many <code>Client</code>
+actors as you want to make this an interesting test:</p>
+<pre><code class="language-csharp">public static void Execute(IActorRuntime runtime)
+{
+    ActorId serverId = runtime.CreateActor(typeof(Server));
+    runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
+    runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
+    runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
+}
+</code></pre>
+<p>The output of the program will be something like this:</p>
+<pre><code class="language-plain">Client(3) initializing
+Client(3) sending ping event to server
+Client(1) initializing
+Client(2) initializing
+Client(2) sending ping event to server
+Client(1) sending ping event to server
+Server handling ping from Client(1)
+Server sending pong back to caller
+Client(1) received pong event
+Server handling ping from Client(3)
+Server sending pong back to caller
+Server handling ping from Client(2)
+Server sending pong back to caller
+Client(2) received pong event
+Client(3) received pong event
+</code></pre>
+<p>The <code>CreateActor</code> and <code>SendEvent</code> methods are non-blocking so you can see those operations are
+interleaved in the log output.  The Coyote runtime will take care of all the underlying concurrency
+using the Task Parallel Library, which means that you do not need to explicitly create and manage
+tasks. However, you must be careful not to share data between actors because accessing that shared
+data from multiple actors at once could lead to race conditions.</p>
+<p>You can reduce race conditions in your code if you use events to <em>transfer</em> data from one actor to
+another. But since it is a reference model without deep copy semantics, you can actually share data
+between actors if you really need to. See <a href="../sharing-objects/">sharing objects</a> for more information in
+this advanced topic.</p>
+<h3 id="assertions">Assertions</h3>
+<p>Coyote also supports specifying invariants through assertions. You can do this by using the <code>Assert</code>
+method, which accepts as input a predicate that must always hold in that specific program point,
+e.g. <code>this.Assert(k == 0)</code>, which holds if the integer <code>k</code> equals to <code>0</code>. These <code>Assert</code> statement
+are useful for local invariants, i.e., they are about the state of a single actor. For global
+invariants it is recommended that you use <a href="../../specifications/">Monitors</a>.</p>
+<h2 id="samples">Samples</h2>
+<p>To see a full working example of an <code>Actor</code> based program see the <a href="../../../tutorials/actors/hello-world/">Hello World
+Actors</a> tutorial.</p>
+<p>Seel also precise definition of <a href="../actor-semantics/">actor semantics</a>.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../state-machines/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../state-machines/" class="btn btn-xs btn-link">
+        State machines
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../specifications/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../specifications/" class="btn btn-xs btn-link">
+        Program specifications
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

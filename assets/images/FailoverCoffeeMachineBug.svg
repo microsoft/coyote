@@ -1,0 +1,428 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewbox="0,0,1353,945" width="100%"  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="1353.1796634844673" height="945.376616431978" fill="#1E1E1E" />
+  <g transform="translate(-244.503864754466,318.735778746165)">
+    <g id="ExternalCode">
+      <rect x="740.185736083984" y="-278.497558654599" rx="5" ry="5" width="129.7" height="85.9601999999998" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="769.185736083984" y="-260.547558654599" fill="#000000">ExternalCode</text>
+      <rect x="745.185736083984" y="-250.537558654599" width="119.69999999999999" height="53.0001999999998" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="ExternalCode.ExternalCode">
+        <rect x="760.185736083984" y="-238.497458654599" rx="3" ry="3" width="89.7" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="770.185736083984" y="-220.547458654599" fill="#3D3D3D">ExternalCode</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)">
+      <rect x="741.714499192767" y="-102.586876355323" rx="5" ry="5" width="389.353333333333" height="445.560171771241" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="760.714499192767" y="-84.636876355323" fill="#000000">Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)</text>
+      <rect x="746.714499192767" y="-74.626876355322992" width="379.353333333333" height="412.60017177124104" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).HeatingWater">
+        <path d="M 918.421165859433,35.2932095302974 L 918.421165859433,72.2532095302976" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 918.421165859433,81.2532095302976 L 922.421165859433,71.2532095302976 C 919.754499192767,72.2532095302976 917.0878325261,72.2532095302976 914.421165859433,71.2532095302976 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="893.22783252609986" y="63.24320953029742" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)">
+        <path d="M 948.378174509607,9.33321418422785 L 1321.51214719219,-152.341163861517" fill="none" stroke="#A0A0A0" stroke-width="1.792481250360578" />
+        <path d="M 1329.77028515848,-155.919313848551 L 1319.00428742392,-155.613875181309 C 1320.98205089782,-153.564591708375 1322.04224348657,-151.117736014659 1322.18486519018,-148.273308100162 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)">
+        <path d="M 964.837843512428,15.6619058730417 L 1299.5580938342,-32.3020635967072" fill="none" stroke="#A0A0A0" stroke-width="1.792481250360578" />
+        <path d="M 1308.46709147135,-33.5786845667964 L 1298.00081811003,-36.1197713276524 C 1299.3689648016,-33.6219150985071 1299.74722286681,-30.9822120949074 1299.13559230567,-28.2006623168532 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)">
+        <path d="M 930.382427324233,297.013195415918 L 1341.66709905129,-149.300929401207" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+        <path d="M 1347.76603234386,-155.919313848551 L 1338.04793559774,-151.27619037042 C 1340.68659765169,-150.20447507418 1342.6476004509,-148.397383728235 1343.93094399538,-145.854916332585 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)">
+        <path d="M 934.981318893681,297.013195415918 L 1343.91686865698,-23.5144558909493" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+        <path d="M 1351.00028275676,-29.0665045840825 L 1340.66224544894,-26.0457456360625 C 1343.09434292466,-24.5638505723994 1344.73939438929,-22.4650612094992 1345.59739984284,-19.7493775473619 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).HeatingWater-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Ready">
+        <path d="M 918.421165859433,107.213209530297 L 918.421165859433,144.173209530298" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 918.421165859433,153.173209530298 L 922.421165859433,143.173209530298 C 919.754499192767,144.173209530298 917.0878325261,144.173209530298 914.421165859433,143.173209530298 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="893.22783252609986" y="135.16320953029748" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).HeatingWater-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)">
+        <path d="M 961.199568547424,81.2532199825677 L 1316.16975559075,-26.4533310246632" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+        <path d="M 1324.78203310302,-29.0665045840825 L 1314.05142539631,-29.9906573012922 C 1315.78261876713,-27.729223989444 1316.55689241437,-25.1774380598825 1316.37424633802,-22.3352995126077 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors">
+        <path d="M 918.421165859433,-36.6267904697027 L 918.421165859433,0.333209530297381" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 918.421165859433,9.33320953029738 L 922.421165859433,-0.666790469702619 C 919.754499192767,0.333209530297381 917.0878325261,0.333209530297381 914.421165859433,-0.666790469702619 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="893.22783252609986" y="-8.6767904697026541" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).MakingCoffee-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans">
+        <path d="M 918.421165859433,251.053209530298 L 918.421165859433,288.013209530298" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 918.421165859433,297.013209530298 L 922.421165859433,287.013209530298 C 919.754499192767,288.013209530298 917.0878325261,288.013209530298 914.421165859433,287.013209530298 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="893.22783252609986" y="279.00320953029808" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Ready-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).MakingCoffee">
+        <path d="M 918.421165859433,179.133209530298 L 918.421165859433,216.093209530298" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 918.421165859433,225.093209530298 L 922.421165859433,215.093209530298 C 919.754499192767,216.093209530298 917.0878325261,216.093209530298 914.421165859433,215.093209530298 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="825.82116585943356" y="207.08320953029755" fill="#A0A0A0">MakeCoffeeEvent</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).null-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Halt">
+        <path d="M 1021.96116585943,-36.6267904697027 L 1021.96116585943,0.333209530297381" stroke-dasharray="4,2" fill="none" stroke="#FF6C6C" stroke-width="1" />
+        <path d="M 1021.96116585943,9.33320953029738 L 1025.96116585943,-0.666790469702619 C 1023.29449919277,0.333209530297381 1020.6278325261,0.333209530297381 1017.96116585943,-0.666790469702619 z" fill="#FF6C6C" stroke="#FF6C6C" stroke-width="1" stroke-linejoin="round" />
+        <text x="1002.0911658594337" y="-8.6767904697026541" fill="#FF6C6C">halt</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors">
+        <rect x="872.004510179095" y="9.33321418422786" rx="3" ry="3" width="92.8333333333335" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="882.004510179095" y="27.283214184227859" fill="#3D3D3D">CheckSensors</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans">
+        <rect x="869.881176845762" y="297.013195415918" rx="3" ry="3" width="97.0799999999999" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="879.881176845762" y="314.963195415918" fill="#3D3D3D">GrindingBeans</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Halt">
+        <rect x="996.961154873105" y="9.33321418422783" rx="3" ry="3" width="50.0000000000002" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1010.961154873105" y="27.28321418422783" fill="#3D3D3D">Halt</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).HeatingWater">
+        <rect x="871.872843512428" y="81.2532199825677" rx="3" ry="3" width="93.0966666666668" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="881.872843512428" y="99.2032199825677" fill="#3D3D3D">HeatingWater</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Init">
+        <rect x="893.421146328183" y="-62.5867763553229" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="909.421146328183" y="-44.636776355322894" fill="#3D3D3D">Init</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).MakingCoffee">
+        <rect x="871.352843512428" y="225.093250652734" rx="3" ry="3" width="94.1366666666668" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="881.352843512428" y="243.043250652734" fill="#3D3D3D">MakingCoffee</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Ready">
+        <rect x="892.379510179095" y="153.173229595605" rx="3" ry="3" width="52.0833333333335" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="902.379510179095" y="171.12322959560498" fill="#3D3D3D">Ready</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).null">
+        <rect x="996.961154873105" y="-62.586776355323" rx="3" ry="3" width="50.0000000000002" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1011.961154873105" y="-44.636776355323" fill="#3D3D3D">null</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)">
+      <rect x="264.503864754466" y="161.080593435325" rx="5" ry="5" width="389.353333333333" height="445.560244250488" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="283.503864754466" y="179.030593435325" fill="#000000">Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)</text>
+      <rect x="269.503864754466" y="189.040593435325" width="379.353333333333" height="412.600244250488" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).HeatingWater">
+        <path d="M 481.210531421132,298.960715560568 L 481.210531421132,335.920715560568" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 481.210531421132,344.920715560568 L 485.210531421132,334.920715560568 C 482.543864754466,335.920715560568 479.877198087799,335.920715560568 477.210531421132,334.920715560568 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="456.0171980877991" y="326.91071556056824" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)">
+        <path d="M 506.27896186804,273.000668716087 L 1326.66661094433,-151.7811006331" fill="none" stroke="#A0A0A0" stroke-width="2" />
+        <path d="M 1334.65880659906,-155.919313848551 L 1323.93938333138,-154.873386122373 C 1326.05354231982,-152.965129618985 1327.27967956884,-150.597071647214 1327.61779507845,-147.769212207059 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)">
+        <path d="M 516.283257496407,273.000668716087 L 1324.04713718532,-25.9427738698843" fill="none" stroke="#A0A0A0" stroke-width="1.792481250360578" />
+        <path d="M 1332.48765295304,-29.0665045840825 L 1321.72097733815,-29.3470330206279 C 1323.5843622647,-27.1932206502877 1324.50991210594,-24.6923270894809 1324.49762686188,-21.8443523382078 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).HeatingWater-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Ready">
+        <path d="M 481.210531421132,370.880715560568 L 481.210531421132,407.840715560568" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 481.210531421132,416.840715560568 L 485.210531421132,406.840715560568 C 482.543864754466,407.840715560568 479.877198087799,407.840715560568 477.210531421132,406.840715560568 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="456.0171980877991" y="398.83071556056831" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors">
+        <path d="M 481.210531421132,227.040715560568 L 481.210531421132,264.000715560568" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 481.210531421132,273.000715560568 L 485.210531421132,263.000715560568 C 482.543864754466,264.000715560568 479.877198087799,264.000715560568 477.210531421132,263.000715560568 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="456.01719808779887" y="254.99071556056816" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).MakingCoffee-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).GrindingBeans">
+        <path d="M 481.210531421133,514.720715560569 L 481.210531421133,551.68071556057" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 481.210531421133,560.68071556057 L 485.210531421133,550.68071556057 C 482.543864754466,551.68071556057 479.877198087799,551.68071556057 477.210531421133,550.68071556057 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="456.0171980877991" y="542.670715560569" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Ready-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).MakingCoffee">
+        <path d="M 481.210531421132,442.800715560568 L 481.210531421133,479.760715560569" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 481.210531421133,488.760715560569 L 485.210531421133,478.760715560569 C 482.543864754466,479.760715560569 479.877198087799,479.760715560569 477.210531421133,478.760715560569 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="388.61053142113252" y="470.75071556056838" fill="#A0A0A0">MakeCoffeeEvent</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors">
+        <rect x="434.793818978099" y="273.000668716087" rx="3" ry="3" width="92.8333333333335" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="444.793818978099" y="290.95066871608697" fill="#3D3D3D">CheckSensors</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).GrindingBeans">
+        <rect x="432.670531421133" y="560.680737685814" rx="3" ry="3" width="97.0799999999998" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="442.670531421133" y="578.6307376858141" fill="#3D3D3D">GrindingBeans</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).HeatingWater">
+        <rect x="434.662228605377" y="344.920682143822" rx="3" ry="3" width="93.0966666666668" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="444.662228605377" y="362.87068214382197" fill="#3D3D3D">HeatingWater</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Init">
+        <rect x="456.210561938711" y="201.080693435325" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="472.210561938711" y="219.030693435325" fill="#3D3D3D">Init</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).MakingCoffee">
+        <rect x="434.142198087799" y="488.760693740501" rx="3" ry="3" width="94.1366666666668" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="444.142198087799" y="506.710693740501" fill="#3D3D3D">MakingCoffee</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Ready">
+        <rect x="455.168818978099" y="416.840680312767" rx="3" ry="3" width="52.0833333333335" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="465.168818978099" y="434.790680312767" fill="#3D3D3D">Ready</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor">
+      <rect x="754.416902669271" y="444.569719542771" rx="5" ry="5" width="397.733333333334" height="85.9602" fill="#558FDA" stroke="#A5A6A9" stroke-width="1" />
+      <text x="774.416902669271" y="462.519719542771" fill="#000000">Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor</text>
+      <rect x="759.416902669271" y="472.529719542771" width="387.733333333334" height="53.0002" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor.Init">
+        <rect x="928.283569335938" y="484.569819542771" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="944.283569335938" y="502.51981954277096" fill="#3D3D3D">Init</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)">
+      <rect x="288.791158243815" y="-298.735778746165" rx="5" ry="5" width="381.923455403524" height="301.720240282983" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="308.791158243815" y="-280.785778746165" fill="#000000">Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)</text>
+      <rect x="293.791158243815" y="-270.77577874616503" width="371.923455403524" height="268.76024028298303" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Test">
+        <path d="M 516.619552612244,-232.775658604674 L 516.619552612244,-195.815658604673" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 516.619552612244,-186.815658604674 L 520.619552612244,-196.815658604674 C 517.952885945577,-195.815658604673 515.28621927891,-195.815658604673 512.619552612244,-196.815658604674 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="442.71621927891033" y="-204.82565860467361" fill="#A0A0A0">StartTestEvent</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Stop-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Stopped">
+        <path d="M 450.238295660074,-88.9356586046736 L 495.270826192821,-48.9512191489314" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 502.000809564413,-42.9756586046733 L 497.178854948981,-52.6062740412232 C 496.1560944216,-49.9482537225006 494.385557964042,-47.9541845753622 491.867245576307,-46.624066599808 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="450.92621927891037" y="-60.985658604673446" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Stopped-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Test">
+        <path d="M 516.619552612244,-42.9756586046733 L 516.619552612244,-151.855658604674" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 516.619552612244,-160.855658604674 L 512.619552612244,-150.855658604674 C 515.28621927891,-151.855658604674 517.952885945577,-151.855658604674 520.619552612244,-150.855658604674 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="491.42621927891025" y="-96.945658604673483" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Test-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Stop">
+        <path d="M 502.000809564413,-160.855658604674 L 456.968279031667,-120.871219148932" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 450.238295660075,-114.895658604673 L 460.37185964818,-118.544066599808 C 457.853547260446,-119.874184575362 456.083010802888,-121.868253722501 455.060250275507,-124.526274041223 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="450.92621927891025" y="-132.90565860467353" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Init">
+        <rect x="491.619735717773" y="-258.73569152832" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="507.619735717773" y="-240.78569152832" fill="#3D3D3D">Init</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Stop">
+        <rect x="410.619812011719" y="-114.89569519043" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="422.619812011719" y="-96.94569519043" fill="#3D3D3D">Stop</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Stopped">
+        <rect x="484.352809651693" y="-42.9756359863281" rx="3" ry="3" width="64.5333333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="494.352809651693" y="-25.025635986328098" fill="#3D3D3D">Stopped</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Test">
+        <rect x="491.619735717773" y="-186.815586547852" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="505.619735717773" y="-168.86558654785202" fill="#3D3D3D">Test</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor">
+      <rect x="1195.1501949056" y="203.893995415917" rx="5" ry="5" width="382.533333333333" height="157.880202484073" fill="#558FDA" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1214.1501949056" y="221.843995415917" fill="#000000">Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor</text>
+      <rect x="1200.1501949056" y="231.853995415917" width="372.533333333333" height="124.920202484073" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Busy-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Idle[cold]">
+        <path d="M 1334.12186157227,269.854096657954 L 1334.12186157227,306.814096657954" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1334.12186157227,315.814096657954 L 1338.12186157227,305.814096657954 C 1335.4551949056,306.814096657954 1332.78852823893,306.814096657954 1330.12186157227,305.814096657954 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1285.7285282389335" y="297.80409665795349" fill="#A0A0A0">IdleEvent</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Idle-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Busy[hot]">
+        <path d="M 1452.25686157227,269.854096657954 L 1452.25686157227,306.814096657954" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1452.25686157227,315.814096657954 L 1456.25686157227,305.814096657954 C 1453.5901949056,306.814096657954 1450.92352823893,306.814096657954 1448.25686157227,305.814096657954 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1398.7368615722669" y="297.80409665795349" fill="#A0A0A0">BusyEvent</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Busy">
+        <rect x="1309.12182617188" y="243.894084472656" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1321.12182617188" y="261.844084472656" fill="#3D3D3D">Busy</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Busy[hot]">
+        <rect x="1417.40856363932" y="315.814067382812" rx="3" ry="3" width="69.6966666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1427.40856363932" y="333.764067382812" fill="#3D3D3D">Busy[hot]</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Idle">
+        <rect x="1427.2568359375" y="243.894084472656" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1442.2568359375" y="261.844084472656" fill="#3D3D3D">Idle</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Idle[cold]">
+        <rect x="1299.50682617187" y="315.814067382812" rx="3" ry="3" width="69.23" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1309.50682617187" y="333.764067382812" fill="#3D3D3D">Idle[cold]</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)">
+      <rect x="1153.178949489" y="-221.879413848551" rx="5" ry="5" width="413.096666666667" height="85.96" fill="#57AC56" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1173.178949489" y="-203.929413848551" fill="#FFFFFF">Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)</text>
+      <rect x="1158.178949489" y="-193.919413848551" width="403.096666666667" height="52.999999999999993" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors">
+        <path d="M 1329.77028515848,-155.919313848551 L 956.636312475898,5.75506419719426" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+        <path d="M 948.378174509607,9.33321418422786 L 959.144172244167,9.02777551698641 C 957.166408770273,6.97849204405213 956.106216181522,4.53163635033638 955.963594477915,1.68720843583914 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors">
+        <path d="M 1334.65880659906,-155.919313848551 L 514.271157522768,268.862455500636" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+        <path d="M 506.27896186804,273.000668716087 L 516.998385135716,271.954740989909 C 514.88422614728,270.046484486521 513.658088898257,267.67842651475 513.319973388649,264.850567074595 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)">
+        <rect x="1291.14228282233" y="-181.879313848551" rx="3" ry="3" width="137.17" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1301.14228282233" y="-163.929313848551" fill="#3D3D3D">MockCoffeeGrinder(3)</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)">
+      <rect x="1167.85719807943" y="35.9336954159176" rx="5" ry="5" width="401.333333333333" height="85.9602" fill="#57AC56" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1186.85719807943" y="53.8836954159176" fill="#FFFFFF">Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)</text>
+      <rect x="1172.85719807943" y="63.8936954159176" width="391.333333333333" height="53.0002" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4).MockDoorSensor(4)">
+        <rect x="1305.82053141276" y="75.9337954159178" rx="3" ry="3" width="125.406666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1315.82053141276" y="93.8837954159178" fill="#3D3D3D">MockDoorSensor(4)</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)">
+      <rect x="1170.50375813802" y="-95.0266045840825" rx="5" ry="5" width="394.113333333333" height="85.9602" fill="#57AC56" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1189.50375813802" y="-77.0766045840825" fill="#FFFFFF">Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)</text>
+      <rect x="1175.50375813802" y="-67.066604584082512" width="384.113333333333" height="53.0002" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)">
+        <rect x="1308.46709147135" y="-55.0265045840825" rx="3" ry="3" width="118.186666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1318.46709147135" y="-37.0765045840825" fill="#3D3D3D">MockWaterTank(2)</text>
+      </g>
+    </g>
+    <g id="ExternalCode.ExternalCode-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Init">
+      <path d="M 760.185736083984,-228.66459592588 L 550.59765979872,-243.371450920161" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 541.619735717773,-244.001434409434 L 551.315214256926,-239.311264274266 C 550.50432891142,-242.041388093354 550.69099068602,-244.701513746968 551.875199580724,-247.291641235107 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4).MockDoorSensor(4)">
+      <path d="M 964.837843512428,29.1813735219525 L 1296.91746727163,78.3183739267604" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1305.82053141276,79.6357383026727 L 1296.5137332008,74.2150827111568 C 1297.11263236436,76.9994014614078 1296.7223021789,79.637346392113 1295.34274264443,82.1289175032724 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Stop">
+      <path d="M 903.207225754974,297.013195415918 L 457.6805143247,-83.0942914463451" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 450.833763102507,-88.93569519043 L 455.845085018683,-79.4022460426947 C 456.815121177428,-82.0799579319462 458.545907471971,-84.1086249607439 461.037443902314,-85.4882471290878 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Busy">
+      <path d="M 966.961176845762,303.7906512309 L 1300.19441564404,261.209400972083" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1309.12182617188,260.068637513971 L 1298.69547515956,257.368414455054 C 1300.02541365024,259.886821634625 1300.36341763783,262.531980309541 1299.70948712233,265.303890479803 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).HeatingWater-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Idle">
+      <path d="M 961.025394898433,107.213219982568 L 1418.64753119503,246.634516760889" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1427.2568359375,249.257467742387 L 1418.85669777098,242.516720099626 C 1419.03611652563,245.35906420645 1418.25894586444,247.909969315329 1416.52518578743,250.169435426263 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).HeatingWater-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).HeatingWater-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)">
+      <path d="M 943.421146328183,-56.3647005959034 L 1303.02141134977,-153.570754512244" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1311.7095796863,-155.919313848551 L 1301.01225516291,-157.171211624445 C 1302.67347663328,-154.8578905621 1303.36934606626,-152.283618462388 1303.09986346185,-149.448395325309 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4).MockDoorSensor(4)">
+      <path d="M 943.421146328183,-41.9129452528285 L 1317.74535381768,73.2865439471413" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1326.34721754951,75.9337954159178 L 1317.96614738915,69.1693543475728 C 1318.13753922046,72.0121937646472 1317.35316841489,74.5608941296354 1315.61303497246,76.8154554425374 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)">
+      <path d="M 943.421146328183,-49.1859563483929 L 1299.4683662447,-43.192684606286" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1308.46709147135,-43.0412108617965 L 1298.5358295504,-47.2089484564067 C 1299.49080679944,-44.5258290843081 1299.44592568996,-41.859540128264 1298.40118622197,-39.2100815882742 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).MakingCoffee-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Idle">
+      <path d="M 965.489510179095,239.730921694579 L 1418.26241225895,255.676855513707" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1427.2568359375,255.99362465793 L 1417.40381813654,251.644137307215 C 1418.30934102106,254.34434830207 1418.21548349684,257.009362725344 1417.1222455639,259.639180577038 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Ready-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Busy">
+      <path d="M 944.462843512428,171.836459261599 L 1300.32878358955,249.499225383705" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1309.12182617188,251.418183993302 L 1300.20464935133,245.377988834937 C 1300.61307375394,248.196552408545 1300.04449342517,250.801898358865 1298.49890836503,253.194026685896 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4).MockDoorSensor(4)">
+      <path d="M 527.609502955466,275.675730820435 L 1301.2941895228,103.845095001029" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1310.08011178112,101.893795415918 L 1299.4507316785,100.157051729013 C 1301.00510810279,102.543476888687 1301.58327094282,105.146713113372 1301.1852201986,107.96676040307 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).GrindingBeans-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)">
+      <path d="M 496.567063744175,560.680737685814 L 1337.4971873782,-150.109483384555" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1344.37075049929,-155.919313848551 L 1334.15131126963,-152.51886360904 C 1336.6364717539,-151.127789032124 1338.35790300249,-149.091177736986 1339.31560501541,-146.409029723626 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).HeatingWater-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Idle">
+      <path d="M 527.758895272044,353.057844196909 L 1418.30515248053,260.406380673888" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1427.2568359375,259.475057268091 L 1416.89659947162,256.531335071434 C 1418.16717864263,259.080205346929 1418.44312631842,261.732556000847 1417.724442499,264.488387033186 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).HeatingWater-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)">
+      <path d="M 509.976413035514,344.920682143822 L 1330.59105885196,-25.3648368506485" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1338.79457370788,-29.0665045840825 L 1328.034371542,-28.5995470384523 C 1330.04266363219,-26.5801723848584 1331.13945407173,-24.1495013164385 1331.32474286061,-21.3075338331926 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)">
+      <path d="M 506.083850169088,203.218014616078 L 1321.70073790904,-152.322912317654" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1329.95094372639,-155.919313848551 L 1319.18564769338,-155.590070288597 C 1321.16793768224,-153.545165031335 1322.23353813584,-151.100659603973 1322.38244905418,-148.256554006512 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4).MockDoorSensor(4)">
+      <path d="M 506.210561938711,210.534686960964 L 1296.90873326179,99.0144121069517" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1305.82053141276,97.7574897878109 L 1295.3599013254,95.1932709642025 C 1296.72252254784,97.6941457142153 1297.09494397574,100.334678499688 1296.47716560908,103.114869320621 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Init-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)">
+      <path d="M 506.210561938711,206.837044830267 L 1313.99223151362,-26.5681923943848" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1322.63852761096,-29.0665045840825 L 1311.92117097405,-30.1334004165678 C 1313.62211118922,-27.8491251495457 1314.36235183802,-25.2872596392239 1314.14189292045,-22.4478038856024 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).MakingCoffee-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Idle">
+      <path d="M 527.717342411034,490.01317357798 L 1418.53002287915,265.378900686465" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1427.2568359375,263.178279445876 L 1416.58232309907,261.74483057615 C 1418.20400491758,264.086039492634 1418.85604084071,266.671761880295 1418.53843086848,269.501997739132 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Ready-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor.Busy">
+      <path d="M 507.252152311433,424.540157723843 L 1300.30133352247,263.731935688159" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1309.12182617188,261.943386158023 L 1298.52636788137,260.010444458438 C 1300.03636322171,262.425196036395 1300.56630382323,265.038675339923 1300.11618968593,267.850882369022 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Stop-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans">
+      <path d="M 450.833763102507,-88.93569519043 L 896.360474532781,291.171791671833" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 903.207225754973,297.013195415918 L 898.195903838798,287.479746268183 C 897.225867680053,290.157458157434 895.495081385509,292.186125186232 893.003544955167,293.565747354576 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Test-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).Ready">
+      <path d="M 531.959601202174,-160.855586547852 L 896.210859930699,147.359719714396" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 903.081311361361,153.173229595605 L 898.03125860783,143.660240202856 C 897.072120653841,146.341875058001 895.349599207557,148.37756437079 892.863694268977,149.767308141222 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1).Test-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).Ready">
+      <path d="M 515.85835529123,-160.855586547852 L 482.49888189644,407.856123878526" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 481.971866071309,416.840680312767 L 486.550575403339,407.092069085891 C 483.829927294105,407.934200297064 481.167836498774,407.778047459988 478.564303017347,406.623610574663 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).GrindingBeans">
+      <path d="M 1347.76603234386,-155.919313848551 L 936.481360616798,290.394810968574" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 930.382427324233,297.013195415918 L 940.100524070347,292.370071937787 C 937.461862016405,291.298356641547 935.500859217192,289.491265295602 934.217515672708,286.948797899952 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors" />
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3).MockCoffeeGrinder(3)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor.Init">
+      <path d="M 1351.8112407169,-155.919313848551 L 965.88568581959,476.886024456892" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 961.199611441368,484.569819542771 L 969.821380788672,478.114969171004 C 967.024025832313,477.58025769811 964.747345806867,476.191791215674 962.991340712335,473.949569723696 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4).MockDoorSensor(4)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors">
+      <path d="M 1305.82053141276,79.6357383026727 L 973.740907653558,30.4987378978648" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 964.837843512428,29.1813735219525 L 974.14464172439,34.6020291134685 C 973.545742560831,31.8177103632174 973.936072746286,29.1797654325122 975.315632280756,26.6881943213528 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4).MockDoorSensor(4)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors">
+      <path d="M 1310.08011178112,101.893795415918 L 536.395425213781,273.724431235324" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 527.609502955466,275.675730820435 L 538.238883058087,277.41247450734 C 536.684506633797,275.026049347666 536.106343793764,272.422813122981 536.504394537988,269.602765833283 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).CheckSensors">
+      <path d="M 1308.46709147135,-33.5786845667964 L 973.746841149578,14.3852849029525" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 964.837843512428,15.6619058730417 L 975.304116873745,18.2029926338978 C 973.935970182183,15.7051364047524 973.557712116972,13.0654334011526 974.16934267811,10.2838836230985 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5).HeatingWater">
+      <path d="M 1324.78203310302,-29.0665045840825 L 969.811846059694,78.6400464231484" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 961.199568547424,81.2532199825677 L 971.930176254132,82.1773726997774 C 970.198982883311,79.9159393879292 969.424709236076,77.3641534583677 969.607355312426,74.5220149110929 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).CheckSensors">
+      <path d="M 1332.48765295304,-29.0665045840825 L 524.72377326413,269.876938001889" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 516.283257496407,273.000668716087 L 527.049933111298,273.281197152632 C 525.186548184752,271.127384782292 524.260998343508,268.626491221485 524.273283587567,265.778516470212 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9).HeatingWater">
+      <path d="M 1338.79457370788,-29.0665045840825 L 518.179927891431,341.219014410388" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 509.976413035514,344.920682143822 L 520.736615201393,344.453724598192 C 518.728323111199,342.434349944598 517.631532671663,340.003678876178 517.446243882784,337.161711392932 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2).MockWaterTank(2)-&gt;Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor.Init">
+      <path d="M 1357.59498704399,-29.0665045840825 L 968.729775228447,477.431109527281" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 963.24900709663,484.569819542771 L 972.5115094722,479.073816473034 C 969.787361897409,478.243075176439 967.672188559486,476.619143878123 966.165989458432,474.202022578086 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/samples/actors/failover-robot-navigator/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Robot navigator failover - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Failover robot navigator service with actors", url: "#_top", children: [
+          ]},
+          {title: "What you will need", url: "#what-you-will-need", children: [
+          ]},
+          {title: "Build the sample", url: "#build-the-sample", children: [
+          ]},
+          {title: "Running and testing the Drink Serving Robot", url: "#running-and-testing-the-drink-serving-robot", children: [
+          ]},
+          {title: "How the sample works", url: "#how-the-sample-works", children: [
+              {title: "The FailoverDriver", url: "#the-failoverdriver" },
+              {title: "The Robot", url: "#the-robot" },
+              {title: "The Navigator", url: "#the-navigator" },
+              {title: "The MockStorage", url: "#the-mockstorage" },
+              {title: "The Liveness monitor", url: "#the-liveness-monitor" },
+              {title: "Explanation of the bug", url: "#explanation-of-the-bug" },
+          ]},
+          {title: "Summary", url: "#summary", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../../case-studies/azure-batch-service/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../../case-studies/azure-batch-service/" class="btn btn-xs btn-link">
+        Azure Batch Service
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../failure-detector/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../failure-detector/" class="btn btn-xs btn-link">
+        Bug in failure detector
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="failover-robot-navigator-service-with-actors">Failover robot navigator service with actors</h2>
+<p><em>Wikipedia</em> provides this <a href="https://en.wikipedia.org/wiki/Failover">definition</a>: &ldquo;<strong>Failover</strong> is
+switching to a redundant or standby computer server, system, hardware component or network upon the
+failure or abnormal termination of the previously active application, server, system, hardware
+component, or network. Systems designers usually provide failover capability in servers, systems or
+networks requiring near-continuous availability and a high degree of reliability.&rdquo;</p>
+<p>This sample implements a failover scenario in a system where <strong>an instance of a service is
+terminated and replaced by a new one</strong>, unlike the <a href="../../../tutorials/actors/test-failover/">Failover Coffee Machine
+sample</a>, which is about applying the
+failover concept to the firmware of an automated espresso machine.</p>
+<p>In this scenario there is a <code>Robot</code> that must serve drinks to people in a room:</p>
+<p><img alt="image" src="../../../assets/images/DrinksServingRobot.jpg" /></p>
+<ol>
+<li>
+<p>Before starting to serve the next client the <code>Robot</code> is always at an <code>InitialLocation</code> in the
+    room.</p>
+</li>
+<li>
+<p>In order to do its job the <code>Robot</code> needs the help of a service called the <code>Navigator</code>, which
+    when provided with the latest picture of the room, finds a person who needs to be served next
+    and sends the details (adult or minor, location) of that person to the <code>Robot</code>.</p>
+</li>
+<li>
+<p>It is not always possible to follow the straight line connecting the <code>Robot</code>&rsquo;s location with
+    that of the selected client as there are obstacles, like furniture, in the room. Thus, the
+    <code>Robot</code> asks the <code>Navigator</code> to produce a collision-free route from the <code>Robot</code>&rsquo;s location to
+    the person who will be served. The <code>Navigator</code> provides the requested route that must be
+    reached, with the last being that of the client. A route is simply a list of consecutive
+    straight line segments.</p>
+</li>
+<li>
+<p>The <code>Robot</code> traverses the route and reaches the client. Then the <code>Robot</code> selects randomly an
+    appropriate drink for the client: alcoholic for an adult and non-alcoholic for a minor client.</p>
+</li>
+<li>
+<p>The <code>Robot</code> pours a glass of the selected drink for the client and retreats to its
+    <code>InitialLocation</code>.</p>
+</li>
+</ol>
+<p>The steps 1 to 5 above are repeated continuously.</p>
+<p>To make this a failover test, at random times the <code>Navigator</code> is killed and a new <code>Navigator</code> is
+created to replace the old one. When this happens it is required that the system will continue to
+operate flawlessly: no data (request or response) between the <code>Robot</code> and a <code>Navigator</code> will be
+lost, and the <code>Robot</code> will not stop doing its job.</p>
+<p>The following diagram depicts the Failover workflow in this sample:</p>
+<p><img alt="DSR-Failover" src="../../../assets/images/DSR-Failover.svg" /></p>
+<p>Do note:
+ 1. This is a general diagram that can be used not only in this scenario, but for any other
+    scenarios involving a robot that operates with the help of object recognition and route
+    planning.
+ 2. The green nodes represent the product code we are testing here, and everything else is mock test
+    infrastructure. The main goal is to show the use of <code>coyote test</code> in finding concurrency issues
+    even at the design stage when the actual implementation hasn&rsquo;t started. For this reason we&rsquo;ve
+    only provided mock implementations of the cognitive service, the route planner, and the storage
+    service. The <code>Navigator</code> doesn&rsquo;t know these are mock implementations.
+ 3. The sample uses the <em>FailoverDriver</em> component to perform the termination of the <em>Navigator</em> and
+    the creation of a new <em>Navigator</em>. Also a <code>MockStorage</code> component is used to store the state
+    needed to restart the newly-created instance without loss of state.</p>
+<p>The <code>Robot</code> and the <code>Navigator</code> are modeled as  <a href="../../../concepts/actors/state-machines/">state
+machines</a> and they are started by another state machine
+called <code>FailoverDriver</code>.</p>
+<p>The FailoverDriver lets the first <code>Navigator</code> instance run for a bit then it randomly kills it by
+sending it the <code>TerminateEvent</code>, then it starts a new <code>Navigator</code>. The new <code>Navigator</code> instance
+needs to figure out the state of any previous request: was the prior <code>Navigator</code> killed while having
+an incompletely processed request from the <code>Robot</code> or not? To be able to do so the <code>Navigator</code>
+stores any newly received request from the <code>Robot</code> in the <code>MockStorage</code> where it remains until the
+request is completely processed and the response is sent to the <code>Robot</code> and at that moment the
+<code>Navigator</code> deletes the pending request record from the <code>MockStorage</code>. Note that this is going one
+step further than the Coffee Machine example. In this example, not only are we testing that the
+Navigator can restart successfully, but we are also testing that the Robot is also able to handle
+that failover condition.  The following diagram shows the overall plan where Navigator2 is able
+to complete the request started by Navigator1:</p>
+<p><img alt="dsr-plan" src="../../../assets/images/DSR-Plan.svg" /></p>
+<p>The <code>MockStorage</code> is an <code>Actor</code> that provides simple key-value storage for persisting data and its
+instance lives across all instances of the <code>Navigator</code>. MockStorage makes <code>Navigator</code> failover
+possible. The <code>MockStorage</code> component, as its name implies, is a mock of a real-world service that
+provides similar storage capabilities.</p>
+<p>Likewise, the <code>MockCognitiveService</code> and <code>MockRoutePlanner</code> are mocks of real-world services
+providing cognitive services (such as object identification) and motion-path planning.</p>
+<p>Some safety <code>Asserts</code> are placed in the code that verify certain important things, including:
+- on reaching the client the <code>Robot</code>&rsquo;s coordinates must be the same as the client&rsquo;s.
+- the key retrieved from the <code>MockStorage</code> when requesting a read for a saved <code>Robot</code>&rsquo;s request is
+  an expected non-null string.
+- the <code>Navigator</code> checks that after <code>MockStorage</code> performs a write operation to save a <code>Robot</code>&rsquo;s
+  request this has not overwritten another existing value for the same storage key. This ensures a
+  request from the Robot is not lost.
+- all required non-null parameters for <code>MockStorage</code> operations (such as <code>key</code> or <code>requestorId</code>) are
+  indeed non-null.</p>
+<p>There is a <code>LivenessMonitor</code> that monitors the execution of the system to make sure it never gets
+stuck, i.e., the <code>Robot</code> always gets a valid response to any of its requests from the <code>Navigator</code>
+and serves the selected client. See <a href="../../../how-to/liveness-checking/">Liveness Checking</a>.</p>
+<p>A number of excellent bugs were found by Coyote during the development of this sample, and this
+illustrates the fact that Coyote can be applied to find bugs quickly, even in the design stage,
+before coding and pushing to production.</p>
+<h2 id="what-you-will-need">What you will need</h2>
+<p>To run the <code>DrinksServingRobotActors</code> example, you will need to:</p>
+<ul>
+<li>Install <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio 2022</a>.</li>
+<li>Install the <a href="../../../get-started/install/">.NET 8.0 version of the coyote tool</a>.</li>
+<li>Be familiar with the <code>coyote</code> tool. See <a href="../../../get-started/using-coyote/">using Coyote</a>.</li>
+<li>Clone the <a href="https://github.com/microsoft/coyote">Coyote git repo</a>.</li>
+</ul>
+<h2 id="build-the-sample">Build the sample</h2>
+<p>You can build the sample by following the instructions
+<a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+<h2 id="running-and-testing-the-drink-serving-robot">Running and testing the Drink Serving Robot</h2>
+<p>Now you can run the <code>DrinksServingRobotActors</code> application:</p>
+<pre><code class="language-plain">./Samples/bin/net8.0/DrinksServingRobotActors.exe
+</code></pre>
+<p>When you run the executable like this without using <code>coyote test</code> (this is called running in
+<em>production mode</em>), you will get infinite console output, that you can to terminate by pressing
+ENTER, similar to this:</p>
+<pre><code class="language-xml">&lt;FailoverDriver&gt; #################################################################
+&lt;FailoverDriver&gt; Starting the Robot.
+&lt;CognitiveService&gt; CognitiveService is starting.
+&lt;Navigator&gt; Navigator starting
+&lt;Navigator&gt; Got RobotId
+&lt;Robot&gt; Obtained a Room Picture at 2/11/2020 6:21:35 PM UTC
+&lt;Robot&gt; Asked for a new Drink Order
+&lt;Navigator&gt; There was no prior pending request to find drink clients ...
+&lt;FailoverDriver&gt; #################################################################
+&lt;FailoverDriver&gt; #       Starting the fail over of the Navigator                 #
+&lt;FailoverDriver&gt; #################################################################
+&lt;Navigator&gt; Terminating as previously ordered ...
+&lt;Navigator&gt; Sent Termination Confirmation to my Creator ...
+&lt;Navigator&gt; Halting now ...
+&lt;FailoverDriver&gt; *****  The Navigator confirmed that it has terminated *****
+&lt;FailoverDriver&gt; *****   Created a new Navigator -- paused *****
+&lt;FailoverDriver&gt; *****   Waking up the new Navigator *****
+&lt;CognitiveService&gt; CognitiveService is starting.
+&lt;Navigator&gt; Navigator starting
+&lt;Navigator&gt; Got RobotId
+&lt;Navigator&gt; Restarting the pending Robot's request to find drink clients ...
+&lt;Robot&gt; received a new Navigator, and pending drink order=True!!!
+&lt;FailoverDriver&gt; *****   Robot confirmed it reset to the new Navigator *****
+&lt;Robot&gt; Received new Drink Order. Executing ...
+&lt;Robot&gt; Asked for driving instructions from ( 1, 1 ) to ( 26, 16 )
+&lt;Navigator&gt; drink order is complete, deleting the job record.
+&lt;Robot&gt; Moving from ( 1, 1 ) to ( 26, 16 )
+&lt;Robot&gt; Reached Client.
+&lt;Robot&gt; Serving order
+&lt;Robot&gt; Selected &quot;WaterMelonLemonade&quot; for Minor client
+&lt;Robot&gt; Filled a new glass of WaterMelonLemonade to 100% level
+&lt;Robot&gt; Finished serving the order. Retreating.
+==================================================
+
+&lt;Robot&gt; Moving from ( 26, 16 ) to ( 1, 1 )
+&lt;Robot&gt; Obtained a Room Picture at 2/11/2020 6:21:40 PM UTC
+&lt;Robot&gt; Asked for a new Drink Order
+&lt;FailoverDriver&gt; #################################################################
+&lt;FailoverDriver&gt; #       Starting the fail over of the Navigator                 #
+&lt;FailoverDriver&gt; #################################################################
+&lt;Navigator&gt; Terminating as previously ordered ...
+&lt;Navigator&gt; Sent Termination Confirmation to my Creator ...
+&lt;Navigator&gt; Halting now ...
+&lt;FailoverDriver&gt; *****  The Navigator confirmed that it has terminated *****
+&lt;FailoverDriver&gt; *****   Created a new Navigator -- paused *****
+&lt;CognitiveService&gt; CognitiveService is starting.
+&lt;FailoverDriver&gt; *****   Waking up the new Navigator *****
+&lt;Navigator&gt; Navigator starting
+&lt;Navigator&gt; Got RobotId
+&lt;Robot&gt; received a new Navigator, and pending drink order=True!!!
+&lt;Navigator&gt; Restarting the pending Robot's request to find drink clients ...
+&lt;FailoverDriver&gt; *****   Robot confirmed it reset to the new Navigator *****
+&lt;Robot&gt; Received new Drink Order. Executing ...
+&lt;Robot&gt; Asked for driving instructions from ( 1, 1 ) to ( 14, 4 )
+&lt;Navigator&gt; drink order is complete, deleting the job record.
+&lt;Robot&gt; Moving from ( 1, 1 ) to ( 6, 23 )
+&lt;Robot&gt; Moving from ( 6, 23 ) to ( 14, 4 )
+&lt;Robot&gt; Reached Client.
+&lt;Robot&gt; Serving order
+&lt;Robot&gt; Selected &quot;Sprite&quot; for Minor client
+&lt;Robot&gt; Filled a new glass of Sprite to 100% level
+&lt;Robot&gt; Finished serving the order. Retreating.
+==================================================
+
+&lt;Robot&gt; Moving from ( 14, 4 ) to ( 1, 1 )
+&lt;Robot&gt; Obtained a Room Picture at 2/11/2020 6:21:45 PM UTC
+&lt;Robot&gt; Asked for a new Drink Order
+&lt;FailoverDriver&gt; #################################################################
+&lt;FailoverDriver&gt; #       Starting the fail over of the Navigator                 #
+&lt;FailoverDriver&gt; #################################################################
+&lt;Navigator&gt; Terminating as previously ordered ...
+&lt;Navigator&gt; Sent Termination Confirmation to my Creator ...
+&lt;Navigator&gt; Halting now ...
+&lt;FailoverDriver&gt; *****  The Navigator confirmed that it has terminated *****
+&lt;FailoverDriver&gt; *****   Created a new Navigator -- paused *****
+&lt;CognitiveService&gt; CognitiveService is starting.
+&lt;FailoverDriver&gt; *****   Waking up the new Navigator *****
+&lt;Navigator&gt; Navigator starting
+&lt;Navigator&gt; Got RobotId
+&lt;Robot&gt; received a new Navigator, and pending drink order=True!!!
+&lt;Navigator&gt; Restarting the pending Robot's request to find drink clients ...
+&lt;FailoverDriver&gt; *****   Robot confirmed it reset to the new Navigator *****
+&lt;Robot&gt; Received new Drink Order. Executing ...
+&lt;Robot&gt; Asked for driving instructions from ( 1, 1 ) to ( 25, 17 )
+&lt;Navigator&gt; drink order is complete, deleting the job record.
+&lt;Robot&gt; Moving from ( 1, 1 ) to ( 2, 4 )
+&lt;Robot&gt; Moving from ( 2, 4 ) to ( 25, 17 )
+&lt;Robot&gt; Reached Client.
+&lt;Robot&gt; Serving order
+&lt;Robot&gt; Selected &quot;Water&quot; for Minor client
+&lt;Robot&gt; Filled a new glass of Water to 100% level
+&lt;Robot&gt; Finished serving the order. Retreating.
+==================================================
+
+&lt;Robot&gt; Moving from ( 25, 17 ) to ( 1, 1 )
+</code></pre>
+<p>You can leave this running and you will see the <code>FailoverDriver</code> halting a <code>Navigator</code> instance at
+random times. Each halted machine is terminated and discarded, then a new <code>Navigator</code> instance is
+started. Each new <code>Navigator</code> instance figures out the exact state it should continue from, and you
+see that the <code>Robot</code> continues without incident.</p>
+<p>You can now use <code>coyote test</code> to test the code and see if any bugs can be found. From the
+<code>CoyoteSamples</code> folder enter this command:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10
+</code></pre>
+<p>Chances are this will find a bug quickly, and you will see output from the test like this:</p>
+<pre><code class="language-plain">. Testing .\Samples\bin\net8.0\DrinksServingRobotActors.exe
+Starting TestingProcessScheduler in process 26236
+... Created '1' testing task.
+... Task 0 is using 'prioritization' strategy (seed:324932188).
+..... Iteration #1
+..... Iteration #2
+..... Iteration #3
+..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+..... Iteration #7
+..... Iteration #8
+..... Iteration #9
+..... Iteration #10
+..... Iteration #20
+..... Iteration #30
+... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.txt
+..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.trace
+... Elapsed 0.5330326 sec.
+... Testing statistics:
+..... Found 1 bug.
+... Exploration statistics:
+..... Explored 34 schedules: 0 fair and 34 unfair.
+..... Found 2.94% buggy schedules.
+... Elapsed 0.6310144 sec.
+. Done
+</code></pre>
+<p>Notice that a log file is produced
+<code>.bin\net8.0\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt</code>. This log can be
+pretty big, it contains the test iteration that failed, and towards the end of this file you will
+see something like this:</p>
+<pre><code class="language-xml">&lt;ErrorLog&gt; Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor detected liveness bug
+           in hot state 'Busy' at the end of program execution.
+&lt;StrategyLog&gt; Testing statistics:
+&lt;StrategyLog&gt; Found 1 bug.
+&lt;StrategyLog&gt; Exploration statistics:
+&lt;StrategyLog&gt; Explored 9 schedules: 0 fair and 9 unfair.
+&lt;StrategyLog&gt; Found 11.11% buggy schedules.
+</code></pre>
+<p>So the <code>DrinksServingRobot</code> has a liveness bug. Just 0.6 seconds were enough for coyote test to find
+this liveness bug, with 30 test iterations each doing up to 2000 async operations.  This bug is hard
+to reproduce in a production run of the DrinksServingRobot.</p>
+<p>A bug exists in the code somewhere. Can you find it? You can find an explanation and fix at the end
+of this tutorial.</p>
+<h2 id="how-the-sample-works">How the sample works</h2>
+<p>You already know the main components of the Drinks Serving Robot sample. Now is the time to
+understand the details.   As with other tutorials the code that starts the program consists
+of a <code>[Test]</code> method that takes an <code>IActorRuntime</code>:</p>
+<pre><code class="language-csharp">public static class Program
+{
+    private static bool RunForever = false;
+
+    public static void Main()
+    {
+        ...
+        RunForever = true;
+        IActorRuntime runtime = RuntimeFactory.Create(conf);
+        Execute(runtime);
+        Console.ReadLine();
+    }
+
+    [Microsoft.Coyote.SystematicTesting.Test]
+    public static void Execute(IActorRuntime runtime)
+    {
+        runtime.RegisterMonitor&lt;LivenessMonitor&gt;();
+        ActorId driver = runtime.CreateActor(typeof(FailoverDriver),
+            new FailoverDriver.ConfigEvent(RunForever));
+    }
+}
+</code></pre>
+<p>You already know from the Hello World tutorials how the two main entry points are used in a Coyote
+program. What is new here is that the <code>Execute()</code> method registers a <code>LivenessMonitor</code> used by
+Coyote to find liveness bugs.  The rest of the execution is controlled by the <code>FailoverDriver</code>.</p>
+<h3 id="the-failoverdriver">The FailoverDriver</h3>
+<p>The <code>FailoverDriver</code> state machine has two states:</p>
+<ul>
+<li>
+<p><code>Init</code>: This is the initial state of the machine where it creates everything, including the
+   <code>MockStorage</code>, <code>Navigator</code> and <code>Robot</code> machines.</p>
+</li>
+<li>
+<p><code>Active</code>: When the robot is ready, a timer is started to begin the failover process by going to
+    the next state.</p>
+</li>
+<li>
+<p><code>TerminatingNavigator</code>: This state performs the failover of the <code>Navigator</code>. It does this by
+    sending a special termination event to the <code>Navigator</code>, and once that is confirmed, it goes back
+    to the <code>Active</code> state where a new <code>Navigator</code> will be created. This happens once during a coyote
+    test run, and it happens forever when running in production mode.</p>
+</li>
+</ul>
+<h3 id="the-robot">The Robot</h3>
+<p>The <code>Robot</code> has the most states compared to all state machines in this sample as it does all the
+visible work: the Start state <code>Init</code>, <code>Active</code>, <code>ExecutingOrder</code>, <code>ReachingClient</code>, <code>MovingOnRoute</code>,
+<code>ServingClient</code>, and <code>FinishState</code>.</p>
+<p>The <code>Init</code> and <code>Active</code> states perform processing that is relevant from the perspective of failover,
+while the remaining states do simple serving-related processing and aren&rsquo;t described in detail here.
+You can review the code of the sample to see exactly what the <code>Robot</code> does to serve the client.</p>
+<ul>
+<li>
+<p><code>Init</code>: This is the initial state of the machine. The <code>Robot</code> is initialized and then waits for a
+   <code>Navigator</code> to present itself. If a previous <code>Navigator</code> has been killed, the <code>Robot</code> cleans up
+   its own state. The <code>Robot</code>confirms to the <code>FailoverDriver</code> that it has started using the new
+   <code>Navigator</code>.</p>
+</li>
+<li>
+<p><code>Active</code>: In this state the <code>Robot</code> asks the <code>Navigator</code> for a <code>DrinkOrder</code>, sending it a new
+   <code>Picture</code> of the room. Then the <code>Robot</code> waits for the <code>Navigator</code> to confirm that this request
+   has been recorded. Having received this confirmation the <code>Robot</code> itself informs the
+   <code>FailoverDriver</code> that the handshake with the <code>Navigator</code> is complete and now it is safe to do
+   termination of the <code>Navigator</code>. Think of this as a type of distributed transaction.  There is no
+   point terminating the <code>Navigator</code> before the order is stored because it would not be an
+   interesting test. After the <code>Robot</code> receives the requested <code>DrinkOrder</code> it goes to state
+   <code>ExecutingOrder</code></p>
+</li>
+</ul>
+<h3 id="the-navigator">The Navigator</h3>
+<p>The Navigator receives a drink request from the robot, and coordinates that with 2 back end
+services, a cognitive service that can recognize people in an image, and a route planning service
+that can figure out how to drive the robot around your house. The <code>Navigator</code> uses a <code>Storage</code> service
+to persist any state it needs in order to survive the failover test.</p>
+<p>The <code>Navigator</code> has these states: the Start state <code>Init</code>, <code>Paused</code>, and <code>Active</code>:</p>
+<ul>
+<li>
+<p><code>Init</code>: This is the initial state of the <code>Navigator</code>. After initialization, it pushes the state
+   <code>Paused</code>.</p>
+</li>
+<li>
+<p><code>Paused</code>: In this state the <code>Navigator</code> is woken up by the <code>FailoverDriver</code>. Then it says
+    &ldquo;Hello&rdquo; to the <code>Robot</code> and then the <code>Navigator</code> checks for any existing pending request that was
+    already saved in the <code>Storage</code>. If a pending request exists, the <code>Navigator</code> restarts processing
+    this request. Finally, when all this is done, the <code>Navigator</code> goes to state <code>Active</code>.</p>
+</li>
+<li>
+<p><code>Active</code>: In this state the <code>Navigator</code> receives two types of requests from the <code>Robot</code>: a drink
+   order request and a request for driving instructions. It first saves the request in the <code>Storage</code>
+   and confirms to the <code>Robot</code> that its request has been recorded, then asks the <code>CognitiveService</code>
+   to find a client in the picture of the room, whom the <code>Robot</code> can serve. For
+   <code>DrivingInstructions</code> the <code>Navigator</code> asks the <code>RoutePlannerService</code> to produce a collision-free
+   route from the <code>Robot</code> to the selected client. Finally, when the <code>Navigator</code> receives the
+   requested data from the <code>CognitiveService</code> or the <code>RoutePlannerService</code> it sends the result back
+   to the <code>Robot</code>.</p>
+</li>
+</ul>
+<h3 id="the-mockstorage">The MockStorage</h3>
+<p><code>MockStorage</code> is a Coyote Actor that models the asynchronous nature of a typical cloud-based storage
+service. It supports simple read, write, and delete operations where write operations are confirmed
+with a <code>ConfirmedEvent</code>. This is an <code>Actor</code> model of pseudo-transactional storage.</p>
+<p>The <code>MockStorage</code> actor receives three kinds of events: a <code>ReadKeyEvent</code>, a <code>KeyValueEvent</code>
+(requesting the writing of a value under the specified key) and a <code>DeleteKeyEvent</code>.</p>
+<p>The <code>MockStorage</code> replies with two kinds of events: a <code>KeyValueEvent</code> in response to a
+<code>ReadKeyEvent</code> and a <code>ConfirmedEvent</code> in response to a (write) <code>KeyValueEvent</code>. This is quite simple
+processing as you can see when reviewing the code of the sample. Besides the usual functionality,
+note that the <code>ConfirmedEvent</code> has a boolean <code>Existing</code> member to show if a write operation replaced
+an existing value under the same key. This can be used by the client of the <code>MockStorage</code> to
+determine if a key was replaced. For example, the <code>Navigator</code> does actually use this to write a
+safety <code>Assert</code> checking to make sure a pending drink order request isn&rsquo;t getting lost in the
+failover process.</p>
+<h3 id="the-liveness-monitor">The Liveness monitor</h3>
+<p>The <code>LivenessMonitor</code> (See <a href="../../../how-to/liveness-checking/">Liveness Checking</a>) monitors the <code>Robot</code> and
+ the <code>Navigator</code> to make sure the <code>Robot</code> always finishes the job, by serving a <code>Drink</code>.</p>
+<p>This &ldquo;liveness&rdquo; property can be enforced using a very simple <code>LivenessMonitor</code> as shown below:</p>
+<pre><code class="language-csharp">internal class LivenessMonitor : Monitor
+{
+    public class BusyEvent : Event { }
+
+    public class IdleEvent : Event { }
+
+    [Start]
+    [Cold]
+    [OnEventGotoState(typeof(BusyEvent), typeof(Busy))]
+    [IgnoreEvents(typeof(IdleEvent))]
+    private class Idle : State { }
+
+    [Hot]
+    [OnEventGotoState(typeof(IdleEvent), typeof(Idle))]
+    [IgnoreEvents(typeof(BusyEvent))]
+    private class Busy : State { }
+}
+</code></pre>
+<p>The <code>Robot</code> can send events to this monitor to tell it when to switch into <code>Busy</code> or <code>Idle</code> state.
+ When the <code>Robot</code> requests a <code>DrinkOrder</code> or <code>DrivingInstructions</code> from the <code>Navigator</code>, it sends
+ this event:</p>
+<pre><code class="language-csharp">this.Monitor&lt;LivenessMonitor&gt;(new LivenessMonitor.BusyEvent());
+</code></pre>
+<p>And when the <code>Robot</code> finishes an order it sends this event:</p>
+<pre><code class="language-csharp">this.Monitor&lt;LivenessMonitor&gt;(new LivenessMonitor.IdleEvent());
+</code></pre>
+<p>The <code>Busy</code> state is marked as a <code>[Hot]</code> state and the <code>Idle</code> state is marked as a <code>[Cold]</code> state.
+During testing if <code>coyote test</code> finds the <code>LivenessMonitor</code> to be stuck in the <code>[Hot]</code> state for too
+long it raises an exception and the test fails.  This is in fact the failure that is detected during
+the test.</p>
+<h3 id="explanation-of-the-bug">Explanation of the bug</h3>
+<p>Remember the last lines of the coyote test execution log file:</p>
+<pre><code class="language-shell">&lt;ErrorLog&gt; Monitor 'Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor' detected
+liveness bug in hot state 'Busy' at the end of program execution.
+</code></pre>
+<p>If you add to the coyote test command line <code>--actor-graph</code>, and test again:</p>
+<pre><code class="language-plain">coyote test .\Samples\bin\net8.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10 --actor-graph
+</code></pre>
+<p>you&rsquo;ll see in the output of the tester that a DGML diagram has been produced:</p>
+<pre><code class="language-plain">..... Writing CoyoteOutput\DrinksServingRobotActors_0_0.dgml
+</code></pre>
+<p>Open this with Visual Studio 2022 and you will see a diagram like this.  Here the diagram is also
+animated using the contents of the <code>--xml-trace</code> output so you can see the sequence of events
+leading up to the bug.  <code>MockStateMachineTimer</code> information was removed from this graph just to
+simplify the diagram:</p>
+<div style="width:400" class="animated_svg" trace="../../assets/data/DrinksServingRobotActors.trace.xml"
+     svg="../../assets/images/DSR-Bug-01.svg">
+</div>
+<!-- animating svg demo player controls -->
+<!-- goes with _player-controls.scss -->
+<div class="player-controls">
+<div class="player-progress-bar"><svg class="progress-bar-svg" version="1.1"><rect id="progress-rect" y="14" height="8" class="player-button-fill"/></svg></div>
+<button class="pause-button player-button" aria-label="Pause" title="Pause"><svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><path class="player-button-fill" d="M 12,26 16,26 16,10 12,10 z M 21,26 25,26 25,10 21,10 z" ></path></svg></button>
+<button class="play-button player-button" aria-label="Play test mode" title="Play test mode"><svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><path class="player-button-fill" d="M 12,26 18.5,22 18.5,14 12,10 z M 18.5,22 25,18 25,18 18.5,14 z"></path></svg></button>
+<button class="fastforward-button player-button" aria-label="Play production mode" title="Play production mode"><svg height="100%" version="1.1" viewBox="0 0 56 36" ><path class="player-button-fill" d="M 25,26 31.5,22 31.5,14 25,10 z M 31.5,22 38,18 38,18 31.5,14 z"></path><path class="player-button-fill" d="M 12,26 18.5,22 18.5,14 12,10 z M 18.5,22 25,18 25,18 18.5,14 z"></path></svg></button>
+<button class="fullscreen-button hover-button-effect player-button" title="Full screen"><svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><g class="hover-button-effect-corner-0"><path class="player-button-fill" d="m 10,16 2,0 0,-4 4,0 0,-2 L 10,10 l 0,6 0,0 z"></path></g><g class="hover-button-effect-corner-1"><path class="player-button-fill" d="m 20,10 0,2 4,0 0,4 2,0 L 26,10 l -6,0 0,0 z"></path></g><g class="hover-button-effect-corner-2"><path class="player-button-fill" d="m 24,24 -4,0 0,2 L 26,26 l 0,-6 -2,0 0,4 0,0 z"></path></g><g class="hover-button-effect-corner-3"><path class="player-button-fill" d="M 12,20 10,20 10,26 l 6,0 0,-2 -4,0 0,-4 0,0 z" ></path></g></svg></button>
+<button class="normal-screen-button  hover-button-effect player-button" title="Exit full screen"><svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><g class="hover-button-effect-corner-2"><path class="player-button-fill" d="m 14,14 -4,0 0,2 6,0 0,-6 -2,0 0,4 0,0 z" ></path></g><g class="hover-button-effect-corner-3"><path class="player-button-fill" d="m 22,14 0,-4 -2,0 0,6 6,0 0,-2 -4,0 0,0 z" ></path></g><g class="hover-button-effect-corner-0"><path class="player-button-fill" d="m 20,26 2,0 0,-4 4,0 0,-2 -6,0 0,6 0,0 z"></path></g><g class="hover-button-effect-corner-1"><path class="player-button-fill" d="m 10,22 4,0 0,4 2,0 0,-6 -6,0 0,2 0,0 z"></path></g></svg></button>
+</div>
+<p><br clear="all" /></p>
+<p><svg id="svgfilter" width="0" height="0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="green-glow" filterUnits="userSpaceOnUse"
+           x="-50%" y="-50%" width="200%" height="200%">
+            <!-- blur the text at different levels-->
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur5"/>
+            <!-- merge all the blurs except for the first one -->
+            <feMerge result="blur-merged">
+                <feMergeNode in="blur10"/>
+            </feMerge>
+            <!-- recolor the merged blurs green-->
+            <feColorMatrix result="green-blur" in="blur-merged" type="matrix"
+                           values="0.06 0 0 0 0
+                                   0 1 0 0 0
+                                   0 0 0.44 0 0
+                                   0 0 0 1 0" />
+            <feMerge>
+                <feMergeNode in="green-blur"/>
+                <!-- largest blurs coloured green -->
+                <feMergeNode in="blur5"/>
+                <!-- smallest blur left white -->
+                <feMergeNode in="SourceGraphic"/>
+                <!-- original white text -->
+            </feMerge>
+        </filter>
+    </defs>
+</svg></p>
+<p>This is the exact snapshot at the time when the bug manifested.</p>
+<p>This diagram shows that the first <code>Navigator</code> (Navigator(6)) was terminated by the <code>FailoverDriver</code>,
+which then created a second <code>Navigator</code> (Navigator(13)).</p>
+<p>The link from this <code>Navigator</code> to the <code>Robot</code> shows that the <code>Navigator</code> registered itself with the
+<code>Robot</code>. What looks bad is that there is no link from the <code>Robot</code> to this <code>Navigator</code>. The <code>Robot</code>
+never sent any request and remained waiting. This is in fact the liveness bug!</p>
+<p>But who sent it in the <code>Active</code> state? The diagram clearly shows that <code>MovingOnRoute</code> was the state
+from which the transition occurred.</p>
+<p>The state <code>MovingOnRoute</code> is very simple. It processes a single type of event
+(<code>MoveTimerElapsedEvent</code>) with the <code>NextMove()</code> action:</p>
+<pre><code class="language-csharp">[OnEventDoAction(typeof(MoveTimerElapsedEvent), nameof(NextMove))]
+[IgnoreEvents(typeof(Navigator.DrinkOrderProducedEvent))]
+internal class MovingOnRoute : State { }
+
+private void NextMove()
+{
+    this.DrinkOrderPending = false;
+
+    if (this.Route == null)
+    {
+        return;
+    }
+
+    if (!this.Route.Any())
+    {
+        this.StopMoving();
+        this.RaiseGotoStateEvent&lt;ServingClient&gt;();
+
+        this.WriteLine(&quot;&lt;Robot&gt; Reached Client.&quot;);
+        Specification.Assert(
+            this.Coordinates == this.CurrentOrder.ClientDetails.Coordinates,
+            &quot;Having reached the Client the Robot's coordinates must be the same &quot; +
+            &quot;as the Client's, but they aren't&quot;);
+    }
+    else
+    {
+        var nextDestination = this.Route[0];
+        this.Route.RemoveAt(0);
+        this.MoveTo(nextDestination);
+        this.Timers[&quot;MoveTimer&quot;] = this.StartTimer(TimeSpan.FromSeconds(MoveDuration),
+            new MoveTimerElapsedEvent());
+    }
+}
+</code></pre>
+<p>Note that in this code there is no transition or even mentioning of the state <code>Active</code> &hellip; so how
+was it possible to transition from <code>MovingOnRoute</code> to <code>Active</code>?</p>
+<p>The diagram shows exactly what happened:</p>
+<ol>
+<li>The <code>Navigator</code> registered itself sending a <code>Navigator.RegisterNavigatorEvent</code> to the <code>Robot</code>.</li>
+<li>When the <code>Robot</code> dequeued this event, it was in state <code>MovingOnRoute</code>. But this state doesn&rsquo;t
+    process registrations from the <code>Robot</code>. Then <em>who</em> processed this event? The diagram again
+    answers this. See that the state <code>Init</code> pushed the <code>Active</code> state, and then the following states
+    all happened on the top of the active states stack, with <code>Init</code> below. This was done on purpose
+    so that only one state, <code>Init</code>, should have to deal with the registration of the <code>Navigator</code>.</li>
+<li>State <code>Init</code> processed the registration of the <code>Navigator</code>, then transitioned to state <code>Active</code>.</li>
+<li>So what happened was that the robot was in the <code>MoveOnRoute</code> state when Navigator failover
+    occurred. The new Navigator (13) started up and sent the <code>RegisterNavigatorEvent</code>, and the
+    <code>OnSetNavigator</code> sees that this is a failover condition, because <code>this.NavigatorId</code>  is already
+    set, so it aborts the current robot move on route operation and goes back to the <code>Active</code> state
+    using <code>this.RaiseGotoStateEvent&lt;Active&gt;()</code></li>
+</ol>
+<p>But what happened to the <code>Robot</code> in state <code>Active</code>? Why it didn&rsquo;t send any request to the
+<code>Navigator</code>?</p>
+<p>This code fragment explains what happened:</p>
+<pre><code class="language-csharp">[OnEntry(nameof(OnInitActive))]
+[OnEventGotoState(typeof(Navigator.DrinkOrderProducedEvent), typeof(ExecutingOrder))]
+[OnEventDoAction(typeof(Navigator.DrinkOrderConfirmedEvent), nameof(OnDrinkOrderConfirmed))]
+internal class Active : State { }
+
+private void OnInitActive()
+{
+    if (!this.DrinkOrderPending)
+    {
+        this.SendEvent(this.NavigatorId, new Navigator.GetDrinkOrderEvent(this.GetPicture()));
+        this.WriteLine(&quot;&lt;Robot&gt; Asked for a new Drink Order&quot;);
+    }
+
+    this.Monitor&lt;LivenessMonitor&gt;(new LivenessMonitor.BusyEvent());
+}
+</code></pre>
+<p>The <code>Robot</code> didn&rsquo;t send a request to the <code>Navigator</code>, because <code>this.DrinkOrderPending</code> was <code>true</code>
+(when in fact it should have been <code>false</code>). The <code>Robot</code> just informed the <code>LivenessMonitor</code> that it
+is busy, and then waited (forever) to receive the <code>Navigator</code>&rsquo;s response to the pending order it
+believed was coming.  But it was out of sync with the <code>Navigator</code> because there was no pending
+order in the <code>Storage</code> service.</p>
+<p>Thus, the reason for the bug is the incorrect value of <code>this.DrinkOrderPending</code> in state
+<code>MovingOnRoute</code> at the time of the registration event. Look at the code of <code>Robot.cs</code> where
+<code>this.DrinkOrderPending</code> is being modified. The only place where this is set to <code>false</code> is in the
+<code>NextMove()</code> method:</p>
+<pre><code class="language-csharp">private void NextMove()
+{
+    this.DrinkOrderPending = false;
+    ...
+}
+</code></pre>
+<p>Unfortunately, this is too late&hellip;</p>
+<p>So when is the right moment to set <code>this.DrinkOrderPending</code> to <code>false</code>?</p>
+<p>This is a classic timing bug then, and the coyote tester was able to uncover this bug because it
+takes control of all the timing and ordering of messages between the actors. The problem is the
+Navigator considers the drink request complete (and clears the Storage of that request) when it
+returns the DrivingInstructionsEvent. This event is handled by the robot in the method ReachClient.
+So this is where the Robot should be clearing its internal <code>DrinkOrderPending</code> state:</p>
+<pre><code class="language-csharp">private void ReachClient(Event e)
+{
+    var route = (e as DrivingInstructionsEvent)?.Route;
+    if (route != null)
+    {
+        this.Route = route;
+        // this.DrinkOrderPending = false; // this is where it really belongs.
+        this.Timers[&quot;MoveTimer&quot;] = this.StartTimer(TimeSpan.FromSeconds(MoveDuration),
+            new MoveTimerElapsedEvent());
+    }
+
+    this.RaiseGotoStateEvent&lt;MovingOnRoute&gt;();
+}
+</code></pre>
+<p>You can even see the fix for the bug in the code above. Although currently commented out, this is
+the exact place to set <code>DrinkOrderPending</code> to <code>false</code>.</p>
+<p><strong>So, the fix is</strong> to remove from the <code>NextMove()</code> method this line:</p>
+<p><code>this.DrinkOrderPending = false;</code></p>
+<p>and to move it into the <code>ReachClient()</code> method (or just uncomment the fix that is hidden there).</p>
+<p>After you perform this fix and rebuild the sample, try running coyote test again with the same
+command line which previously reported the liveness bug:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 -s prioritization -sv 10
+</code></pre>
+<p>And now no bug will be found &ndash; you should get result similar to this:</p>
+<pre><code class="language-plain">..... Iteration #800
+..... Iteration #800
+..... Iteration #900
+..... Iteration #900
+..... Iteration #1000
+..... Iteration #1000
+... Testing statistics:
+..... Found 0 bugs.
+... Exploration statistics:
+..... Explored 2000 schedules: 0 fair and 2000 unfair.
+..... Hit the max-steps bound of '2000' in 8.55% of the unfair schedules.
+... Elapsed 25.7423125 sec.
+. Done
+</code></pre>
+<p>If you want to have a high degree of certainty that no bug is found, run the coyote tester with a
+sufficiently big number of iterations, say 100,000.</p>
+<h2 id="summary">Summary</h2>
+<p>Failover testing is simple to achieve using Coyote and yields many interesting bugs in your code,
+including some thought-provoking design bugs. The technique of halting a &ldquo;production&rdquo;
+state-machine, and recreating it by reading from a &ldquo;persistent&rdquo; <code>MockStorage</code> (which is not halted
+during testing) can be generalized to many other scenarios (such as actual cloud services) where
+someone needs to test failover logic of production actors using Coyote.</p>
+<p>In this tutorial you learned:</p>
+<ol>
+<li>How to do failover testing using a Coyote <code>FailoverDriver</code> state machine.</li>
+<li>How to use Coyote to test failover in a service.</li>
+<li>How to use <code>--strategy prioritization</code> testing to find tricky bugs.</li>
+<li>How to specify the <code>--actor-graph</code> argument so that the coyote test tool would produce a snapshot-DGML
+  diagram of the final state of the system when the bug was found.</li>
+<li>How to use <code>RaisePushStateEvent()</code> and <code>RaisePopStateEvent()</code> to achieve additional simplicity in
+  handling common events in one place.</li>
+<li>How <code>Assert</code> helps find violations of safety properties during testing.</li>
+<li>How to ensure graceful termination of one state machine (before creating a new one) via the
+  TerminateEvent and HaltedEvent handshake between the FailoverDriver and the Navigator.</li>
+<li>How to write and use a <code>LivenessMonitor</code> in order to discover tricky liveness bugs.</li>
+</ol>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../../case-studies/azure-batch-service/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../../case-studies/azure-batch-service/" class="btn btn-xs btn-link">
+        Azure Batch Service
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../failure-detector/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../failure-detector/" class="btn btn-xs btn-link">
+        Bug in failure detector
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

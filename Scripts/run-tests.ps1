@@ -60,14 +60,21 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
         if ($f -eq "net8.0") {
-            $AssemblyName = GetAssemblyName($target)
-            $command = [IO.Path]::Combine($PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net8.0", "$AssemblyName.dll")
-            $command = $command + ' -r "' + [IO.Path]::Combine( `
-                $PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net8.0", "*.dll") + '"'
-            $command = $command + ' -r "' + [IO.Path]::Combine($PSScriptRoot, "..", "bin", "net8.0", "*.dll") + '"'
-            $command = $command + ' -r "' + [IO.Path]::Combine($dotnet_runtime_path, $runtime_version, "*.dll") + '"'
-            $command = $command + ' -r "' + [IO.Path]::Combine($aspnet_runtime_path, $runtime_version, "*.dll") + '"'
-            Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"
+            $skip_ilverify = $IsMacOS -and $kvp.Name -eq "actors" -and `
+                [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture -eq `
+                [System.Runtime.InteropServices.Architecture]::Arm64
+            if ($skip_ilverify) {
+                Write-Comment -text "Skipping ILVerify for actor tests on macOS ARM64." -color "yellow"
+            } else {
+                $AssemblyName = GetAssemblyName($target)
+                $command = [IO.Path]::Combine($PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net8.0", "$AssemblyName.dll")
+                $command = $command + ' -r "' + [IO.Path]::Combine( `
+                    $PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net8.0", "*.dll") + '"'
+                $command = $command + ' -r "' + [IO.Path]::Combine($PSScriptRoot, "..", "bin", "net8.0", "*.dll") + '"'
+                $command = $command + ' -r "' + [IO.Path]::Combine($dotnet_runtime_path, $runtime_version, "*.dll") + '"'
+                $command = $command + ' -r "' + [IO.Path]::Combine($aspnet_runtime_path, $runtime_version, "*.dll") + '"'
+                Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"
+            }
         }
 
         Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target `

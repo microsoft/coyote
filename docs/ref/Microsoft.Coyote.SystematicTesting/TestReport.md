@@ -31,6 +31,7 @@ public class TestReport
 | [NumOfExploredFairPaths](TestReport/NumOfExploredFairPaths.md) { get; } | Number of explored fair execution paths. |
 | [NumOfExploredUnfairPaths](TestReport/NumOfExploredUnfairPaths.md) { get; } | Number of explored unfair execution paths. |
 | [NumOfFoundBugs](TestReport/NumOfFoundBugs.md) { get; } | Number of found bugs. |
+| [NumOfTruncatedPaths](TestReport/NumOfTruncatedPaths.md) { get; } | Number of explored execution paths that were truncated because they reached the max-steps bound. |
 | [TotalConcurrencyDegree](TestReport/TotalConcurrencyDegree.md) { get; } | The total degree of concurrency (across all testing iterations). |
 | [TotalControlledOperations](TestReport/TotalControlledOperations.md) { get; } | The total number of controlled operations. |
 | [TotalExploredFairSteps](TestReport/TotalExploredFairSteps.md) { get; } | The total explored execution steps (across all testing iterations) in fair tests. |
@@ -39,6 +40,7 @@ public class TestReport
 | [UncontrolledInvocations](TestReport/UncontrolledInvocations.md) { get; } | Set of uncontrolled invocations. |
 | [Clone](TestReport/Clone.md)() | Clones the test report. |
 | [GetText](TestReport/GetText.md)(…) | Returns the testing report as a string, given a configuration and an optional prefix. |
+| [GetVerdict](TestReport/GetVerdict.md)() | Returns a verdict that summarizes whether the exploration was complete, based on the statistics gathered in this report and the configuration used during testing. |
 | [Merge](TestReport/Merge.md)(…) | Merges the information from the specified test report. |
 
 ## See Also

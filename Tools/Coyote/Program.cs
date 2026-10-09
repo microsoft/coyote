@@ -79,7 +79,7 @@ namespace Microsoft.Coyote
 
                 logWriter.LogImportant(engine.TestReport.GetText(configuration, "..."));
                 logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
-                return GetExitCodeFromTestReport(engine.TestReport);
+                return GetExitCodeFromTestReport(engine.TestReport, configuration);
             }
             catch (Exception ex)
             {
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote
                 }
 
                 logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
-                return GetExitCodeFromTestReport(engine.TestReport);
+                return GetExitCodeFromTestReport(engine.TestReport, configuration);
             }
             catch (Exception ex)
             {
@@ -193,9 +193,11 @@ namespace Microsoft.Coyote
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs args) =>
             Environment.Exit((int)ExitCode.InternalError);
 
-        private static ExitCode GetExitCodeFromTestReport(TestReport report) =>
+        private static ExitCode GetExitCodeFromTestReport(TestReport report, Configuration configuration) =>
             report.InternalErrors.Count > 0 ? ExitCode.InternalError :
             report.NumOfFoundBugs > 0 ? ExitCode.BugFound :
+            configuration.IsStrictExplorationEnabled && report.GetVerdict().Status is ExplorationStatus.Incomplete ?
+                ExitCode.IncompleteExploration :
             ExitCode.Success;
     }
 }

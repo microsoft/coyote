@@ -1,4 +1,17 @@
 ## vNext
+- Added the `TestReport.GetVerdict` API, which summarizes whether an exploration was
+  complete, found a bug, or is incomplete due to uncontrolled invocations, truncated
+  execution paths, insufficient execution paths or no scheduling decisions. The verdict
+  is also printed in the test report.
+- Added the `Configuration.WithStrictExplorationEnabled` API (and `--strict` CLI option)
+  that makes the `coyote` tool exit with code `4` when no bugs were found but the
+  exploration was incomplete, as well as the `Configuration.WithStrictBoundCheckingEnabled`
+  API (and `--strict-bounds` CLI option) to also treat fair execution paths that exceeded
+  the unfair max-steps bound as incomplete exploration.
+- Added the `Configuration.WithJsonReportEnabled` API (and `--json-report` CLI option) for
+  emitting a machine-readable `.report.json` file with the verdict, exploration statistics,
+  bug reports, uncontrolled invocations, settings and emitted report paths, as well as the
+  `TestingEngine.GetJsonReport` API for getting the same report in-process.
 - Upgraded the `System.Text.Json` package to `v8.0.4` for the `netstandard2.0`
   target framework, due to a vulnerability.
 - Dropped support for the `netcoreapp3.1` target framework, which reached end of

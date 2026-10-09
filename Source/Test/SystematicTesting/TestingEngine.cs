@@ -476,6 +476,19 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Returns a machine-readable report of the test run in JSON format. The report includes
+        /// the exploration verdict, statistics, bug reports and uncontrolled invocations.
+        /// </summary>
+        public string GetJsonReport() => this.CreateJsonReport(Array.Empty<string>()).ToJson();
+
+        /// <summary>
+        /// Creates a machine-readable report of the test run that lists the specified emitted report paths.
+        /// </summary>
+        private JsonTestReport CreateJsonReport(IEnumerable<string> reportPaths) => JsonTestReport.Create(
+            this.TestReport, this.Configuration, this.TestMethodInfo.Name, this.TestMethodInfo.Assembly,
+            this.IsTestRewritten(), this.Scheduler.GetStrategyName(), this.Profiler.Results(), reportPaths);
+
+        /// <summary>
         /// Throws either an <see cref="AssertionFailureException"/>, if a bug was found,
         /// or an unhandled <see cref="Exception"/>, if one was thrown.
         /// </summary>
@@ -552,6 +565,14 @@ namespace Microsoft.Coyote.SystematicTesting
                 string reportPath = Path.Combine(directory, fileName + ".uncontrolled.json");
                 File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations));
                 paths.Add(reportPath);
+            }
+
+            // Emit the machine-readable JSON report, which also lists the reports emitted above.
+            if (this.Configuration.IsJsonReportEnabled)
+            {
+                string jsonReportPath = Path.Combine(directory, fileName + ".report.json");
+                File.WriteAllText(jsonReportPath, this.CreateJsonReport(paths).ToJson());
+                paths.Add(jsonReportPath);
             }
 
             reportPaths = paths;

@@ -123,6 +123,26 @@ non-terminating executions (like an infinite series of ping pong events, for exa
 cases, if you do not provide `max-steps` then the tester can appear to can get stuck running one
 iteration forever. This is related to [liveness checking](../how-to/liveness-checking.md).
 
+### Machine-readable results
+
+By default, the `coyote` tester exits with code `0` when no bugs were found, `2` when a bug was
+found, and `3` on an internal error. Exit code `0` does not by itself mean that the exploration
+was exhaustive: the test might have invoked APIs that Coyote does not control (see [uncontrolled
+concurrency](../concepts/binary-rewriting.md)), some iterations might have been truncated by the
+`--max-steps` bound, or the test might not contain any scheduling decisions at all. The tester
+summarizes these conditions as an _exploration verdict_ at the end of the test report, and the
+`--strict` flag makes it exit with code `4` when the verdict is `Incomplete`. The `--strict-bounds`
+flag additionally treats fair execution paths that exceeded the unfair `--max-steps` bound as
+incomplete exploration, which is otherwise only reported as a warning.
+
+Use the `--json-report` flag to also emit a `.report.json` file next to the other reports. The
+file contains the verdict with its reasons, the exploration statistics, the bug reports, the
+detected uncontrolled invocations, the settings used during testing, the identity of the tested
+assembly, and the paths of the other emitted reports (such as the reproducible `.trace` file).
+This is useful when the tester is driven by scripts or by automated agents that need to decide
+whether a passing run can be trusted. The same report is available in-process through the
+`TestingEngine.GetJsonReport` API, and the verdict through the `TestReport.GetVerdict` API.
+
 ### Portfolio testing
 
 The Coyote tester supports running a portfolio of different exploration strategies during testing.

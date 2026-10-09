@@ -116,6 +116,11 @@ jobs:
           ./Samples/Scripts/build.ps1 -local -nuget
           ./Samples/Scripts/build-tests.ps1 -local -nuget
         shell: pwsh
+      - name: Test locally packaged Coyote consumers and CLI
+        run: |
+          ./Tests/Compatibility/run-package-smoke.ps1 -framework net10.0
+          ./Tests/Compatibility/run-package-smoke.ps1 -framework net8.0
+        shell: pwsh
       - name: Test Coyote samples
         run: ./Samples/Scripts/run-tests.ps1
         shell: pwsh

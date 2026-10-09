@@ -5,6 +5,31 @@ hosts. Each probe has its own `global.json`, so SDK sensitive commands must run
 from the probe directory, and both the .NET 8 and the .NET 10 SDK must be
 installed.
 
+## Testing package delivery
+
+After building the local NuGet packages on Windows with `.\Scripts\build.ps1 -ci -nuget`,
+run the package-consumer smoke tests:
+
+```powershell
+.\Tests\Compatibility\run-package-smoke.ps1 -framework net10.0
+.\Tests\Compatibility\run-package-smoke.ps1 -framework net8.0
+```
+
+These tests also run on Windows, Linux, and macOS in the sample CI jobs, using the
+Windows-built packages. Each test installs the locally built `Microsoft.Coyote.CLI`
+package for the requested framework and builds a fresh probe referencing the locally
+built `Microsoft.Coyote` meta-package rather than repository binaries. It checks that
+the library packages select the matching framework assets, then uses the installed
+CLI to rewrite the probe and execute ten controlled test iterations.
+
+Each invocation uses a new workspace and package cache under `bin/package-smoke`.
+Package-source mapping requires all `Microsoft.Coyote*` packages to come from
+`bin/nuget`, preventing published packages with the same version from satisfying the
+test. Other dependencies are restored from NuGet.org; `-dependencySource` can select
+an alternative feed for those dependencies without changing the Coyote package source.
+Both runtimes can be installed; the test selects the CLI framework explicitly, so
+this is not a runtime-isolation test.
+
 ## Running the matrix
 
 Build Coyote and then run the matrix from the repository root:

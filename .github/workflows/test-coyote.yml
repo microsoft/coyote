@@ -56,15 +56,21 @@ jobs:
         run: ./Scripts/run-tests.ps1 -ci
         shell: pwsh
       - name: Archive Coyote binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: coyote-binaries
+          name: coyote-binaries-${{ matrix.platform }}
           path: ./bin
+      - name: Archive Coyote NuGet packages
+        if: ${{ matrix.platform == 'windows-latest' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: coyote-nuget-packages
+          path: ./bin/nuget
       - name: Archive test results
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: coyote-test-results
+          name: coyote-test-results-${{ matrix.platform }}
           path: ./Tests/**/TestResults
   build-and-test-samples:
     name: Build and test Coyote samples
@@ -82,10 +88,16 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Download Coyote binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: coyote-binaries
+          name: coyote-binaries-${{ matrix.platform }}
           path: ./bin
+      - name: Download Coyote NuGet packages
+        if: ${{ matrix.platform != 'windows-latest' }}
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: coyote-nuget-packages
+          path: ./bin/nuget
       - name: Build Coyote samples
         run: |
           ./Samples/Scripts/build.ps1 -local -nuget

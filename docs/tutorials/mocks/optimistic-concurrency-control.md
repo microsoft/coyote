@@ -29,7 +29,7 @@ To run the code in this tutorial, you will need to:
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 8.0 version of the coyote tool](../../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../../get-started/using-coyote.md).
-- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
+- Clone the [Coyote git repo](https://github.com/microsoft/coyote).
 - Go through the [mocking dependencies for testing](mock-dependencies.md) tutorial.
 
 ## Walkthrough
@@ -226,7 +226,7 @@ equal than the new account, and if yes, the method fails with `false`. Else, it 
 The `GetAccount` and `DeleteAccount` methods are also similar to the [previous
 tutorial](../first-concurrency-unit-test.md), but now use a `try { ... } catch { ... }` block to
 return `false` if the call to `IDbCollection` failed with a `RowNotFoundException`.
- 
+
 Let's first write a sequential unit test to exercise the above `UpdateAccount` logic.
 
 ```csharp
@@ -544,7 +544,7 @@ across a fleet of machines.
 ## Get the sample source code
 
 To get the complete source code for the `AccountManager.ETags` tutorial, first clone the [Coyote git
-repo](http://github.com/microsoft/coyote).
+repo](https://github.com/microsoft/coyote).
 
 You can then build the sample by following the instructions
 [here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).

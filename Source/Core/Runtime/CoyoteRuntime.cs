@@ -2463,7 +2463,7 @@ namespace Microsoft.Coyote.Runtime
             var mockMessage = methodName is null ? string.Empty : $" either replace or mock '{methodName}', or";
             return $"{message} As a workaround, you can{mockMessage} use the '--no-repro' command line option " +
                 "(or the 'Configuration.WithNoBugTraceRepro()' method) to ignore this error by disabling bug " +
-                $"trace repro. Learn more at http://aka.ms/coyote-no-repro.{Environment.NewLine}{trace}";
+                $"trace repro. Learn more at https://aka.ms/coyote-no-repro.{Environment.NewLine}{trace}";
         }
 
         /// <summary>

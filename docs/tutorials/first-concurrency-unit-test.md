@@ -19,7 +19,7 @@ To run the code in this tutorial, you will need to:
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 8.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
-- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
+- Clone the [Coyote git repo](https://github.com/microsoft/coyote).
 
 ## Watch this tutorial
 
@@ -221,7 +221,7 @@ _concurrently_? How can you test this?
 
 What happens if you spawn two tasks that create the same account concurrently? What if you assert
 that only one creation succeeds, while the other always fails? That should work because the
-`InMemoryDbCollection` uses a `ConcurrentDictionary` right? 
+`InMemoryDbCollection` uses a `ConcurrentDictionary` right?
 
 ```csharp
 [Test]
@@ -371,7 +371,7 @@ Cool, the flakey test is no longer flakey! Coyote can also help you reproduce an
 simply run `coyote replay` giving the `.trace` file that Coyote outputs upon finding a bug:
 
 ```plain
-coyote replay .\AccountManager.dll AccountManager_0_0.trace 
+coyote replay .\AccountManager.dll AccountManager_0_0.trace
     -m TestConcurrentAccountCreation
 . Reproducing trace in .\Output\AccountManager.dll\CoyoteOutput\AccountManager_0_1.trace
 ... Task 0 is using 'replay' strategy.
@@ -401,7 +401,7 @@ tests for the `AccountManager` to increase our familiarity with Coyote.
 ## Get the sample source code
 
 To get the complete source code for the `AccountManager` tutorial, clone the [Coyote git
-repo](http://github.com/microsoft/coyote). Note that the repo also contains the code from the [next
+repo](https://github.com/microsoft/coyote). Note that the repo also contains the code from the [next
 tutorial](test-concurrent-operations.md) which builds upon this `AccountManager` sample.
 
 You can build the sample by following the instructions
@@ -432,7 +432,7 @@ coyote test .\AccountManager.dll -m TestConcurrentAccountCreation -i 100
 
 If you find a bug you can replay with the following command:
 ```plain
-coyote replay .\AccountManager.dll AccountManager_0_0.trace 
+coyote replay .\AccountManager.dll AccountManager_0_0.trace
     -m TestConcurrentAccountCreation
 ```
 

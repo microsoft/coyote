@@ -16,7 +16,7 @@ To run the code in this tutorial, you will need to:
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
 - Install the [.NET 8.0 version of the coyote tool](../get-started/install.md).
 - Be familiar with the `coyote` tool. See [using Coyote](../get-started/using-coyote.md).
-- Clone the [Coyote git repo](http://github.com/microsoft/coyote).
+- Clone the [Coyote git repo](https://github.com/microsoft/coyote).
 - Go through the [write your first concurrency unit test](first-concurrency-unit-test.md) tutorial.
 
 ## Walkthrough
@@ -278,7 +278,7 @@ for the account).
 ## Get the sample source code
 
 To get the complete source code for the `AccountManager` tutorial, first clone the [Coyote git
-repo](http://github.com/microsoft/coyote).
+repo](https://github.com/microsoft/coyote).
 
 You can then build the sample by following the instructions
 [here](https://github.com/microsoft/coyote/tree/main/Samples/README.md).
@@ -293,7 +293,7 @@ coyote test .\AccountManager.dll -m TestConcurrentAccountDeletion -i 100
 If you find a bug you can replay with the following command (providing the correct .trace file
 reported from the previous coyote test that failed):
 ```plain
-coyote replay .\AccountManager.dll AccountManager_0_0.trace 
+coyote replay .\AccountManager.dll AccountManager_0_0.trace
     -m TestConcurrentAccountDeletion
 ```
 

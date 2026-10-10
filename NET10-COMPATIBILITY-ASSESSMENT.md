@@ -343,8 +343,10 @@ The sections above record the original 2026-08-20 assessment and are kept as his
 
 1. **`Task.WaitAsync` event ordering.** A source task that completes before the wait token is canceled keeps its result, fault or cancellation, for both generic and non-generic tasks. Sources that run continuations asynchronously can still lose to a later cancellation, which matches native .NET.
 2. **Cancellation of a blocked `Task.WaitAll`.** The array and .NET 10 `IEnumerable<Task>` overloads wake up when a cancelable token is canceled during the wait. They throw for that token, leave pending tasks untouched, and follow native precedence when both events happen. Waits without a cancelable token still report genuine deadlocks.
-3. **Small-integer atomics.** On .NET 9 and later, `Interlocked.Exchange`/`CompareExchange` for `byte`, `sbyte`, `short` and `ushort` are controlled scheduling points.
-4. **Generic atomic contracts.** On .NET 9 and later, the generic `Exchange<T>`/`CompareExchange<T>` replacements accept primitives and enums like the runtime, and delegate type validation to it. Older targets keep the reference-type contract.
+3. **Small-integer atomics.** In the `net10.0` build of Coyote, `Interlocked.Exchange`/`CompareExchange` for `byte`, `sbyte`, `short` and `ushort` are controlled scheduling points.
+4. **Generic atomic contracts.** In the `net10.0` build of Coyote, the generic `Exchange<T>`/`CompareExchange<T>` replacements accept primitives and enums like the runtime, and delegate type validation to it. The older builds keep the reference-type contract.
+
+   The packages ship no `net9.0` assets, so NuGet resolves the `net8.0` build for programs that target .NET 9. That build has neither the small-integer replacements nor the relaxed generic contract.
 5. **Memory barriers.** These stay deliberate native pass-through; see "Memory barriers and the memory-model boundary".
 6. **Named wait handles.** Named `EventWaitHandle` creation is rejected before any OS object is created or opened; see "Named wait handles".
 7. **Independent API discovery.** The runtime API gate discovers audited families through reflection; see "Runtime API gate". Running it found and fixed `Monitor.TryEnter(object, int)`, `Task.Wait(TimeSpan, CancellationToken)` and the .NET Framework `EventWaitHandleSecurity` constructor.

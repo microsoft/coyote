@@ -135,6 +135,20 @@ summarizes these conditions as an _exploration verdict_ at the end of the test r
 flag additionally treats fair execution paths that exceeded the unfair `--max-steps` bound as
 incomplete exploration, which is otherwise only reported as a warning.
 
+An exploration that executes no paths is `Incomplete` with reason `NoExecutionPaths`, including
+when `--iterations 0` is used or test initialization exceeds the timeout. If the timeout expires
+before any paths were explored, `TestingTimedOut` is also an incomplete reason. After paths were
+explored, reaching the testing time budget is instead a `TestingTimedOut` warning. Such a run
+can be `Complete` if no other incomplete reasons were detected; uncontrolled invocations,
+truncated paths and other limitations still make it `Incomplete`. A call to `TestingEngine.Stop`
+is reported as reason `TestingCanceled` even if some paths were explored. With `--strict`,
+incomplete runs exit with code `4`; without it, the default exit codes above still apply.
+A detected bug or an internal error retains its verdict and exit-code priority.
+
+The timeout ends the wait for testing; it does not synchronously terminate arbitrary user
+initialization or an iteration still running in the background. Reports use the statistics
+available when they are read or generated; background iterations can still update them.
+
 Use the `--json-report` flag to also emit a `.report.json` file next to the other reports. The
 file contains the verdict with its reasons, the exploration statistics, the bug reports, the
 detected uncontrolled invocations, the settings used during testing, the identity of the tested

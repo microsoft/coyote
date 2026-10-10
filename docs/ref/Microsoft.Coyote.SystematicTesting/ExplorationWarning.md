@@ -11,6 +11,7 @@ public enum ExplorationWarning
 | name | value | description |
 | --- | --- | --- |
 | ExceededUnfairStepsBound | `0` | At least one fair execution path exceeded the unfair max-steps bound before terminating. |
+| TestingTimedOut | `1` | The testing time budget expired after execution paths were explored. |
 
 ## See Also
 

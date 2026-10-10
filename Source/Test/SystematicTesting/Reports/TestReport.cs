@@ -178,6 +178,18 @@ namespace Microsoft.Coyote.SystematicTesting
         public HashSet<string> InternalErrors { get; internal set; }
 
         /// <summary>
+        /// True if the exploration stopped because the testing timeout expired.
+        /// </summary>
+        [DataMember]
+        internal bool IsExplorationTimedOut { get; private set; }
+
+        /// <summary>
+        /// True if the exploration was canceled by a request to stop the testing engine.
+        /// </summary>
+        [DataMember]
+        internal bool IsExplorationCanceled { get; private set; }
+
+        /// <summary>
         /// Lock for the test report.
         /// </summary>
         private readonly object Lock;
@@ -312,6 +324,18 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Records how the exploration was interrupted while statistics can still be merging.
+        /// </summary>
+        internal void RecordExplorationTermination(bool isCanceled)
+        {
+            lock (this.Lock)
+            {
+                this.IsExplorationTimedOut |= !isCanceled;
+                this.IsExplorationCanceled |= isCanceled;
+            }
+        }
+
+        /// <summary>
         /// Merges the information from the specified test report.
         /// </summary>
         /// <returns>True if merged successfully.</returns>
@@ -331,6 +355,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.BugReports.UnionWith(testReport.BugReports);
                 this.UncontrolledInvocations.UnionWith(testReport.UncontrolledInvocations);
+                this.IsExplorationTimedOut |= testReport.IsExplorationTimedOut;
+                this.IsExplorationCanceled |= testReport.IsExplorationCanceled;
 
                 this.TotalControlledOperations += testReport.TotalControlledOperations;
                 this.MaxControlledOperations = Math.Max(this.MaxControlledOperations, testReport.MaxControlledOperations);
@@ -427,7 +453,29 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            if (this.NumOfFoundBugs is 0 && this.Configuration.TestingTimeout is 0 &&
+            if (totalExploredPaths is 0)
+            {
+                reasons.Add(IncompleteExplorationReason.NoExecutionPaths);
+            }
+
+            if (this.IsExplorationTimedOut)
+            {
+                if (totalExploredPaths is 0)
+                {
+                    reasons.Add(IncompleteExplorationReason.TestingTimedOut);
+                }
+                else
+                {
+                    warnings.Add(ExplorationWarning.TestingTimedOut);
+                }
+            }
+
+            if (this.IsExplorationCanceled)
+            {
+                reasons.Add(IncompleteExplorationReason.TestingCanceled);
+            }
+
+            if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 && this.Configuration.TestingTimeout is 0 &&
                 totalExploredPaths < this.Configuration.TestingIterations)
             {
                 reasons.Add(IncompleteExplorationReason.InsufficientExecutionPaths);

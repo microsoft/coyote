@@ -73,6 +73,11 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly CancellationTokenSource CancellationTokenSource;
 
         /// <summary>
+        /// True if cancellation was requested by stopping the testing engine.
+        /// </summary>
+        private volatile bool IsStopRequested;
+
+        /// <summary>
         /// Data structure containing information
         /// gathered during testing.
         /// </summary>
@@ -239,7 +244,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    this.LogWriter.LogWarning("... Test timed out.");
+                    this.LogWriter.LogWarning(this.IsStopRequested ? "... Test canceled." : "... Test timed out.");
                 }
             }
             catch (Exception ex)
@@ -263,6 +268,17 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             finally
             {
+                if (this.Configuration.TestingTimeout > 0)
+                {
+                    // Disarm the timeout so it cannot cancel the engine after normal completion.
+                    this.CancellationTokenSource.CancelAfter(Timeout.Infinite);
+                }
+
+                if (this.CancellationTokenSource.IsCancellationRequested)
+                {
+                    this.TestReport.RecordExplorationTermination(this.IsStopRequested);
+                }
+
                 this.Profiler.StopMeasuringExecutionTime();
             }
 
@@ -454,6 +470,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public void Stop()
         {
+            this.IsStopRequested = true;
             this.CancellationTokenSource.Cancel();
         }
 

@@ -15,6 +15,9 @@ public enum IncompleteExplorationReason
 | ExceededUnfairStepsBound | `2` | At least one fair execution path exceeded the unfair max-steps bound. This is only a reason when strict bound checking is enabled, otherwise it is reported as a warning. |
 | InsufficientExecutionPaths | `3` | Fewer execution paths were explored than the number of requested testing iterations. |
 | NoSchedulingDecisions | `4` | No scheduling decisions were taken during testing, so there were no interleavings to explore. |
+| NoExecutionPaths | `5` | No execution paths were explored, regardless of the requested iterations or timeout. |
+| TestingTimedOut | `6` | The testing timeout expired before any execution paths were explored. |
+| TestingCanceled | `7` | The exploration was canceled by a request to stop the testing engine. |
 
 ## See Also
 

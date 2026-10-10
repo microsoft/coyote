@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
@@ -15,6 +16,249 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
         public ExplorationVerdictTests(ITestOutputHelper output)
             : base(output)
         {
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestZeroIterationsVerdict()
+        {
+            var report = this.RunSystematicTest(() => { },
+                configuration: this.GetConfiguration().WithTestingIterations(0));
+
+            Assert.Equal(0, report.NumOfExploredFairPaths + report.NumOfExploredUnfairPaths);
+            Assert.Equal(ExplorationStatus.Incomplete, report.GetVerdict().Status);
+            Assert.Contains(IncompleteExplorationReason.NoExecutionPaths, report.GetVerdict().Reasons);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestCanceledBeforeExecutionVerdict()
+        {
+            using var engine = TestingEngine.Create(this.GetConfiguration().WithTestingTimeout(30), () => { });
+            engine.Stop();
+            engine.Run();
+
+            Assert.Equal(0, engine.TestReport.NumOfExploredFairPaths + engine.TestReport.NumOfExploredUnfairPaths);
+            Assert.Equal(ExplorationStatus.Incomplete, engine.TestReport.GetVerdict().Status);
+            Assert.Contains(IncompleteExplorationReason.NoExecutionPaths, engine.TestReport.GetVerdict().Reasons);
+            Assert.Contains(IncompleteExplorationReason.TestingCanceled, engine.TestReport.GetVerdict().Reasons);
+            Assert.DoesNotContain(IncompleteExplorationReason.TestingTimedOut, engine.TestReport.GetVerdict().Reasons);
+        }
+
+        [Fact(Timeout = 10000)]
+        public void TestTimeoutBeforeExecutionVerdict()
+        {
+            using var callbackCompleted = new ManualResetEventSlim();
+            using var releaseCallback = new ManualResetEventSlim();
+            using var engine = TestingEngine.Create(this.GetConfiguration().WithTestingTimeout(1), () => { });
+            engine.RegisterStartIterationCallBack(_ =>
+            {
+                try
+                {
+                    releaseCallback.Wait();
+                    throw new TaskCanceledException();
+                }
+                finally
+                {
+                    callbackCompleted.Set();
+                }
+            });
+            try
+            {
+                engine.Run();
+            }
+            finally
+            {
+                releaseCallback.Set();
+                Assert.True(callbackCompleted.Wait(5000));
+            }
+
+            Assert.Equal(0, engine.TestReport.NumOfExploredFairPaths + engine.TestReport.NumOfExploredUnfairPaths);
+            Assert.Equal(ExplorationStatus.Incomplete, engine.TestReport.GetVerdict().Status);
+            Assert.Contains(IncompleteExplorationReason.NoExecutionPaths, engine.TestReport.GetVerdict().Reasons);
+            Assert.Contains(IncompleteExplorationReason.TestingTimedOut, engine.TestReport.GetVerdict().Reasons);
+            Assert.DoesNotContain(IncompleteExplorationReason.TestingCanceled, engine.TestReport.GetVerdict().Reasons);
+        }
+
+        [Fact(Timeout = 10000)]
+        public void TestTimeBudgetAfterExecutionVerdict()
+        {
+            using var callbackCompleted = new ManualResetEventSlim();
+            using var releaseCallback = new ManualResetEventSlim();
+            using var engine = TestingEngine.Create(this.GetConfiguration().WithTestingTimeout(1),
+                () => SchedulingPoint.Interleave());
+            engine.RegisterStartIterationCallBack(iteration =>
+            {
+                if (iteration > 0)
+                {
+                    try
+                    {
+                        releaseCallback.Wait();
+                        throw new TaskCanceledException();
+                    }
+                    finally
+                    {
+                        callbackCompleted.Set();
+                    }
+                }
+            });
+            try
+            {
+                engine.Run();
+            }
+            finally
+            {
+                releaseCallback.Set();
+                Assert.True(callbackCompleted.Wait(5000));
+            }
+
+            Assert.Equal(1, engine.TestReport.NumOfExploredFairPaths + engine.TestReport.NumOfExploredUnfairPaths);
+            var verdict = engine.TestReport.GetVerdict();
+            Assert.Equal(ExplorationStatus.Complete, verdict.Status);
+            Assert.Empty(verdict.Reasons);
+            Assert.Contains(ExplorationWarning.TestingTimedOut, verdict.Warnings);
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TestInterruptedVerdictSurvivesCloneAndMerge(bool isTimedOut)
+        {
+            var configuration = this.GetConfiguration();
+            var interruptedReport = new TestReport(configuration);
+            interruptedReport.RecordExplorationTermination(isCanceled: !isTimedOut);
+            var mergedReport = new TestReport(configuration)
+            {
+                NumOfExploredFairPaths = 1,
+                MaxExploredFairSteps = 1
+            };
+            var clonedReport = interruptedReport.Clone();
+            Assert.Equal(interruptedReport.IsExplorationTimedOut, clonedReport.IsExplorationTimedOut);
+            Assert.Equal(interruptedReport.IsExplorationCanceled, clonedReport.IsExplorationCanceled);
+            Assert.Equal(ExplorationStatus.Incomplete, clonedReport.GetVerdict().Status);
+            Assert.True(mergedReport.Merge(interruptedReport));
+
+            var verdict = mergedReport.GetVerdict();
+            Assert.Equal(isTimedOut ? ExplorationStatus.Complete : ExplorationStatus.Incomplete, verdict.Status);
+            if (isTimedOut)
+            {
+                Assert.Empty(verdict.Reasons);
+                Assert.Contains(ExplorationWarning.TestingTimedOut, verdict.Warnings);
+            }
+            else
+            {
+                Assert.Contains(IncompleteExplorationReason.TestingCanceled, verdict.Reasons);
+                Assert.DoesNotContain(ExplorationWarning.TestingTimedOut, verdict.Warnings);
+            }
+
+            Assert.DoesNotContain(IncompleteExplorationReason.NoExecutionPaths, verdict.Reasons);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestInterruptedVerdictPreservesBugAndErrorPriority()
+        {
+            var report = new TestReport(this.GetConfiguration())
+            {
+                NumOfFoundBugs = 1
+            };
+            report.RecordExplorationTermination(isCanceled: false);
+            Assert.Equal(ExplorationStatus.BugFound, report.GetVerdict().Status);
+
+            report.InternalErrors.Add("Fixture internal error.");
+            Assert.Equal(ExplorationStatus.InternalError, report.GetVerdict().Status);
+        }
+
+        [Fact(Timeout = 10000)]
+        public void TestCanceledAfterExecutionVerdict()
+        {
+            using var callbackCompleted = new ManualResetEventSlim();
+            using var engine = TestingEngine.Create(this.GetConfiguration().WithTestingTimeout(30),
+                () => SchedulingPoint.Interleave());
+            engine.RegisterStartIterationCallBack(iteration =>
+            {
+                if (iteration > 0)
+                {
+                    try
+                    {
+                        engine.Stop();
+                        throw new TaskCanceledException();
+                    }
+                    finally
+                    {
+                        callbackCompleted.Set();
+                    }
+                }
+            });
+            engine.Run();
+            Assert.True(callbackCompleted.Wait(5000));
+
+            Assert.Equal(1, engine.TestReport.NumOfExploredFairPaths + engine.TestReport.NumOfExploredUnfairPaths);
+            var verdict = engine.TestReport.GetVerdict();
+            Assert.Equal(ExplorationStatus.Incomplete, verdict.Status);
+            Assert.Contains(IncompleteExplorationReason.TestingCanceled, verdict.Reasons);
+            Assert.DoesNotContain(IncompleteExplorationReason.NoExecutionPaths, verdict.Reasons);
+        }
+
+        [Fact(Timeout = 10000)]
+        public void TestInterruptionRecordingDuringMerge()
+        {
+            var configuration = this.GetConfiguration();
+            var report = new TestReport(configuration);
+            var iterationReport = new TestReport(configuration)
+            {
+                NumOfExploredFairPaths = 1,
+                MaxExploredFairSteps = 1
+            };
+            Task.WaitAll(Task.Run(() =>
+            {
+                for (int i = 0; i < 1000; i++)
+                {
+                    report.RecordExplorationTermination(isCanceled: false);
+                }
+            }), Task.Run(() =>
+            {
+                for (int i = 0; i < 1000; i++)
+                {
+                    Assert.True(report.Merge(iterationReport));
+                }
+            }));
+
+            Assert.Equal(ExplorationStatus.Complete, report.GetVerdict().Status);
+            Assert.Contains(ExplorationWarning.TestingTimedOut, report.GetVerdict().Warnings);
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(IncompleteExplorationReason.UncontrolledInvocations)]
+        [InlineData(IncompleteExplorationReason.TruncatedExecutionPaths)]
+        [InlineData(IncompleteExplorationReason.ExceededUnfairStepsBound)]
+        [InlineData(IncompleteExplorationReason.NoSchedulingDecisions)]
+        public void TestTimeBudgetPreservesIncompleteReasons(IncompleteExplorationReason reason)
+        {
+            var report = new TestReport(this.GetConfiguration().WithTestingTimeout(1).WithStrictBoundCheckingEnabled())
+            {
+                NumOfExploredFairPaths = 1,
+                MaxExploredFairSteps = 1
+            };
+            report.RecordExplorationTermination(isCanceled: false);
+            switch (reason)
+            {
+                case IncompleteExplorationReason.UncontrolledInvocations:
+                    report.UncontrolledInvocations.Add("Fixture uncontrolled invocation.");
+                    break;
+                case IncompleteExplorationReason.TruncatedExecutionPaths:
+                    report.MaxFairStepsHitInFairTests = 1;
+                    break;
+                case IncompleteExplorationReason.ExceededUnfairStepsBound:
+                    report.MaxUnfairStepsHitInFairTests = 1;
+                    break;
+                case IncompleteExplorationReason.NoSchedulingDecisions:
+                    report.MaxExploredFairSteps = 0;
+                    break;
+            }
+
+            var verdict = report.GetVerdict();
+            Assert.Equal(ExplorationStatus.Incomplete, verdict.Status);
+            Assert.Contains(reason, verdict.Reasons);
+            Assert.DoesNotContain(IncompleteExplorationReason.TestingTimedOut, verdict.Reasons);
+            Assert.Contains(ExplorationWarning.TestingTimedOut, verdict.Warnings);
         }
 
         [Fact(Timeout = 5000)]

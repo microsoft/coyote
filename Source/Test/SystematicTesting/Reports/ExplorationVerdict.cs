@@ -106,7 +106,22 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// No scheduling decisions were taken during testing, so there were no interleavings to explore.
         /// </summary>
-        NoSchedulingDecisions
+        NoSchedulingDecisions,
+
+        /// <summary>
+        /// No execution paths were explored, regardless of the requested iterations or timeout.
+        /// </summary>
+        NoExecutionPaths,
+
+        /// <summary>
+        /// The testing timeout expired before any execution paths were explored.
+        /// </summary>
+        TestingTimedOut,
+
+        /// <summary>
+        /// The exploration was canceled by a request to stop the testing engine.
+        /// </summary>
+        TestingCanceled
     }
 
     /// <summary>
@@ -118,6 +133,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// At least one fair execution path exceeded the unfair max-steps bound before terminating.
         /// </summary>
-        ExceededUnfairStepsBound = 0
+        ExceededUnfairStepsBound = 0,
+
+        /// <summary>
+        /// The testing time budget expired after execution paths were explored.
+        /// </summary>
+        TestingTimedOut
     }
 }

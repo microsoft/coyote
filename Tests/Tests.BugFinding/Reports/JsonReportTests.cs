@@ -23,6 +23,37 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
         }
 
         [Fact(Timeout = 5000)]
+        public void TestJsonReportForZeroIterations()
+        {
+            using var logger = new TestOutputLogger(this.TestOutput);
+            using var engine = RunEngine(() => { },
+                this.GetConfiguration().WithTestingIterations(0).WithStrictExplorationEnabled(), logger);
+
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var root = document.RootElement;
+            Assert.Equal(0, GetTotalPaths(root));
+            Assert.Equal("Incomplete", root.GetProperty("verdict").GetProperty("status").GetString());
+            Assert.Contains("NoExecutionPaths",
+                root.GetProperty("verdict").GetProperty("reasons").EnumerateArray().Select(element => element.GetString()));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportForTimeBudgetWarning()
+        {
+            using var engine = TestingEngine.Create(this.GetConfiguration().WithTestingTimeout(1)
+                .WithStrictExplorationEnabled(), () => { });
+            engine.TestReport.NumOfExploredFairPaths = 1;
+            engine.TestReport.MaxExploredFairSteps = 1;
+            engine.TestReport.RecordExplorationTermination(isCanceled: false);
+
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var verdict = document.RootElement.GetProperty("verdict");
+            Assert.Equal("Complete", verdict.GetProperty("status").GetString());
+            Assert.Equal(0, verdict.GetProperty("reasons").GetArrayLength());
+            Assert.Equal("TestingTimedOut", verdict.GetProperty("warnings")[0].GetString());
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestJsonReportForCompleteExploration()
         {
             using var logger = new TestOutputLogger(this.TestOutput);

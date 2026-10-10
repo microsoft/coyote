@@ -345,7 +345,8 @@ namespace Microsoft.Coyote.Cli
             var strictOption = new Option<bool>(
                 name: "--strict",
                 description: "Exit with code 4 when no bugs were found but the exploration was incomplete, " +
-                    "for example due to uncontrolled invocations, truncated execution paths or no scheduling decisions.")
+                    "for example due to uncontrolled invocations, truncated execution paths, no scheduling decisions, " +
+                    "no execution paths or cancellation. Reaching the time budget after exploring paths is a warning.")
             {
                 Arity = ArgumentArity.Zero
             };

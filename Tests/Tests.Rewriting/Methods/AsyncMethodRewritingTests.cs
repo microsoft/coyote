@@ -25,5 +25,17 @@ namespace Microsoft.Coyote.Rewriting.Tests
         {
             return await Task.FromResult(1);
         }
+
+        [Fact(Timeout = 5000)]
+        public async ValueTask TestRewritingAsyncValueTaskMethod()
+        {
+            await Task.CompletedTask;
+        }
+
+        [Fact(Timeout = 5000)]
+        public async ValueTask<int> TestRewritingGenericAsyncValueTaskMethod()
+        {
+            return await Task.FromResult(1);
+        }
     }
 }

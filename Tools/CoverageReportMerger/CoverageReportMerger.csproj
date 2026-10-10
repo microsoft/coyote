@@ -15,4 +15,8 @@
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
     <ProjectReference Include="..\..\Source\Actors\Actors.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" PrivateAssets="all" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" PrivateAssets="all" />
+  </ItemGroup>
 </Project>

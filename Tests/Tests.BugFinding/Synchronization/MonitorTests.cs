@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -155,6 +156,19 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestMonitorWithConcurrentTryLock()
+        {
+            this.Test(async () =>
+            {
+                TryLockData data = new TryLockData();
+                Task t1 = Task.Run(data.AcquireAndRelease);
+                Task t2 = Task.Run(data.AcquireAndRelease);
+                await Task.WhenAll(t1, t2);
+            },
+            this.GetConfiguration().WithLockAccessRaceCheckingEnabled().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestComplexMonitor()
         {
             this.Test(async () =>
@@ -192,6 +206,33 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(expected == actual, "ControlledMonitor out of order, '{0}' instead of '{1}'", actual, expected);
             },
             this.GetConfiguration());
+        }
+
+        private class TryLockData
+        {
+            private readonly object SyncObject;
+            private int EnteredCount;
+
+            internal TryLockData()
+            {
+                this.SyncObject = new object();
+                this.EnteredCount = 0;
+            }
+
+            internal void AcquireAndRelease()
+            {
+                while (!SynchronizedBlock.TryLock(this.SyncObject))
+                {
+                    SchedulingPoint.Interleave();
+                }
+
+                this.EnteredCount++;
+                Specification.Assert(this.EnteredCount is 1,
+                    "More than one operation acquired the lock, expected 1 but found {0}.", this.EnteredCount);
+                SchedulingPoint.Interleave();
+                this.EnteredCount--;
+                Monitor.Exit(this.SyncObject);
+            }
         }
 
         private class SignalData

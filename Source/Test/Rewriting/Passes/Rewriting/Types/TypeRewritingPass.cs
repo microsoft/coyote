@@ -88,6 +88,10 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.ManualResetEvent] = typeof(Types.Threading.ManualResetEvent);
             this.KnownTypes[NameCache.EventWaitHandle] = typeof(Types.Threading.EventWaitHandle);
             this.KnownTypes[NameCache.WaitHandle] = typeof(Types.Threading.WaitHandle);
+#if NET10_0_OR_GREATER
+            this.KnownTypes[NameCache.Lock] = typeof(Types.Threading.Lock);
+            this.KnownTypes[NameCache.LockScope] = typeof(Types.Threading.Lock.Scope);
+#endif
 
 #if NET
             // Populate the map with the known HTTP and web-related types.

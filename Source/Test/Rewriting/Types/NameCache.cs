@@ -79,6 +79,10 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string ManualResetEvent { get; } = typeof(SystemThreading.ManualResetEvent).FullName;
         internal static string EventWaitHandle { get; } = typeof(SystemThreading.EventWaitHandle).FullName;
         internal static string WaitHandle { get; } = typeof(SystemThreading.WaitHandle).FullName;
+#if NET10_0_OR_GREATER
+        internal static string Lock { get; } = typeof(SystemThreading.Lock).FullName;
+        internal static string LockScope { get; } = typeof(SystemThreading.Lock).FullName + "/Scope";
+#endif
 
         internal static string GenericList { get; } = typeof(SystemGenericCollections.List<>).FullName;
         internal static string GenericDictionary { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;

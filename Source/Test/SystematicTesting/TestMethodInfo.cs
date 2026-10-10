@@ -102,6 +102,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             this.LogWriter = logWriter;
 #if NET
+            TargetRuntimeValidator.ValidateTestingTarget(configuration.AssemblyToBeAnalyzed);
             this.Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(configuration.AssemblyToBeAnalyzed);
             this.LoadContext = AssemblyLoadContext.GetLoadContext(this.Assembly);
             this.DependencyContext = DependencyContext.Load(this.Assembly);

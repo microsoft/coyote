@@ -23,7 +23,8 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
         $command = "$coyote $cmd $target"
     }
 
-    if ($command -eq "rewrite" -and $framework -ne "net6.0" -and $framework -ne "net8.0" -and $IsWindows) {
+    if ($cmd -eq "rewrite" -and $framework -ne "net10.0" -and $framework -ne "net8.0" -and
+        $framework -ne "net6.0" -and $IsWindows) {
         # NOTE: Mono.Cecil cannot sign assemblies on unix platforms.
         $command = "$command -snk $key"
     }
@@ -156,11 +157,14 @@ function FindDotNetSdkVersion([String]$dotnet_sdk_path) {
 }
 
 # Finds the dotnet runtime version.
-function FindDotNetRuntimeVersion([String]$dotnet_runtime_path) {
-    $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("global.json")
-    $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
-    $global_version = $json.sdk.version
-    return FindMatchingVersion -path $dotnet_runtime_path -version $global_version
+function FindDotNetRuntimeVersion([String]$dotnet_runtime_path, [version]$version) {
+    if ($null -eq $version) {
+        $globalJson = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath @("global.json")
+        $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
+        $version = $json.sdk.version
+    }
+
+    return FindMatchingVersion -path $dotnet_runtime_path -version $version
 }
 
 # Searches the specified directory for the closest match for the given version.

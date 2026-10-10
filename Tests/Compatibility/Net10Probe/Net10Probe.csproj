@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CoyotePackageVersion)' != ''">
+    <PackageReference Include="Microsoft.Coyote" Version="$(CoyotePackageVersion)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(CoyotePackageVersion)' == ''">
+    <Reference Include="Microsoft.Coyote">
+      <HintPath>..\..\..\bin\net10.0\Microsoft.Coyote.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Coyote.Actors">
+      <HintPath>..\..\..\bin\net10.0\Microsoft.Coyote.Actors.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Coyote.Test">
+      <HintPath>..\..\..\bin\net10.0\Microsoft.Coyote.Test.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

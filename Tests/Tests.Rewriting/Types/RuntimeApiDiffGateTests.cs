@@ -128,6 +128,20 @@ namespace Microsoft.Coyote.Rewriting.Tests
             Assert.Contains(unsupportedMember.Signature, error);
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestReplacementWithStricterGenericConstraintFailsTheGate()
+        {
+            ApiMember exchange = GetRuntimeMembers().Single(member =>
+                member.RuntimeMethod.Name == nameof(Interlocked.Exchange) && member.RuntimeMethod.IsGenericMethodDefinition);
+            Assert.True(HasReplacement(exchange));
+            Assert.Contains("Exchange``1(!!0&,!!0)|!!0", exchange.Signature);
+
+            var stricter = new ApiMember(exchange.RuntimeMethod, typeof(StricterInterlocked), true);
+            Assert.False(HasReplacement(stricter));
+            var nongeneric = new ApiMember(exchange.RuntimeMethod, typeof(NongenericInterlocked), true);
+            Assert.False(HasReplacement(nongeneric));
+        }
+
         private static IReadOnlyList<ApiMember> GetRuntimeMembers()
         {
             var members = new List<ApiMember>
@@ -168,10 +182,22 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 Create(typeof(SemaphoreSlim), typeof(CoyoteSemaphoreSlim), nameof(SemaphoreSlim.Release)),
                 Create(typeof(Interlocked), typeof(CoyoteInterlocked), nameof(Interlocked.Increment),
                     typeof(int).MakeByRefType()),
+                CreateGeneric(typeof(Interlocked), typeof(CoyoteInterlocked), nameof(Interlocked.Exchange), 2),
+                CreateGeneric(typeof(Interlocked), typeof(CoyoteInterlocked), nameof(Interlocked.CompareExchange), 3),
                 Create(typeof(WaitHandle), typeof(CoyoteWaitHandle), nameof(WaitHandle.WaitOne)),
                 Create(typeof(Thread), typeof(CoyoteThread), nameof(Thread.Sleep), typeof(int)),
                 Create(typeof(Task), typeof(CoyoteTask), nameof(Task.RunSynchronously), false)
             };
+
+#if NET9_0_OR_GREATER
+            foreach (Type type in new[] { typeof(byte), typeof(sbyte), typeof(short), typeof(ushort) })
+            {
+                members.Add(Create(typeof(Interlocked), typeof(CoyoteInterlocked), nameof(Interlocked.Exchange),
+                    type.MakeByRefType(), type));
+                members.Add(Create(typeof(Interlocked), typeof(CoyoteInterlocked), nameof(Interlocked.CompareExchange),
+                    type.MakeByRefType(), type, type));
+            }
+#endif
 
 #if NET10_0_OR_GREATER
             members.Add(Create(typeof(Task), typeof(CoyoteTask), nameof(Task.WaitAll),
@@ -197,6 +223,16 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .Single(candidate => candidate.Name == methodName && ParametersMatch(candidate, parameterTypes));
             return new ApiMember(method, replacementType, isSupported);
+        }
+
+        private static ApiMember CreateGeneric(Type runtimeType, Type replacementType, string methodName,
+            int parameterCount)
+        {
+            MethodInfo method = runtimeType.GetMethods(
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                .Single(candidate => candidate.Name == methodName && candidate.IsGenericMethodDefinition &&
+                    candidate.GetParameters().Length == parameterCount);
+            return new ApiMember(method, replacementType, true);
         }
 
         private static bool ParametersMatch(MethodInfo method, IReadOnlyList<Type> parameterTypes)
@@ -233,6 +269,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 ParameterInfo[] runtimeParameters = runtimeMethod.GetParameters();
                 int offset = runtimeMethod.IsStatic ? 0 : 1;
                 if (replacementParameters.Length != runtimeParameters.Length + offset ||
+                    !GenericParametersMatch(replacementMethod, runtimeMethod) ||
                     !TypeShapesMatch(replacementMethod.ReturnType, runtimeMethod.ReturnType))
                 {
                     continue;
@@ -264,6 +301,54 @@ namespace Microsoft.Coyote.Rewriting.Tests
             return false;
         }
 
+        /// <summary>
+        /// Checks that the replacement has the same generic arity as the runtime method, and that
+        /// every generic argument that is valid for the runtime method is valid for the replacement,
+        /// so that rewriting a runtime-valid generic call cannot violate a stricter constraint.
+        /// </summary>
+        private static bool GenericParametersMatch(MethodInfo replacementMethod, MethodInfo runtimeMethod)
+        {
+            Type[] replacementParameters = replacementMethod.IsGenericMethodDefinition ?
+                replacementMethod.GetGenericArguments() : Type.EmptyTypes;
+            Type[] runtimeParameters = runtimeMethod.IsGenericMethodDefinition ?
+                runtimeMethod.GetGenericArguments() : Type.EmptyTypes;
+            if (replacementParameters.Length != runtimeParameters.Length)
+            {
+                return false;
+            }
+
+            for (int idx = 0; idx < runtimeParameters.Length; idx++)
+            {
+                if (!IsConstraintNoStricter(replacementParameters[idx], runtimeParameters[idx]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsConstraintNoStricter(Type replacementParameter, Type runtimeParameter)
+        {
+            const GenericParameterAttributes ConstraintMask =
+                GenericParameterAttributes.ReferenceTypeConstraint |
+                GenericParameterAttributes.NotNullableValueTypeConstraint |
+                GenericParameterAttributes.DefaultConstructorConstraint;
+            GenericParameterAttributes replacementConstraints =
+                replacementParameter.GenericParameterAttributes & ConstraintMask;
+            GenericParameterAttributes runtimeConstraints =
+                runtimeParameter.GenericParameterAttributes & ConstraintMask;
+            if ((replacementConstraints & ~runtimeConstraints) != 0)
+            {
+                return false;
+            }
+
+            var runtimeConstraintShapes = new HashSet<string>(
+                runtimeParameter.GetGenericParameterConstraints().Select(GetTypeShape));
+            return replacementParameter.GetGenericParameterConstraints()
+                .All(constraint => runtimeConstraintShapes.Contains(GetTypeShape(constraint)));
+        }
+
         private static bool TypeShapesMatch(Type left, Type right)
         {
 #if NET10_0_OR_GREATER
@@ -289,7 +374,10 @@ namespace Microsoft.Coyote.Rewriting.Tests
 
             if (type.IsGenericParameter)
             {
-                return "*";
+                // Identify generic parameters by their owner kind and position, instead of treating
+                // every generic parameter as an indistinguishable wildcard.
+                return (type.DeclaringMethod is null ? "!" : "!!") +
+                    type.GenericParameterPosition.ToString(System.Globalization.CultureInfo.InvariantCulture);
             }
 
             if (type.IsGenericType)
@@ -304,8 +392,9 @@ namespace Microsoft.Coyote.Rewriting.Tests
         private static string GetMethodSignature(MethodInfo method)
         {
             string instanceKind = method.IsStatic ? "static" : "instance";
+            string arity = method.IsGenericMethodDefinition ? "``" + method.GetGenericArguments().Length : string.Empty;
             string parameters = string.Join(",", method.GetParameters().Select(parameter => GetTypeShape(parameter.ParameterType)));
-            return $"{GetTypeShape(method.DeclaringType)}|{instanceKind}|{method.Name}({parameters})|{GetTypeShape(method.ReturnType)}";
+            return $"{GetTypeShape(method.DeclaringType)}|{instanceKind}|{method.Name}{arity}({parameters})|{GetTypeShape(method.ReturnType)}";
         }
 
 #if NETFRAMEWORK
@@ -316,6 +405,17 @@ namespace Microsoft.Coyote.Rewriting.Tests
             members.Where(member => !member.IsSupported).ToDictionary(
                 member => member.Signature,
                 member => "Task.RunSynchronously is intentionally not controlled because it can execute work on an arbitrary scheduler.");
+
+        private static class StricterInterlocked
+        {
+            public static T Exchange<T>(ref T location1, T value)
+                where T : class, new() => Interlocked.Exchange(ref location1, value);
+        }
+
+        private static class NongenericInterlocked
+        {
+            public static object Exchange(ref object location1, object value) => Interlocked.Exchange(ref location1, value);
+        }
 
         private sealed class ApiMember
         {

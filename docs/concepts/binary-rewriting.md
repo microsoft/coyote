@@ -141,6 +141,14 @@ that Coyote controls, such as `Task.WaitAsync`, a wait with a finite timeout sti
 canceled when the token is canceled, and a token that is already canceled when the wait starts
 takes precedence over the timeout, exactly as it does in production.
 
+Cancellation and completion are ordered as they are in production. `Task.WaitAsync` keeps the
+outcome of a source task that completes before the token is canceled (unless the source runs its
+continuations asynchronously, in which case a later cancellation can still win, as it can in
+production). `Task.WaitAll` with a cancelable token, including the .NET 10 `IEnumerable<Task>`
+overload, wakes up when the token is canceled while it is blocked, throwing an
+`OperationCanceledException` for that token without waiting for the pending tasks, and returns
+normally if all tasks completed first.
+
 Systematic fuzzing is different: it executes the program on real threads and in real time, only
 injecting delays in between operations. Timeouts there keep their wall-clock meaning and are
 handled by the uncontrolled .NET runtime.

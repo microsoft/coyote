@@ -336,3 +336,17 @@ This policy is operationally possible but fragile. It should not be advertised a
 ## Suggested next
 
 Turn the P0 section into an implementation plan with four independently verifiable workstreams: native host/packaging, Task span overloads, `System.Threading.Lock`, and cross-SDK CI probes.
+
+## Addendum — PR #524 review remediation (2026-10-09)
+
+The sections above record the original 2026-08-20 assessment and are kept as historical evidence. The review of PR #524 led to these final policies, each verified by regression tests:
+
+1. **`Task.WaitAsync` event ordering.** A source task that completes before the wait token is canceled keeps its result, fault or cancellation, for both generic and non-generic tasks. Sources that run continuations asynchronously can still lose to a later cancellation, which matches native .NET.
+2. **Cancellation of a blocked `Task.WaitAll`.** The array and .NET 10 `IEnumerable<Task>` overloads wake up when a cancelable token is canceled during the wait. They throw for that token, leave pending tasks untouched, and follow native precedence when both events happen. Waits without a cancelable token still report genuine deadlocks.
+3. **Small-integer atomics.** On .NET 9 and later, `Interlocked.Exchange`/`CompareExchange` for `byte`, `sbyte`, `short` and `ushort` are controlled scheduling points.
+4. **Generic atomic contracts.** On .NET 9 and later, the generic `Exchange<T>`/`CompareExchange<T>` replacements accept primitives and enums like the runtime, and delegate type validation to it. Older targets keep the reference-type contract.
+5. **Memory barriers.** These stay deliberate native pass-through; see "Memory barriers and the memory-model boundary".
+6. **Named wait handles.** Named `EventWaitHandle` creation is rejected before any OS object is created or opened; see "Named wait handles".
+7. **Independent API discovery.** The runtime API gate discovers audited families through reflection; see "Runtime API gate". Running it found and fixed `Monitor.TryEnter(object, int)`, `Task.Wait(TimeSpan, CancellationToken)` and the .NET Framework `EventWaitHandleSecurity` constructor.
+
+Async ZIP, JSON-over-pipelines and async LINQ remain under the existing external-library and uncontrolled-operation policy. No `TaskCompletionSource.SetFromTask` wrappers were added.

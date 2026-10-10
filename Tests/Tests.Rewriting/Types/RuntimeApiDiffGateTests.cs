@@ -18,6 +18,7 @@ using CoyoteThread = Microsoft.Coyote.Rewriting.Types.Threading.Thread;
 using CoyoteVolatile = Microsoft.Coyote.Rewriting.Types.Threading.Volatile;
 using CoyoteWaitHandle = Microsoft.Coyote.Rewriting.Types.Threading.WaitHandle;
 #if NET10_0_OR_GREATER
+using CoyoteEventWaitHandle = Microsoft.Coyote.Rewriting.Types.Threading.EventWaitHandle;
 using CoyoteLock = Microsoft.Coyote.Rewriting.Types.Threading.Lock;
 #endif
 
@@ -33,6 +34,10 @@ namespace Microsoft.Coyote.Rewriting.Tests
             "A memory barrier neither accesses shared memory nor blocks, so it is invoked natively without a " +
             "scheduling point, like Thread.MemoryBarrier; systematic testing executes one operation at a time " +
             "and does not explore the memory reorderings that the barrier prevents.";
+
+        private const string NamedEventOpeningReason =
+            "Opening a named system event is reported as an uncontrolled invocation, because a named event can be " +
+            "shared with other processes, which are not controlled.";
 #endif
 
         public RuntimeApiDiffGateTests(ITestOutputHelper output)
@@ -242,6 +247,12 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 MemoryBarrierReason));
             members.Add(CreatePassThrough(typeof(Volatile), typeof(CoyoteVolatile), nameof(Volatile.WriteBarrier),
                 MemoryBarrierReason));
+            members.Add(CreatePassThrough(typeof(EventWaitHandle), typeof(CoyoteEventWaitHandle),
+                nameof(EventWaitHandle.OpenExisting), NamedEventOpeningReason, typeof(string),
+                typeof(NamedWaitHandleOptions)));
+            members.Add(CreatePassThrough(typeof(EventWaitHandle), typeof(CoyoteEventWaitHandle),
+                nameof(EventWaitHandle.TryOpenExisting), NamedEventOpeningReason, typeof(string),
+                typeof(NamedWaitHandleOptions), typeof(EventWaitHandle).MakeByRefType()));
 #endif
             return members;
         }

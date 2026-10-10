@@ -1,9 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Coyote.Runtime;
 using SystemEventResetMode = System.Threading.EventResetMode;
 using SystemEventWaitHandle = System.Threading.EventWaitHandle;
+#if NET10_0_OR_GREATER
+using SystemNamedWaitHandleOptions = System.Threading.NamedWaitHandleOptions;
+#endif
 using SystemWaitHandle = System.Threading.WaitHandle;
 
 namespace Microsoft.Coyote.Rewriting.Types.Threading
@@ -38,8 +42,63 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static SystemEventWaitHandle Create(bool initialState, SystemEventResetMode mode, string name, out bool createdNew)
         {
-            var instance = new SystemEventWaitHandle(initialState, mode, name, out createdNew);
             var runtime = CoyoteRuntime.Current;
+            ThrowIfNamed(runtime, name);
+            var instance = new SystemEventWaitHandle(initialState, mode, name, out createdNew);
+            return Register(runtime, instance, initialState, mode);
+        }
+
+#if NET10_0_OR_GREATER
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventWaitHandle"/> class, specifying whether the wait
+        /// handle is initially signaled if created as a result of this call, whether it resets automatically
+        /// or manually, the name of a system synchronization event, and options that set the scope of the
+        /// name and access to the event.
+        /// </summary>
+        public static SystemEventWaitHandle Create(bool initialState, SystemEventResetMode mode, string name,
+            SystemNamedWaitHandleOptions options) =>
+            Create(initialState, mode, name, options, out _);
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventWaitHandle"/> class, specifying whether the wait
+        /// handle is initially signaled if created as a result of this call, whether it resets automatically
+        /// or manually, the name of a system synchronization event, options that set the scope of the name
+        /// and access to the event, and a variable whose value after the call indicates whether the named
+        /// system event was created.
+        /// </summary>
+        public static SystemEventWaitHandle Create(bool initialState, SystemEventResetMode mode, string name,
+            SystemNamedWaitHandleOptions options, out bool createdNew)
+        {
+            var runtime = CoyoteRuntime.Current;
+            ThrowIfNamed(runtime, name);
+            var instance = new SystemEventWaitHandle(initialState, mode, name, options, out createdNew);
+            return Register(runtime, instance, initialState, mode);
+        }
+#endif
+
+        /// <summary>
+        /// Reports and rejects the creation of a named system event during systematic testing, before the
+        /// event is created or opened, because a named event can be shared with other processes, which
+        /// the runtime does not control, so it must not be modeled as a resource local to this process.
+        /// </summary>
+        /// <remarks>
+        /// A null or empty name creates an unnamed event that is local to this process, exactly as the
+        /// unnamed constructor does, so it is not rejected.
+        /// </remarks>
+        private static void ThrowIfNamed(CoyoteRuntime runtime, string name)
+        {
+            if (!string.IsNullOrEmpty(name) && runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                string message = $"Creating the named system event '{name}' is not supported in systematic " +
+                    "testing, because a named event can be shared with other processes, which are not controlled.";
+                runtime.NotifyAssertionFailure(message);
+                throw new NotSupportedException(message);
+            }
+        }
+
+        private static SystemEventWaitHandle Register(CoyoteRuntime runtime, SystemEventWaitHandle instance,
+            bool initialState, SystemEventResetMode mode)
+        {
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
                 Resource resource = new Resource(runtime, instance, initialState, mode);

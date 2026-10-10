@@ -166,6 +166,24 @@ Within this boundary, the rewritten memory APIs behave as follows:
   and never waits for another operation, so it cannot hide a dependency from the scheduler or cause a
   real deadlock. It only constrains the memory reorderings that Coyote does not explore anyway.
 
+### Named wait handles
+
+A named `EventWaitHandle`, `Mutex` or `Semaphore` is a system object that other processes can open,
+signal and wait on. Coyote only controls the operations of the process under test, so it cannot
+model a named wait handle as a resource local to that process without missing what other processes
+do to it. During systematic testing:
+
+- Creating an `EventWaitHandle` with a non-empty name, using any constructor that takes a name
+  (including the .NET 10 overloads that take `NamedWaitHandleOptions`), is reported as a bug and
+  throws a `NotSupportedException` before the named system event is created or opened.
+- A `null` or empty name creates an unnamed event that is local to the process, exactly as the
+  unnamed constructors do, so such events, `AutoResetEvent` and `ManualResetEvent` are controlled.
+- `EventWaitHandle.OpenExisting` and `EventWaitHandle.TryOpenExisting`, and every `Mutex` and
+  `Semaphore` member, are reported as uncontrolled invocations.
+
+Coyote does not model synchronization across processes. Outside systematic testing, and during
+systematic fuzzing, which executes on real threads, named wait handles keep their native behavior.
+
 ### Quality of life improvements through rewriting
 
 Coyote will automatically rewrite certain parts of your test code (without changing the application

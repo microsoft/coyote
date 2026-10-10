@@ -216,6 +216,10 @@ There is no test compiled under C# 14 that verifies the overload actually select
 
 Systematic testing executes one controlled operation at a time and does not explore weak-memory reorderings. Volatile reads and writes and `Interlocked` operations are rewritten to add a scheduling point before the memory access. Barriers that do not access memory are left as native calls with no scheduling point: `Thread.MemoryBarrier`, `Interlocked.MemoryBarrier`/`MemoryBarrierProcessWide`, and the .NET 10 `Volatile.ReadBarrier`/`WriteBarrier`. This was audited for PR #524. The policy is deliberate pass-through, not controlled support: a barrier never blocks, so it is not an uncontrolled synchronization operation, and it only constrains reorderings that Coyote does not model. The runtime API gate classifies both .NET 10 barriers as pass-through with a stated reason, and rewriting tests check that they stay native calls and add no scheduling point. See "How memory ordering is modeled" in `docs/concepts/binary-rewriting.md`.
 
+### Named wait handles
+
+Named wait handles are system objects that other processes can share, and Coyote does not model synchronization across processes. Before PR #524 remediation, the name-bearing `EventWaitHandle` constructors created the native named event and registered it as a process-local controlled resource, and the .NET 10 `NamedWaitHandleOptions` constructors were not intercepted at all. During systematic testing, any `EventWaitHandle` constructor with a non-empty name is now reported as a bug and throws `NotSupportedException` before the system event is created or opened. A `null` or empty name natively creates an unnamed, unshared event, so it remains controlled. `EventWaitHandle.OpenExisting`/`TryOpenExisting` (including the `NamedWaitHandleOptions` overloads, which the runtime API gate classifies with a reason) and all `Mutex` and `Semaphore` members stay reported as uncontrolled invocations. See "Named wait handles" in `docs/concepts/binary-rewriting.md`.
+
 ### Works today with the forced .NET 10 host
 
 - Loading current Coyote `net8.0` libraries from a `net10.0` process.

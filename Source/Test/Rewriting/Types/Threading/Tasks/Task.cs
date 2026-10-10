@@ -933,6 +933,23 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             return Wait(task, (int)totalMilliseconds, default);
         }
 
+#if NET7_0_OR_GREATER
+        /// <summary>
+        /// Waits for the specified task to complete execution. The wait terminates if a timeout interval
+        /// elapses or a cancellation token is canceled before the task completes.
+        /// </summary>
+        public static bool Wait(SystemTask task, TimeSpan timeout, SystemCancellationToken cancellationToken)
+        {
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+
+            return Wait(task, (int)totalMilliseconds, cancellationToken);
+        }
+#endif
+
         /// <summary>
         /// Waits for the specified task to complete execution within a specified number of milliseconds.
         /// </summary>

@@ -179,6 +179,26 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         }
 
         /// <summary>
+        /// Attempts, for the specified number of milliseconds, to acquire an exclusive lock on the specified object.
+        /// </summary>
+        public static bool TryEnter(object obj, int millisecondsTimeout)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                // TODO: how to implement this timeout?
+                return SynchronizedBlock.Lock(obj).IsLockTaken;
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                runtime.DelayOperation(current);
+            }
+
+            return SystemThreading.Monitor.TryEnter(obj, millisecondsTimeout);
+        }
+
+        /// <summary>
         /// Attempts, for the specified number of milliseconds, to acquire an exclusive lock on the specified object,
         /// and atomically sets a value that indicates whether the lock was taken.
         /// </summary>

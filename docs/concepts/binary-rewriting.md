@@ -178,8 +178,9 @@ do to it. During systematic testing:
   throws a `NotSupportedException` before the named system event is created or opened.
 - A `null` or empty name creates an unnamed event that is local to the process, exactly as the
   unnamed constructors do, so such events, `AutoResetEvent` and `ManualResetEvent` are controlled.
-- `EventWaitHandle.OpenExisting` and `EventWaitHandle.TryOpenExisting`, and every `Mutex` and
-  `Semaphore` member, are reported as uncontrolled invocations.
+- `EventWaitHandle.OpenExisting` and `EventWaitHandle.TryOpenExisting`, the .NET Framework constructor
+  that takes `EventWaitHandleSecurity`, and every `Mutex` and `Semaphore` member, are reported as
+  uncontrolled invocations.
 
 Coyote does not model synchronization across processes. Outside systematic testing, and during
 systematic fuzzing, which executes on real threads, named wait handles keep their native behavior.

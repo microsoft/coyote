@@ -785,11 +785,79 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None)
             {
-                // TODO: support timeouts during testing, this would become false if there is a timeout.
-                TaskServices.WaitUntilAllTasksComplete(runtime, tasks);
+                // An uncontrolled wait that is blocked returns successfully if all tasks complete
+                // before the token is canceled, else it throws, so the first of the two events is
+                // recorded when the token is canceled, instead of when the paused operation resumes,
+                // by which time both events may have happened.
+                bool isCanceledFirst = false;
+                SystemCancellationTokenRegistration registration = cancellationToken.CanBeCanceled ?
+                    cancellationToken.Register(() => isCanceledFirst = !AreAllTasksCompleted(tasks)) :
+                    default;
+                try
+                {
+                    // TODO: support timeouts during testing, this would become false if there is a timeout.
+                    TaskServices.WaitUntilAllTasksComplete(runtime, tasks, cancellationToken);
+                }
+                finally
+                {
+                    // Do not block a controlled operation waiting for an in-flight cancellation callback.
+#if NET
+                    registration.Unregister();
+#else
+                    registration.Dispose();
+#endif
+                }
+
+                if (isCanceledFirst)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                if (AreAllTasksCompleted(tasks))
+                {
+                    // All tasks completed before any cancellation, so cancellation cannot interrupt
+                    // the wait anymore. The uncontrolled wait still reports a requested cancellation
+                    // instead of the cancellation of a task, unless a task faulted, and else it
+                    // propagates any task failures.
+                    if (cancellationToken.IsCancellationRequested && IsAnyTaskCanceledAndNoneFaulted(tasks))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    return SystemTask.WaitAll(tasks, millisecondsTimeout, default);
+                }
             }
 
             return SystemTask.WaitAll(tasks, millisecondsTimeout, cancellationToken);
+        }
+
+        private static bool IsAnyTaskCanceledAndNoneFaulted(SystemTask[] tasks)
+        {
+            bool isAnyTaskCanceled = false;
+            foreach (var task in tasks)
+            {
+                if (task.IsFaulted)
+                {
+                    return false;
+                }
+
+                isAnyTaskCanceled |= task.IsCanceled;
+            }
+
+            return isAnyTaskCanceled;
+        }
+
+        private static bool AreAllTasksCompleted(SystemTask[] tasks)
+        {
+            foreach (var task in tasks)
+            {
+                if (!task.IsCompleted)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

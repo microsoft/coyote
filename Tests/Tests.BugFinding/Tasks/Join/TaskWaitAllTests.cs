@@ -328,20 +328,26 @@ namespace Microsoft.Coyote.BugFinding.Tests
             bool isCancellationFirst)
         {
             // The uncontrolled wait is blocked when both events happen, so a completion that precedes
-            // the cancellation completes the wait, except that a requested cancellation is reported
-            // instead of a canceled task, whereas a cancellation that precedes the completion can race
-            // with it, in which case only the canceled outcome is asserted.
+            // the cancellation completes the wait, whereas a cancellation that precedes the completion
+            // can race with it, in which case only the canceled outcome is asserted. A canceled task
+            // completes the wait with an aggregate exception, unless the wait observes the requested
+            // cancellation first, which depends on when the blocked wait wakes up, so both are allowed.
+            string[] possibleOutcomes = isCancellationFirst ?
+                new[] { WaitAsyncProvider.WaitTokenCanceledOutcome } :
+                sourceEvent switch
+                {
+                    WaitAsyncSourceEvent.Result => new[] { WaitAsyncProvider.CompletedOutcome },
+                    WaitAsyncSourceEvent.Fault => new[] { $"aggregate({nameof(InvalidOperationException)})" },
+                    _ => new[]
+                    {
+                        WaitAsyncProvider.WaitTokenCanceledOutcome,
+                        $"aggregate({nameof(TaskCanceledException)})"
+                    }
+                };
             string uncontrolled = WaitAllProvider.GetBlockedOutcome(isEnumerable, sourceEvent, isCancellationFirst);
-            string expected = isCancellationFirst ? WaitAsyncProvider.WaitTokenCanceledOutcome : uncontrolled;
             if (!isCancellationFirst)
             {
-                Assert.Equal(sourceEvent switch
-                {
-                    WaitAsyncSourceEvent.Result => WaitAsyncProvider.CompletedOutcome,
-                    WaitAsyncSourceEvent.Fault => $"aggregate({nameof(InvalidOperationException)})",
-                    _ => WaitAsyncProvider.WaitTokenCanceledOutcome
-                },
-                uncontrolled);
+                Assert.Contains(uncontrolled, possibleOutcomes);
             }
 
             this.Test(() =>
@@ -372,8 +378,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 isWaitStarted = true;
                 string actual = GetOutcome(new Task[] { pending.Task }, isEnumerable, cancellation.Token);
                 completer.Wait();
-                Specification.Assert(actual == expected,
-                    "Found outcome '{0}' instead of the expected outcome '{1}'.", actual, expected);
+                Specification.Assert(Array.IndexOf(possibleOutcomes, actual) >= 0,
+                    "Found outcome '{0}' instead of an expected outcome '{1}'.",
+                    actual, string.Join("' or '", possibleOutcomes));
             },
             configuration: this.GetConfiguration().WithTestingIterations(20)
                 .WithPartiallyControlledConcurrencyAllowed(false)

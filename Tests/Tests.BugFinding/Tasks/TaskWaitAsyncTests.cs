@@ -346,6 +346,88 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestWaitAsyncReturnsSourceResultWhenCanceledAfterSourceCompletes()
+        {
+            this.Test(async () =>
+            {
+                using var cts = new CancellationTokenSource();
+                var source = new TaskCompletionSource<int>();
+                Task<int> wait = source.Task.WaitAsync(cts.Token);
+                source.SetResult(42);
+                cts.Cancel();
+                Assert.Equal(42, await wait);
+
+                using var timeoutCts = new CancellationTokenSource();
+                var timeoutSource = new TaskCompletionSource<int>();
+                Task<int> timeoutWait = timeoutSource.Task.WaitAsync(LongTimeout, timeoutCts.Token);
+                timeoutSource.SetResult(42);
+                timeoutCts.Cancel();
+                Assert.Equal(42, await timeoutWait);
+
+                using var nonGenericCts = new CancellationTokenSource();
+                var nonGenericSource = new TaskCompletionSource();
+                Task nonGenericWait = nonGenericSource.Task.WaitAsync(nonGenericCts.Token);
+                nonGenericSource.SetResult();
+                nonGenericCts.Cancel();
+                await nonGenericWait;
+                Assert.True(nonGenericWait.IsCompletedSuccessfully);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(200)
+                .WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false));
+        }
+
+        [Theory(Timeout = 10000)]
+        [InlineData(false, WaitAsyncSourceEvent.Result, false)]
+        [InlineData(false, WaitAsyncSourceEvent.Result, true)]
+        [InlineData(false, WaitAsyncSourceEvent.Fault, false)]
+        [InlineData(false, WaitAsyncSourceEvent.Fault, true)]
+        [InlineData(false, WaitAsyncSourceEvent.Cancellation, false)]
+        [InlineData(false, WaitAsyncSourceEvent.Cancellation, true)]
+        [InlineData(true, WaitAsyncSourceEvent.Result, false)]
+        [InlineData(true, WaitAsyncSourceEvent.Result, true)]
+        [InlineData(true, WaitAsyncSourceEvent.Fault, false)]
+        [InlineData(true, WaitAsyncSourceEvent.Fault, true)]
+        [InlineData(true, WaitAsyncSourceEvent.Cancellation, false)]
+        [InlineData(true, WaitAsyncSourceEvent.Cancellation, true)]
+        public void TestWaitAsyncPreservesFirstCompletionEvent(bool isGeneric, WaitAsyncSourceEvent sourceEvent,
+            bool isCancellationFirst)
+        {
+            var creationOptionsToTest = new[]
+            {
+                TaskCreationOptions.None,
+                TaskCreationOptions.RunContinuationsAsynchronously
+            };
+
+            foreach (var creationOptions in creationOptionsToTest)
+            {
+                // A source that runs its continuations asynchronously delivers its outcome to the
+                // uncontrolled wait asynchronously, so a later cancellation can still win the race.
+                string expected = WaitAsyncProvider.GetExpectedFirstEventOutcome(
+                    isGeneric, sourceEvent, isCancellationFirst);
+                string[] possibleOutcomes =
+                    isCancellationFirst || creationOptions is TaskCreationOptions.None ?
+                    new[] { expected } :
+                    new[] { expected, WaitAsyncProvider.WaitTokenCanceledOutcome };
+                string uncontrolled = WaitAsyncProvider.GetFirstEventOutcome(
+                    isGeneric, sourceEvent, isCancellationFirst, creationOptions);
+                Assert.Contains(uncontrolled, possibleOutcomes);
+
+                this.Test(async () =>
+                {
+                    string actual = await GetFirstEventOutcomeAsync(
+                        isGeneric, sourceEvent, isCancellationFirst, creationOptions);
+                    Specification.Assert(Array.IndexOf(possibleOutcomes, actual) >= 0,
+                        "Found outcome '{0}' instead of an uncontrolled outcome '{1}'.",
+                        actual, string.Join("' or '", possibleOutcomes));
+                },
+                configuration: this.GetConfiguration().WithTestingIterations(100)
+                    .WithPartiallyControlledConcurrencyAllowed(false)
+                    .WithSystematicFuzzingFallbackEnabled(false));
+            }
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestWaitAsyncWithLongTimeoutAndControlledCompletion()
         {
             // A finite timeout must not be able to win a race against a controlled operation
@@ -518,6 +600,49 @@ namespace Microsoft.Coyote.BugFinding.Tests
             string actual = await GetResultOutcomeAsync(operation, cancellationToken);
             Specification.Assert(actual == expected,
                 "Found outcome '{0}' instead of the uncontrolled outcome '{1}'.", actual, expected);
+        }
+
+        private static async Task<string> GetFirstEventOutcomeAsync(bool isGeneric, WaitAsyncSourceEvent sourceEvent,
+            bool isCancellationFirst, TaskCreationOptions creationOptions)
+        {
+            using var cancellation = new CancellationTokenSource();
+            using var sourceCancellation = new CancellationTokenSource();
+            var source = new TaskCompletionSource<int>(creationOptions);
+            Task wait = isGeneric ?
+                source.Task.WaitAsync(cancellation.Token) :
+                ((Task)source.Task).WaitAsync(cancellation.Token);
+            if (isCancellationFirst)
+            {
+                cancellation.Cancel();
+                CompleteSource(source, sourceEvent, sourceCancellation);
+            }
+            else
+            {
+                CompleteSource(source, sourceEvent, sourceCancellation);
+                cancellation.Cancel();
+            }
+
+            return isGeneric ?
+                await GetResultOutcomeAsync(_ => (Task<int>)wait, cancellation.Token) :
+                await GetOutcomeAsync(_ => wait, cancellation.Token);
+        }
+
+        private static void CompleteSource(TaskCompletionSource<int> source, WaitAsyncSourceEvent sourceEvent,
+            CancellationTokenSource sourceCancellation)
+        {
+            switch (sourceEvent)
+            {
+                case WaitAsyncSourceEvent.Result:
+                    source.SetResult(WaitAsyncProvider.ExpectedResult);
+                    break;
+                case WaitAsyncSourceEvent.Fault:
+                    source.SetException(new InvalidOperationException(WaitAsyncProvider.ExpectedFaultMessage));
+                    break;
+                default:
+                    sourceCancellation.Cancel();
+                    source.SetCanceled(sourceCancellation.Token);
+                    break;
+            }
         }
 
         private static async Task<string> GetOutcomeAsync(Func<CancellationToken, Task> operation,

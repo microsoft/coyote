@@ -271,8 +271,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 
             var cancellation = new SystemTasks.TaskCompletionSource();
             runtime.RegisterKnownControlledTask(cancellation.Task);
-            SystemCancellationTokenRegistration registration = cancellationToken.Register(
-                () => cancellation.TrySetCanceled(cancellationToken));
+            SystemCancellationTokenRegistration registration = RegisterWaitAsyncCancellation(task,
+                () => cancellation.TrySetCanceled(cancellationToken), cancellationToken);
             return runtime.UnwrapTask(CreateWaitAsyncTask(task, cancellation.Task, runtime, registration));
         }
 
@@ -384,8 +384,39 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         }
 
         /// <summary>
+        /// Registers the wait cancellation so that it cannot complete a wait to which the source
+        /// task has already delivered its outcome.
+        /// </summary>
+        /// <remarks>
+        /// The uncontrolled wait observes the source task through a completion action that runs
+        /// synchronously when the source completes, unless the source runs its continuations
+        /// asynchronously. In the synchronous case, the first of the two events wins, so the source
+        /// state is sampled when the token is canceled, which records the winner at the event boundary
+        /// instead of when the controlled operation observing the wait runs, by which time both events
+        /// may have happened. In the asynchronous case, the uncontrolled delivery of the source outcome
+        /// races a later cancellation, which the controlled operation observing the wait models.
+        /// </remarks>
+        internal static SystemCancellationTokenRegistration RegisterWaitAsyncCancellation(SystemTask task,
+            Func<bool> trySetCanceled, SystemCancellationToken cancellationToken)
+        {
+            bool isOutcomeDeliveredSynchronously =
+                (task.CreationOptions & SystemTaskCreationOptions.RunContinuationsAsynchronously) is 0;
+            return cancellationToken.Register(() =>
+            {
+                if (!isOutcomeDeliveredSynchronously || !task.IsCompleted)
+                {
+                    trySetCanceled();
+                }
+            });
+        }
+
+        /// <summary>
         /// Observes completion or cancellation using a controlled operation.
         /// </summary>
+        /// <remarks>
+        /// The cancellation task is canceled only if the wait cancellation can still complete the
+        /// wait, see <see cref="RegisterWaitAsyncCancellation"/>.
+        /// </remarks>
         internal static SystemTasks.Task<TTask> CreateWaitAsyncTask<TTask>(TTask task, TTask cancellationTask,
             CoyoteRuntime runtime, SystemCancellationTokenRegistration registration)
             where TTask : SystemTask
@@ -1027,8 +1058,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 
             var cancellation = new SystemTasks.TaskCompletionSource<TResult>();
             runtime.RegisterKnownControlledTask(cancellation.Task);
-            SystemCancellationTokenRegistration registration = cancellationToken.Register(
-                () => cancellation.TrySetCanceled(cancellationToken));
+            SystemCancellationTokenRegistration registration = Task.RegisterWaitAsyncCancellation(task,
+                () => cancellation.TrySetCanceled(cancellationToken), cancellationToken);
             return runtime.UnwrapTask(Task.CreateWaitAsyncTask(task, cancellation.Task, runtime, registration));
         }
 

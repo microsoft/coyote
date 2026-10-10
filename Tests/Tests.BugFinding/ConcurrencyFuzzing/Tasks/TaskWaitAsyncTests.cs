@@ -3,6 +3,7 @@
 
 #if NET8_0_OR_GREATER
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Xunit;
@@ -56,6 +57,39 @@ namespace Microsoft.Coyote.BugFinding.Tests.SystematicFuzzing
                 await Assert.ThrowsAsync<TimeoutException>(() => resultTcs.Task.WaitAsync(TimeSpan.Zero));
             },
             configuration: this.GetConfiguration().WithTestingIterations(10));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAsyncReturnsSourceResultWhenCanceledAfterSourceCompletes()
+        {
+            this.Test(async () =>
+            {
+                using var cts = new CancellationTokenSource();
+                var source = new TaskCompletionSource<int>();
+                Task<int> wait = source.Task.WaitAsync(cts.Token);
+                source.SetResult(42);
+                cts.Cancel();
+                Assert.Equal(42, await wait);
+
+                using var reverseCts = new CancellationTokenSource();
+                var reverseSource = new TaskCompletionSource();
+                Task reverseWait = reverseSource.Task.WaitAsync(reverseCts.Token);
+                reverseCts.Cancel();
+                reverseSource.SetResult();
+                OperationCanceledException canceled = null;
+                try
+                {
+                    await reverseWait;
+                }
+                catch (OperationCanceledException ex)
+                {
+                    canceled = ex;
+                }
+
+                Assert.NotNull(canceled);
+                Assert.Equal(reverseCts.Token, canceled.CancellationToken);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(50));
         }
     }
 }

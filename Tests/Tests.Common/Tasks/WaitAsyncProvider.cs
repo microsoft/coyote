@@ -135,6 +135,49 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
 #endif
 
         /// <summary>
+        /// Returns the outcome of waiting for a task whose source completes with the specified event
+        /// immediately before or after the wait token is canceled, without an intervening await.
+        /// </summary>
+        public static string GetFirstEventOutcome(bool isGeneric, WaitAsyncSourceEvent sourceEvent,
+            bool isCancellationFirst, TaskCreationOptions creationOptions)
+        {
+            using var cancellation = new CancellationTokenSource();
+            using var sourceCancellation = new CancellationTokenSource();
+            var source = new TaskCompletionSource<int>(creationOptions);
+            Task wait = isGeneric ?
+                source.Task.WaitAsync(cancellation.Token) :
+                ((Task)source.Task).WaitAsync(cancellation.Token);
+            if (isCancellationFirst)
+            {
+                cancellation.Cancel();
+                CompleteSource(source, sourceEvent, sourceCancellation);
+            }
+            else
+            {
+                CompleteSource(source, sourceEvent, sourceCancellation);
+                cancellation.Cancel();
+            }
+
+            return isGeneric ?
+                ClassifyResult(() => (Task<int>)wait, cancellation.Token) :
+                Classify(() => wait, cancellation.Token);
+        }
+
+        /// <summary>
+        /// Returns the outcome expected when the first of the source event and the wait token
+        /// cancellation completes the wait, which the uncontrolled runtime guarantees only if
+        /// the source does not run its continuations asynchronously.
+        /// </summary>
+        public static string GetExpectedFirstEventOutcome(bool isGeneric, WaitAsyncSourceEvent sourceEvent,
+            bool isCancellationFirst) =>
+            isCancellationFirst ? WaitTokenCanceledOutcome : sourceEvent switch
+            {
+                WaitAsyncSourceEvent.Result => isGeneric ? GetCompletedOutcome(ExpectedResult) : CompletedOutcome,
+                WaitAsyncSourceEvent.Fault => $"fault({nameof(InvalidOperationException)})",
+                _ => SourceTokenCanceledOutcome
+            };
+
+        /// <summary>
         /// Returns the outcome of a task that completed successfully with the specified result.
         /// </summary>
         public static string GetCompletedOutcome<TResult>(TResult result) => $"{CompletedOutcome}(result={result})";
@@ -150,6 +193,24 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
                 TimeoutException => TimedOutOutcome,
                 _ => $"fault({exception.GetType().Name})"
             };
+
+        private static void CompleteSource(TaskCompletionSource<int> source, WaitAsyncSourceEvent sourceEvent,
+            CancellationTokenSource sourceCancellation)
+        {
+            switch (sourceEvent)
+            {
+                case WaitAsyncSourceEvent.Result:
+                    source.SetResult(ExpectedResult);
+                    break;
+                case WaitAsyncSourceEvent.Fault:
+                    source.SetException(new InvalidOperationException(ExpectedFaultMessage));
+                    break;
+                default:
+                    sourceCancellation.Cancel();
+                    source.SetCanceled(sourceCancellation.Token);
+                    break;
+            }
+        }
 
         private static string Classify(Func<Task> operation, CancellationToken cancellationToken)
         {

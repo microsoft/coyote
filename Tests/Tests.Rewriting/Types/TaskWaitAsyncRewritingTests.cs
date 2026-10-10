@@ -78,6 +78,45 @@ namespace Microsoft.Coyote.Rewriting.Tests
                     Task.FromException(error).WaitAsync(TimeSpan.FromMilliseconds(1), TimeProvider.System));
             });
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestRewritingTaskWaitAsyncPreservesFirstCompletionEvent()
+        {
+            this.Test(async () =>
+            {
+                using var cts = new CancellationTokenSource();
+                var source = new TaskCompletionSource<int>();
+                Task<int> wait = source.Task.WaitAsync(cts.Token);
+                source.SetResult(42);
+                cts.Cancel();
+                Assert.Equal(42, await wait);
+
+                using var nonGenericCts = new CancellationTokenSource();
+                var nonGenericSource = new TaskCompletionSource();
+                Task nonGenericWait = nonGenericSource.Task.WaitAsync(nonGenericCts.Token);
+                nonGenericSource.SetResult();
+                nonGenericCts.Cancel();
+                await nonGenericWait;
+
+                using var reverseCts = new CancellationTokenSource();
+                var reverseSource = new TaskCompletionSource<int>();
+                Task<int> reverseWait = reverseSource.Task.WaitAsync(reverseCts.Token);
+                reverseCts.Cancel();
+                reverseSource.SetResult(42);
+                OperationCanceledException canceled = null;
+                try
+                {
+                    await reverseWait;
+                }
+                catch (OperationCanceledException ex)
+                {
+                    canceled = ex;
+                }
+
+                Assert.NotNull(canceled);
+                Assert.Equal(reverseCts.Token, canceled.CancellationToken);
+            });
+        }
     }
 }
 #endif

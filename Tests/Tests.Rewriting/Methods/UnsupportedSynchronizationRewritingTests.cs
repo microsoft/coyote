@@ -58,13 +58,18 @@ namespace Microsoft.Coyote.Rewriting.Tests
         [Fact(Timeout = 5000)]
         public void TestNativeNullAndEmptyEventNamesAreUnnamed()
         {
-            // The rejection relies on this native contract: a null or empty name creates a new unnamed
-            // event that is not shared, exactly as the unnamed constructor does.
+            // The rejection relies on this native contract: a null name, and on Windows an empty name,
+            // creates a new unnamed event that is not shared, exactly as the unnamed constructor does.
+            // On other platforms, the runtime itself rejects an empty name, so it is left to the runtime.
             Assert.False(NamedEventProvider.IsShared(null));
-            Assert.False(NamedEventProvider.IsShared(string.Empty));
             if (OperatingSystem.IsWindows())
             {
+                Assert.False(NamedEventProvider.IsShared(string.Empty));
                 Assert.True(NamedEventProvider.IsShared(NamedEventProvider.CreateUniqueName()));
+            }
+            else
+            {
+                Assert.Throws<PlatformNotSupportedException>(() => NamedEventProvider.IsShared(string.Empty));
             }
         }
 
@@ -106,6 +111,23 @@ namespace Microsoft.Coyote.Rewriting.Tests
 #endif
         public void TestUnnamedEventCreationIsControlled(int overload, string name)
         {
+            if (name?.Length is 0 && !OperatingSystem.IsWindows())
+            {
+                // The runtime rejects an empty name on this platform, which is native behavior that the
+                // controlled constructor preserves, rather than a Coyote rejection of a named event.
+                Assert.Throws<PlatformNotSupportedException>(() => NamedEventProvider.IsShared(name));
+                this.TestWithError(() =>
+                {
+                    using EventWaitHandle handle = CreateEvent(overload, name);
+                },
+                errorChecker: (e) =>
+                {
+                    Assert.Contains(typeof(PlatformNotSupportedException).FullName, e);
+                    Assert.DoesNotContain("is not supported in systematic testing", e);
+                });
+                return;
+            }
+
             this.Test(async () =>
             {
                 using EventWaitHandle handle = CreateEvent(overload, name);

@@ -82,8 +82,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// the runtime does not control, so it must not be modeled as a resource local to this process.
         /// </summary>
         /// <remarks>
-        /// A null or empty name creates an unnamed event that is local to this process, exactly as the
-        /// unnamed constructor does, so it is not rejected.
+        /// A null name, and on Windows an empty name, creates an unnamed event that is local to this
+        /// process, exactly as the unnamed constructor does, so it is not rejected. On other platforms,
+        /// the runtime rejects an empty name itself, so that native behavior is left unchanged.
         /// </remarks>
         private static void ThrowIfNamed(CoyoteRuntime runtime, string name)
         {

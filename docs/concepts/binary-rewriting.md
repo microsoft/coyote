@@ -184,8 +184,10 @@ do to it. During systematic testing:
 - Creating an `EventWaitHandle` with a non-empty name, using any constructor that takes a name
   (including the .NET 10 overloads that take `NamedWaitHandleOptions`), is reported as a bug and
   throws a `NotSupportedException` before the named system event is created or opened.
-- A `null` or empty name creates an unnamed event that is local to the process, exactly as the
-  unnamed constructors do, so such events, `AutoResetEvent` and `ManualResetEvent` are controlled.
+- A `null` name, and on Windows an empty name, creates an unnamed event that is local to the
+  process, exactly as the unnamed constructors do, so such events, `AutoResetEvent` and
+  `ManualResetEvent` are controlled. On other platforms, the .NET runtime itself rejects an empty
+  name with a `PlatformNotSupportedException`, which Coyote leaves unchanged.
 - `EventWaitHandle.OpenExisting` and `EventWaitHandle.TryOpenExisting`, the .NET Framework constructor
   that takes `EventWaitHandleSecurity`, and every `Mutex` and `Semaphore` member, are reported as
   uncontrolled invocations.

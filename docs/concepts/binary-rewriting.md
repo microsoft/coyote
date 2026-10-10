@@ -145,6 +145,27 @@ Systematic fuzzing is different: it executes the program on real threads and in 
 injecting delays in between operations. Timeouts there keep their wall-clock meaning and are
 handled by the uncontrolled .NET runtime.
 
+### How memory ordering is modeled
+
+Systematic testing explores the interleavings of controlled operations, executing one operation at a
+time and switching between them only at scheduling points. It does not explore weak-memory behaviors,
+such as a processor or the JIT reordering memory accesses. Every schedule that Coyote explores is
+sequentially consistent, so a bug that only manifests under a memory reordering can go unnoticed.
+
+Within this boundary, the rewritten memory APIs behave as follows:
+
+- `Volatile.Read`, `Volatile.Write` and the `Interlocked` operations access shared memory, so they are
+  rewritten to introduce a scheduling point before the access, which lets another operation access
+  the same memory in between. These scheduling points can be turned off with
+  `Configuration.WithVolatileOperationRaceCheckingEnabled` and
+  `Configuration.WithAtomicOperationRaceCheckingEnabled`.
+- Memory barriers that do not access memory, namely `Thread.MemoryBarrier`, `Interlocked.MemoryBarrier`,
+  `Interlocked.MemoryBarrierProcessWide` and the .NET 10 `Volatile.ReadBarrier` and
+  `Volatile.WriteBarrier`, are not rewritten. They invoke the .NET runtime directly and do not introduce
+  a scheduling point. This is not an uncontrolled synchronization operation: a barrier never blocks
+  and never waits for another operation, so it cannot hide a dependency from the scheduler or cause a
+  real deadlock. It only constrains the memory reorderings that Coyote does not explore anyway.
+
 ### Quality of life improvements through rewriting
 
 Coyote will automatically rewrite certain parts of your test code (without changing the application

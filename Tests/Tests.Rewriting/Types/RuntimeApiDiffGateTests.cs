@@ -15,6 +15,7 @@ using CoyoteMonitor = Microsoft.Coyote.Rewriting.Types.Threading.Monitor;
 using CoyoteSemaphoreSlim = Microsoft.Coyote.Rewriting.Types.Threading.SemaphoreSlim;
 using CoyoteTask = Microsoft.Coyote.Rewriting.Types.Threading.Tasks.Task;
 using CoyoteThread = Microsoft.Coyote.Rewriting.Types.Threading.Thread;
+using CoyoteVolatile = Microsoft.Coyote.Rewriting.Types.Threading.Volatile;
 using CoyoteWaitHandle = Microsoft.Coyote.Rewriting.Types.Threading.WaitHandle;
 #if NET10_0_OR_GREATER
 using CoyoteLock = Microsoft.Coyote.Rewriting.Types.Threading.Lock;
@@ -24,6 +25,16 @@ namespace Microsoft.Coyote.Rewriting.Tests
 {
     public class RuntimeApiDiffGateTests : BaseRewritingTest
     {
+        private const string RunSynchronouslyReason =
+            "Task.RunSynchronously is intentionally not controlled because it can execute work on an arbitrary scheduler.";
+
+#if NET10_0_OR_GREATER
+        private const string MemoryBarrierReason =
+            "A memory barrier neither accesses shared memory nor blocks, so it is invoked natively without a " +
+            "scheduling point, like Thread.MemoryBarrier; systematic testing executes one operation at a time " +
+            "and does not explore the memory reorderings that the barrier prevents.";
+#endif
+
         public RuntimeApiDiffGateTests(ITestOutputHelper output)
             : base(output)
         {
@@ -104,7 +115,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         public void TestAllowlistedMethodsRequireANonemptyReason()
         {
             IReadOnlyList<ApiMember> runtimeMembers = GetRuntimeMembers();
-            ApiMember unsupportedMember = runtimeMembers.Single(member => !member.IsSupported);
+            ApiMember unsupportedMember = runtimeMembers.First(member => !member.IsSupported);
             IReadOnlyCollection<string> runtimeSignatures = runtimeMembers.Select(member => member.Signature).ToArray();
             IReadOnlyCollection<string> supportedSignatures = runtimeMembers
                 .Where(member => member.IsSupported)
@@ -136,11 +147,29 @@ namespace Microsoft.Coyote.Rewriting.Tests
             Assert.True(HasReplacement(exchange));
             Assert.Contains("Exchange``1(!!0&,!!0)|!!0", exchange.Signature);
 
-            var stricter = new ApiMember(exchange.RuntimeMethod, typeof(StricterInterlocked), true);
+            var stricter = new ApiMember(exchange.RuntimeMethod, typeof(StricterInterlocked), null);
             Assert.False(HasReplacement(stricter));
-            var nongeneric = new ApiMember(exchange.RuntimeMethod, typeof(NongenericInterlocked), true);
+            var nongeneric = new ApiMember(exchange.RuntimeMethod, typeof(NongenericInterlocked), null);
             Assert.False(HasReplacement(nongeneric));
         }
+
+#if NET10_0_OR_GREATER
+        [Fact(Timeout = 5000)]
+        public void TestMemoryBarriersAreClassifiedAsPassThrough()
+        {
+            ApiMember[] barriers = GetRuntimeMembers()
+                .Where(member => member.RuntimeMethod.DeclaringType == typeof(Volatile) &&
+                    member.RuntimeMethod.Name is nameof(Volatile.ReadBarrier) or nameof(Volatile.WriteBarrier))
+                .ToArray();
+            Assert.Equal(2, barriers.Length);
+            Assert.All(barriers, barrier =>
+            {
+                Assert.False(barrier.IsSupported);
+                Assert.False(HasReplacement(barrier));
+                Assert.False(string.IsNullOrWhiteSpace(barrier.PassThroughReason));
+            });
+        }
+#endif
 
         private static IReadOnlyList<ApiMember> GetRuntimeMembers()
         {
@@ -186,7 +215,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 CreateGeneric(typeof(Interlocked), typeof(CoyoteInterlocked), nameof(Interlocked.CompareExchange), 3),
                 Create(typeof(WaitHandle), typeof(CoyoteWaitHandle), nameof(WaitHandle.WaitOne)),
                 Create(typeof(Thread), typeof(CoyoteThread), nameof(Thread.Sleep), typeof(int)),
-                Create(typeof(Task), typeof(CoyoteTask), nameof(Task.RunSynchronously), false)
+                CreatePassThrough(typeof(Task), typeof(CoyoteTask), nameof(Task.RunSynchronously), RunSynchronouslyReason)
             };
 
 #if NET9_0_OR_GREATER
@@ -209,21 +238,28 @@ namespace Microsoft.Coyote.Rewriting.Tests
             members.Add(Create(typeof(Lock), typeof(CoyoteLock), nameof(Lock.TryEnter), typeof(TimeSpan)));
             members.Add(Create(typeof(Lock), typeof(CoyoteLock), nameof(Lock.Exit)));
             members.Add(Create(typeof(Lock), typeof(CoyoteLock), "get_IsHeldByCurrentThread"));
+            members.Add(CreatePassThrough(typeof(Volatile), typeof(CoyoteVolatile), nameof(Volatile.ReadBarrier),
+                MemoryBarrierReason));
+            members.Add(CreatePassThrough(typeof(Volatile), typeof(CoyoteVolatile), nameof(Volatile.WriteBarrier),
+                MemoryBarrierReason));
 #endif
             return members;
         }
 
         private static ApiMember Create(Type runtimeType, Type replacementType, string methodName, params Type[] parameterTypes) =>
-            Create(runtimeType, replacementType, methodName, true, parameterTypes);
+            new ApiMember(FindMethod(runtimeType, methodName, parameterTypes), replacementType, null);
 
-        private static ApiMember Create(Type runtimeType, Type replacementType, string methodName, bool isSupported,
-            params Type[] parameterTypes)
-        {
-            MethodInfo method = runtimeType.GetMethods(
+        /// <summary>
+        /// Creates a member that is deliberately left as a call to the runtime, with the reason why.
+        /// </summary>
+        private static ApiMember CreatePassThrough(Type runtimeType, Type replacementType, string methodName,
+            string reason, params Type[] parameterTypes) =>
+            new ApiMember(FindMethod(runtimeType, methodName, parameterTypes), replacementType, reason);
+
+        private static MethodInfo FindMethod(Type runtimeType, string methodName, Type[] parameterTypes) =>
+            runtimeType.GetMethods(
                 BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .Single(candidate => candidate.Name == methodName && ParametersMatch(candidate, parameterTypes));
-            return new ApiMember(method, replacementType, isSupported);
-        }
 
         private static ApiMember CreateGeneric(Type runtimeType, Type replacementType, string methodName,
             int parameterCount)
@@ -232,7 +268,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .Single(candidate => candidate.Name == methodName && candidate.IsGenericMethodDefinition &&
                     candidate.GetParameters().Length == parameterCount);
-            return new ApiMember(method, replacementType, true);
+            return new ApiMember(method, replacementType, null);
         }
 
         private static bool ParametersMatch(MethodInfo method, IReadOnlyList<Type> parameterTypes)
@@ -404,7 +440,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
 #endif
             members.Where(member => !member.IsSupported).ToDictionary(
                 member => member.Signature,
-                member => "Task.RunSynchronously is intentionally not controlled because it can execute work on an arbitrary scheduler.");
+                member => member.PassThroughReason);
 
         private static class StricterInterlocked
         {
@@ -419,11 +455,12 @@ namespace Microsoft.Coyote.Rewriting.Tests
 
         private sealed class ApiMember
         {
-            internal ApiMember(MethodInfo runtimeMethod, Type replacementType, bool isSupported)
+            internal ApiMember(MethodInfo runtimeMethod, Type replacementType, string passThroughReason)
             {
                 this.RuntimeMethod = runtimeMethod;
                 this.ReplacementType = replacementType;
-                this.IsSupported = isSupported;
+                this.IsSupported = passThroughReason is null;
+                this.PassThroughReason = passThroughReason;
                 this.Signature = GetMethodSignature(runtimeMethod);
             }
 
@@ -432,6 +469,11 @@ namespace Microsoft.Coyote.Rewriting.Tests
             internal Type ReplacementType { get; }
 
             internal bool IsSupported { get; }
+
+            /// <summary>
+            /// The reason why a member that is not supported is deliberately left as a call to the runtime.
+            /// </summary>
+            internal string PassThroughReason { get; }
 
             internal string Signature { get; }
         }

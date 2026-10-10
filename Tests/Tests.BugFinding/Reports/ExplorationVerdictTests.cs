@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
         }
 
         [Fact(Timeout = 10000)]
-        public void TestInterruptionRecordingDuringMerge()
+        public async Task TestInterruptionRecordingDuringMergeAsync()
         {
             var configuration = this.GetConfiguration();
             var report = new TestReport(configuration);
@@ -207,7 +207,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
                 NumOfExploredFairPaths = 1,
                 MaxExploredFairSteps = 1
             };
-            Task.WaitAll(Task.Run(() =>
+            await Task.WhenAll(Task.Run(() =>
             {
                 for (int i = 0; i < 1000; i++)
                 {

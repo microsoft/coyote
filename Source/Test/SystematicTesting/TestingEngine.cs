@@ -222,7 +222,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (!this.IsTestRewritten())
                 {
-                    // TODO: eventually will throw an exception; we allow this for now.
+                    this.TestReport.RecordUnrewrittenTestAssembly();
                     this.LogWriter.LogError("... Assembly is not rewritten for testing, see {0}.", Documentation.LearnAboutRewritingUrl);
                 }
 

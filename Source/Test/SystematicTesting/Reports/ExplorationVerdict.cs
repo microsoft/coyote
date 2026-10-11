@@ -121,7 +121,13 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The exploration was canceled by a request to stop the testing engine.
         /// </summary>
-        TestingCanceled
+        TestingCanceled,
+
+        /// <summary>
+        /// The test entry assembly was not rewritten by the current version of Coyote.
+        /// Native concurrent operations in this assembly might not be intercepted and controlled.
+        /// </summary>
+        TestAssemblyNotRewritten
     }
 
     /// <summary>

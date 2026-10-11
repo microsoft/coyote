@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.SystematicTesting;
@@ -394,6 +396,45 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
             Assert.Equal(2, report.NumOfFoundBugs);
             Assert.Equal(ExplorationStatus.BugFound, verdict.Status);
             Assert.Equal("BugFound", verdict.ToString());
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestUnknownRewriteStateDoesNotMakeMergedReportIncomplete(bool isUnknownSource)
+        {
+            var configuration = this.GetConfiguration().WithTestingIterations(1);
+            using var engine = TestingEngine.Create(configuration, () => SchedulingPoint.Interleave());
+            engine.Run();
+            Assert.True(engine.IsTestRewritten());
+            var unknownReport = new TestReport(configuration);
+            Assert.DoesNotContain(IncompleteExplorationReason.TestAssemblyNotRewritten, unknownReport.GetVerdict().Reasons);
+            var destination = isUnknownSource ? engine.TestReport : unknownReport;
+            var source = isUnknownSource ? unknownReport : engine.TestReport;
+            Assert.True(destination.Merge(source));
+
+            Assert.Equal(ExplorationStatus.Complete, destination.GetVerdict().Status);
+            Assert.Empty(destination.GetVerdict().Reasons);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestDelegateUsesActualEntryAssembly()
+        {
+            var configuredAssembly = typeof(ExplorationVerdictTests).Assembly;
+            Assert.True(RewritingEngine.IsAssemblyRewritten(configuredAssembly));
+            var configuration = this.GetConfiguration().WithTestingIterations(1);
+            configuration.AssemblyToBeAnalyzed = configuredAssembly.Location;
+            using var engine = TestingEngine.Create(configuration, SchedulingPoint.Interleave);
+            Assert.False(engine.IsTestRewritten());
+            engine.Run();
+
+            Assert.Equal(1, engine.TestReport.NumOfExploredFairPaths + engine.TestReport.NumOfExploredUnfairPaths);
+            Assert.Equal(ExplorationStatus.Incomplete, engine.TestReport.GetVerdict().Status);
+            Assert.Contains(IncompleteExplorationReason.TestAssemblyNotRewritten, engine.TestReport.GetVerdict().Reasons);
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var assembly = document.RootElement.GetProperty("assembly");
+            Assert.False(assembly.GetProperty("isRewritten").GetBoolean());
+            Assert.Equal(typeof(SchedulingPoint).Assembly.Location, assembly.GetProperty("path").GetString());
         }
     }
 }

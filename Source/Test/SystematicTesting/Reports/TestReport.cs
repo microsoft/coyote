@@ -190,6 +190,13 @@ namespace Microsoft.Coyote.SystematicTesting
         internal bool IsExplorationCanceled { get; private set; }
 
         /// <summary>
+        /// True if the engine detected that the test entry assembly was not rewritten.
+        /// False means no such limitation was recorded, not that rewriting was verified.
+        /// </summary>
+        [DataMember]
+        internal bool HasUnrewrittenTestAssembly { get; private set; }
+
+        /// <summary>
         /// Lock for the test report.
         /// </summary>
         private readonly object Lock;
@@ -324,6 +331,17 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Records that the test entry assembly was not rewritten for testing.
+        /// </summary>
+        internal void RecordUnrewrittenTestAssembly()
+        {
+            lock (this.Lock)
+            {
+                this.HasUnrewrittenTestAssembly = true;
+            }
+        }
+
+        /// <summary>
         /// Records how the exploration was interrupted while statistics can still be merging.
         /// </summary>
         internal void RecordExplorationTermination(bool isCanceled)
@@ -357,6 +375,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.UncontrolledInvocations.UnionWith(testReport.UncontrolledInvocations);
                 this.IsExplorationTimedOut |= testReport.IsExplorationTimedOut;
                 this.IsExplorationCanceled |= testReport.IsExplorationCanceled;
+                this.HasUnrewrittenTestAssembly |= testReport.HasUnrewrittenTestAssembly;
 
                 this.TotalControlledOperations += testReport.TotalControlledOperations;
                 this.MaxControlledOperations = Math.Max(this.MaxControlledOperations, testReport.MaxControlledOperations);
@@ -431,6 +450,11 @@ namespace Microsoft.Coyote.SystematicTesting
             var warnings = new List<ExplorationWarning>();
 
             int totalExploredPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
+            if (this.HasUnrewrittenTestAssembly)
+            {
+                reasons.Add(IncompleteExplorationReason.TestAssemblyNotRewritten);
+            }
+
             if (this.UncontrolledInvocations.Count > 0)
             {
                 reasons.Add(IncompleteExplorationReason.UncontrolledInvocations);

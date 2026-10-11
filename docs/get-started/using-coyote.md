@@ -145,6 +145,16 @@ is reported as reason `TestingCanceled` even if some paths were explored. With `
 incomplete runs exit with code `4`; without it, the default exit codes above still apply.
 A detected bug or an internal error retains its verdict and exit-code priority.
 
+If the test entry assembly has no rewriting signature matching the current Coyote version,
+the engine records `TestAssemblyNotRewritten`. In the absence of a bug or internal error,
+the verdict is `Incomplete`, even when an explicit scheduling point produces nonzero step counts.
+This also applies to actor-only tests and tests run through an in-process delegate: the delegate's
+actual assembly is checked.
+Testing continues so bugs and reports are still available. A run with no bug or internal error
+exits with code `4` with `--strict`, or `0` without it. Automation should accept the new reason
+in the JSON report. A matching signature only identifies the test entry assembly; it does not
+prove that every dependency or native concurrent API was rewritten and controlled.
+
 The timeout ends the wait for testing; it does not synchronously terminate arbitrary user
 initialization or an iteration still running in the background. Reports use the statistics
 available when they are read or generated; background iterations can still update them.

@@ -375,6 +375,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!this.Scheduler.InitializeNextIteration(iteration, iterationLogWriter))
             {
                 // The next iteration cannot run, so stop exploring.
+                this.TestReport.RecordExplorationExhaustion();
                 return false;
             }
 

@@ -155,6 +155,15 @@ exits with code `4` with `--strict`, or `0` without it. Automation should accept
 in the JSON report. A matching signature only identifies the test entry assembly; it does not
 prove that every dependency or native concurrent API was rewritten and controlled.
 
+The internal DFS strategy can report that no execution paths remain before the requested iteration
+budget is reached. The engine then omits `InsufficientExecutionPaths`; other incomplete reasons
+and warnings still apply. When reports are merged, exhaustion is retained only if every report
+with explored paths recorded it. Reports with no explored paths are neutral for exhaustion,
+but their recorded limitations still apply. Merged verdicts use the destination configuration
+and aggregate path counts, so they do not establish that each contributing run met its own budget.
+`Complete` means that no bug or reported exploration limitation was detected under the configured
+strategy and bounds; it does not prove that every possible program execution was explored.
+
 The timeout ends the wait for testing; it does not synchronously terminate arbitrary user
 initialization or an iteration still running in the background. Reports use the statistics
 available when they are read or generated; background iterations can still update them.

@@ -99,7 +99,8 @@ namespace Microsoft.Coyote.SystematicTesting
         ExceededUnfairStepsBound,
 
         /// <summary>
-        /// Fewer execution paths were explored than the number of requested testing iterations.
+        /// Fewer execution paths were explored than the number of requested testing iterations,
+        /// without the scheduling strategy reporting that exploration was exhausted.
         /// </summary>
         InsufficientExecutionPaths,
 

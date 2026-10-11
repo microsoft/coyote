@@ -197,6 +197,13 @@ namespace Microsoft.Coyote.SystematicTesting
         internal bool HasUnrewrittenTestAssembly { get; private set; }
 
         /// <summary>
+        /// True if the scheduling strategy reported that no execution paths remain to explore.
+        /// False means exhaustion was not observed, not that unexplored paths necessarily remain.
+        /// </summary>
+        [DataMember]
+        internal bool IsExplorationExhausted { get; private set; }
+
+        /// <summary>
         /// Lock for the test report.
         /// </summary>
         private readonly object Lock;
@@ -342,6 +349,17 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Records that the scheduling strategy has no execution paths left to explore.
+        /// </summary>
+        internal void RecordExplorationExhaustion()
+        {
+            lock (this.Lock)
+            {
+                this.IsExplorationExhausted = true;
+            }
+        }
+
+        /// <summary>
         /// Records how the exploration was interrupted while statistics can still be merging.
         /// </summary>
         internal void RecordExplorationTermination(bool isCanceled)
@@ -376,6 +394,16 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.IsExplorationTimedOut |= testReport.IsExplorationTimedOut;
                 this.IsExplorationCanceled |= testReport.IsExplorationCanceled;
                 this.HasUnrewrittenTestAssembly |= testReport.HasUnrewrittenTestAssembly;
+
+                int exploredPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
+                int sourceExploredPaths = testReport.NumOfExploredFairPaths + testReport.NumOfExploredUnfairPaths;
+                if (sourceExploredPaths > 0)
+                {
+                    // Empty reports are neutral; all contributing reports must have observed exhaustion.
+                    this.IsExplorationExhausted = exploredPaths > 0 ?
+                        this.IsExplorationExhausted && testReport.IsExplorationExhausted :
+                        testReport.IsExplorationExhausted;
+                }
 
                 this.TotalControlledOperations += testReport.TotalControlledOperations;
                 this.MaxControlledOperations = Math.Max(this.MaxControlledOperations, testReport.MaxControlledOperations);
@@ -500,7 +528,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 && this.Configuration.TestingTimeout is 0 &&
-                totalExploredPaths < this.Configuration.TestingIterations)
+                totalExploredPaths < this.Configuration.TestingIterations && !this.IsExplorationExhausted)
             {
                 reasons.Add(IncompleteExplorationReason.InsufficientExecutionPaths);
             }

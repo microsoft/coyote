@@ -13,7 +13,7 @@ public enum IncompleteExplorationReason
 | UncontrolledInvocations | `0` | At least one invocation was not intercepted and controlled during testing, so the explored interleavings are not exhaustive and bug traces might not be reproducible. |
 | TruncatedExecutionPaths | `1` | At least one execution path was truncated because it reached the max-steps bound. |
 | ExceededUnfairStepsBound | `2` | At least one fair execution path exceeded the unfair max-steps bound. This is only a reason when strict bound checking is enabled, otherwise it is reported as a warning. |
-| InsufficientExecutionPaths | `3` | Fewer execution paths were explored than the number of requested testing iterations. |
+| InsufficientExecutionPaths | `3` | Fewer execution paths were explored than the number of requested testing iterations, without the scheduling strategy reporting that exploration was exhausted. |
 | NoSchedulingDecisions | `4` | No scheduling decisions were taken during testing, so there were no interleavings to explore. |
 | NoExecutionPaths | `5` | No execution paths were explored, regardless of the requested iterations or timeout. |
 | TestingTimedOut | `6` | The testing timeout expired before any execution paths were explored. |

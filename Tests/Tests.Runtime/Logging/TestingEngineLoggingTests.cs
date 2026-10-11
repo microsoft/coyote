@@ -46,6 +46,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
 
                 engine.Run();
 
+                Assert.Contains("[coyote::report] Exploration verdict: BugFound (TestAssemblyNotRewritten).", engine.ReadableTrace);
                 observed = engine.ReadableTrace.RemoveNonDeterministicValues().NormalizeNewLines().FormatNewLine();
                 Assert.Equal(2, engine.TestReport.NumOfFoundBugs);
             }
@@ -79,7 +80,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::test] Exploration finished in runtime '' [found a bug using the 'random' strategy].",
                 "[coyote::report] Testing statistics:",
                 "[coyote::report] Found 2 bugs.",
-                "[coyote::report] Exploration verdict: BugFound.",
+                "[coyote::report] Exploration verdict: BugFound ().",
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",
@@ -111,6 +112,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
 
                 engine.Run();
 
+                Assert.Contains("[coyote::report] Exploration verdict: BugFound (TestAssemblyNotRewritten).", engine.ReadableTrace);
                 observed = engine.ReadableTrace.RemoveNonDeterministicValues().NormalizeNewLines().FormatNewLine();
                 Assert.Equal(2, engine.TestReport.NumOfFoundBugs);
             }
@@ -158,7 +160,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::test] Exploration finished in runtime '' [found a bug using the 'random' strategy].",
                 "[coyote::report] Testing statistics:",
                 "[coyote::report] Found 2 bugs.",
-                "[coyote::report] Exploration verdict: BugFound.",
+                "[coyote::report] Exploration verdict: BugFound ().",
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",
@@ -187,6 +189,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             engine.SetLogger(logger);
             engine.Run();
 
+            Assert.Contains("[coyote::report] Exploration verdict: BugFound (TestAssemblyNotRewritten).", engine.ReadableTrace);
             string observed = engine.ReadableTrace.RemoveNonDeterministicValues().NormalizeNewLines().FormatNewLine();
             Assert.Equal(2, engine.TestReport.NumOfFoundBugs);
 
@@ -233,7 +236,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::test] Exploration finished in runtime '' [found a bug using the 'random' strategy].",
                 "[coyote::report] Testing statistics:",
                 "[coyote::report] Found 2 bugs.",
-                "[coyote::report] Exploration verdict: BugFound.",
+                "[coyote::report] Exploration verdict: BugFound ().",
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",

@@ -71,6 +71,15 @@ namespace Microsoft.Coyote.Rewriting
 #endif
             this.KnownTypes[NameCache.GenericTaskCompletionSource] = typeof(Types.Threading.Tasks.TaskCompletionSource<>);
             this.KnownTypes[NameCache.TaskExtensions] = typeof(Types.TaskExtensions);
+#if NET
+            this.KnownTypes[NameCache.TaskAsyncEnumerableExtensions] = typeof(Types.Threading.Tasks.TaskAsyncEnumerableExtensions);
+            this.KnownTypes[NameCache.ConfiguredCancelableAsyncEnumerable] =
+                typeof(Types.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable<>);
+            this.KnownTypes[NameCache.ConfiguredAsyncEnumerator] =
+                typeof(Types.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable<>.Enumerator);
+            this.KnownTypes[NameCache.ConfiguredAsyncDisposable] =
+                typeof(Types.Runtime.CompilerServices.ConfiguredAsyncDisposable);
+#endif
             this.KnownTypes[NameCache.TaskFactory] = typeof(Types.Threading.Tasks.TaskFactory);
             this.KnownTypes[NameCache.GenericTaskFactory] = typeof(Types.Threading.Tasks.TaskFactory<>);
             this.KnownTypes[NameCache.TaskParallel] = typeof(Types.Threading.Tasks.Parallel);

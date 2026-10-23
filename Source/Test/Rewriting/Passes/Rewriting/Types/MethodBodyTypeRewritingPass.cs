@@ -116,10 +116,11 @@ namespace Microsoft.Coyote.Rewriting
         {
             MethodReference constructor = instruction.Operand as MethodReference;
             if (this.TryRewriteMethodReference(constructor, "Create", out MethodReference newMethod) &&
-                this.TryResolve(newMethod, out MethodDefinition _))
+                this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
-                // Create and return the new instruction.
-                Instruction newInstruction = Instruction.Create(OpCodes.Call, newMethod);
+                // Only constructor-to-factory rewrites replace allocation with a static call.
+                Instruction newInstruction = Instruction.Create(resolvedMethod.IsConstructor ?
+                    OpCodes.Newobj : OpCodes.Call, newMethod);
                 newInstruction.Offset = instruction.Offset;
 
                 this.LogWriter.LogDebug("............. [-] {0}", instruction);

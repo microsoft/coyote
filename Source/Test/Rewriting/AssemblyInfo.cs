@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -280,6 +281,11 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void ValidateAssembly()
         {
+            // Rewriting resolves the replacement types of the running Coyote host, so the host and
+            // the assembly must target the same .NET major version. This also covers any dependency
+            // that was loaded transitively, as such a dependency is rewritten as well.
+            TargetRuntimeValidator.ValidateRewritingTarget(this.FilePath, this.Definition);
+
             if (this.IsAssemblyRewritten(out string version, out string signatureHash))
             {
                 // The assembly has been already rewritten so check if the signatures match.

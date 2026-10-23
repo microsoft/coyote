@@ -51,7 +51,7 @@ if ($ci.IsPresent) {
 
 Write-Comment -text "Using configuration '$configuration'." -color "magenta"
 $solution = Join-Path -Path $ScriptDir -ChildPath ".." -AdditionalChildPath "Coyote.sln"
-$command = "build -c $configuration /p:Platform=""Any CPU"" $extra_frameworks $solution"
+$command = "build -m:1 -c $configuration /p:Platform=""Any CPU"" $extra_frameworks $solution"
 
 $error_msg = "Failed to build Coyote"
 Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg

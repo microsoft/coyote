@@ -26,6 +26,14 @@ To learn how to test your application after rewriting your binaries with Coyote,
 [here](../get-started/using-coyote.md), as well as check out our tutorial on [writing your first
 concurrency unit test](../tutorials/first-concurrency-unit-test.md).
 
+### Choosing the right Coyote host
+
+Coyote ships a host for each supported .NET version. Rewriting injects references to the runtime of
+the host that performs it, so you must run the host that matches the .NET major version targeted by
+the assembly: use the `net8.0` Coyote host to rewrite a `net8.0` assembly and the `net10.0` host to
+rewrite a `net10.0` assembly. If the versions do not match, `coyote rewrite` reports an error naming
+both versions and leaves the assembly unmodified.
+
 ### Configuration
 
 If you have multiple binaries to rewrite, then you should provide a JSON rewriting configuration
@@ -105,6 +113,87 @@ CosmosDB) with some in-memory mock implementation to make your test fast and eff
 you can already get tests up and running without requiring to mock every single thing, making the
 experience pay-as-you-go. And our plan is that as partially-controlled exploration improves over
 time, you transparently also get better coverage without having to do much from your side.
+
+### How timeouts are modeled
+
+The controlled scheduler serializes your program and decides itself when each operation runs, so it
+does not measure wall-clock time. Rewritten synchronization APIs that accept a timeout therefore do
+not treat that timeout as a source of nondeterminism during systematic testing:
+
+- A **finite non-zero** timeout is explored as if it was infinite, so the wait completes when the
+  operation that it is waiting for completes. Racing the wait against its timeout would instead
+  make every wait fail in some schedules, no matter how large the timeout is, reporting timeouts
+  that the program is not expected to observe and hiding the bugs that happen after the wait
+  succeeds. `Task.Wait`, `Task.WaitAll`, `Task.WaitAny`, `Task.WaitAsync`, `Monitor.Wait`,
+  `SemaphoreSlim.Wait`, `SemaphoreSlim.WaitAsync`, `WaitHandle.WaitOne`, `WaitHandle.WaitAll`,
+  `WaitHandle.WaitAny` and `Thread.Join` all follow this rule. The exception is `Lock.TryEnter`,
+  which reports a finite non-zero timeout as unsupported rather than blocking indefinitely on a
+  lock that its caller expects to give up on.
+- If no operation can ever complete such a wait, then the runtime reports it as a **deadlock**,
+  which is how it reports any other wait that cannot be satisfied.
+- Where the API can return without giving any other operation a chance to run first, a **zero**
+  timeout keeps its production meaning: `Task.WaitAsync` throws a `TimeoutException`, and
+  `SemaphoreSlim.Wait`, `SemaphoreSlim.WaitAsync`, `WaitHandle.WaitOne` and `Lock.TryEnter` report
+  that they did not acquire the resource.
+
+This policy does not change how cancellation is observed. Where the API takes a cancellation token
+that Coyote controls, such as `Task.WaitAsync`, a wait with a finite timeout still completes as
+canceled when the token is canceled, and a token that is already canceled when the wait starts
+takes precedence over the timeout, exactly as it does in production.
+
+Cancellation and completion are ordered as they are in production. `Task.WaitAsync` keeps the
+outcome of a source task that completes before the token is canceled (unless the source runs its
+continuations asynchronously, in which case a later cancellation can still win, as it can in
+production). `Task.WaitAll` with a cancelable token, including the .NET 10 `IEnumerable<Task>`
+overload, wakes up when the token is canceled while it is blocked, throwing an
+`OperationCanceledException` for that token without waiting for the pending tasks, and returns
+normally if all tasks completed first.
+
+Systematic fuzzing is different: it executes the program on real threads and in real time, only
+injecting delays in between operations. Timeouts there keep their wall-clock meaning and are
+handled by the uncontrolled .NET runtime.
+
+### How memory ordering is modeled
+
+Systematic testing explores the interleavings of controlled operations, executing one operation at a
+time and switching between them only at scheduling points. It does not explore weak-memory behaviors,
+such as a processor or the JIT reordering memory accesses. Every schedule that Coyote explores is
+sequentially consistent, so a bug that only manifests under a memory reordering can go unnoticed.
+
+Within this boundary, the rewritten memory APIs behave as follows:
+
+- `Volatile.Read`, `Volatile.Write` and the `Interlocked` operations access shared memory, so they are
+  rewritten to introduce a scheduling point before the access, which lets another operation access
+  the same memory in between. These scheduling points can be turned off with
+  `Configuration.WithVolatileOperationRaceCheckingEnabled` and
+  `Configuration.WithAtomicOperationRaceCheckingEnabled`.
+- Memory barriers that do not access memory, namely `Thread.MemoryBarrier`, `Interlocked.MemoryBarrier`,
+  `Interlocked.MemoryBarrierProcessWide` and the .NET 10 `Volatile.ReadBarrier` and
+  `Volatile.WriteBarrier`, are not rewritten. They invoke the .NET runtime directly and do not introduce
+  a scheduling point. This is not an uncontrolled synchronization operation: a barrier never blocks
+  and never waits for another operation, so it cannot hide a dependency from the scheduler or cause a
+  real deadlock. It only constrains the memory reorderings that Coyote does not explore anyway.
+
+### Named wait handles
+
+A named `EventWaitHandle`, `Mutex` or `Semaphore` is a system object that other processes can open,
+signal and wait on. Coyote only controls the operations of the process under test, so it cannot
+model a named wait handle as a resource local to that process without missing what other processes
+do to it. During systematic testing:
+
+- Creating an `EventWaitHandle` with a non-empty name, using any constructor that takes a name
+  (including the .NET 10 overloads that take `NamedWaitHandleOptions`), is reported as a bug and
+  throws a `NotSupportedException` before the named system event is created or opened.
+- A `null` name, and on Windows an empty name, creates an unnamed event that is local to the
+  process, exactly as the unnamed constructors do, so such events, `AutoResetEvent` and
+  `ManualResetEvent` are controlled. On other platforms, the .NET runtime itself rejects an empty
+  name with a `PlatformNotSupportedException`, which Coyote leaves unchanged.
+- `EventWaitHandle.OpenExisting` and `EventWaitHandle.TryOpenExisting`, the .NET Framework constructor
+  that takes `EventWaitHandleSecurity`, and every `Mutex` and `Semaphore` member, are reported as
+  uncontrolled invocations.
+
+Coyote does not model synchronization across processes. Outside systematic testing, and during
+systematic fuzzing, which executes on real threads, named wait handles keep their native behavior.
 
 ### Quality of life improvements through rewriting
 

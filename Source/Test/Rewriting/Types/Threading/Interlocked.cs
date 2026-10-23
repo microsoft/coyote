@@ -220,8 +220,64 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             return SystemInterlocked.Exchange(ref location1, value);
         }
 
+#if NET9_0_OR_GREATER
+        /// <summary>
+        /// Sets an 8-bit unsigned integer to a specified value and returns the original value,
+        /// as an atomic operation.
+        /// </summary>
+        public static byte Exchange(ref byte location1, byte value)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.Exchange(ref location1, value);
+        }
+
+        /// <summary>
+        /// Sets an 8-bit signed integer to a specified value and returns the original value,
+        /// as an atomic operation.
+        /// </summary>
+        public static sbyte Exchange(ref sbyte location1, sbyte value)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.Exchange(ref location1, value);
+        }
+
+        /// <summary>
+        /// Sets a 16-bit signed integer to a specified value and returns the original value,
+        /// as an atomic operation.
+        /// </summary>
+        public static short Exchange(ref short location1, short value)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.Exchange(ref location1, value);
+        }
+
+        /// <summary>
+        /// Sets a 16-bit unsigned integer to a specified value and returns the original value,
+        /// as an atomic operation.
+        /// </summary>
+        public static ushort Exchange(ref ushort location1, ushort value)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.Exchange(ref location1, value);
+        }
+
         /// <summary>
         /// Sets a variable of the specified type T to a specified value and returns the
+        /// original value, as an atomic operation.
+        /// </summary>
+        /// <remarks>
+        /// The runtime accepts reference types, primitive types and enums as T, and rejects any
+        /// other type with a <see cref="NotSupportedException"/>, which this method preserves by
+        /// delegating to the runtime after the scheduling point.
+        /// </remarks>
+        public static T Exchange<T>(ref T location1, T value)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.Exchange(ref location1, value);
+        }
+#else
+        /// <summary>
+        /// Sets a variable of the specified reference type T to a specified value and returns the
         /// original value, as an atomic operation.
         /// </summary>
         public static T Exchange<T>(ref T location1, T value)
@@ -230,6 +286,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             ExploreInterleaving();
             return SystemInterlocked.Exchange(ref location1, value);
         }
+#endif
 
         /// <summary>
         /// Sets a platform-specific handle or pointer to a specified value and returns the
@@ -325,6 +382,63 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
+#if NET9_0_OR_GREATER
+        /// <summary>
+        /// Compares two 8-bit unsigned integers for equality and, if they are equal, replaces
+        /// the first value.
+        /// </summary>
+        public static byte CompareExchange(ref byte location1, byte value, byte comparand)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
+        }
+
+        /// <summary>
+        /// Compares two 8-bit signed integers for equality and, if they are equal, replaces
+        /// the first value.
+        /// </summary>
+        public static sbyte CompareExchange(ref sbyte location1, sbyte value, sbyte comparand)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
+        }
+
+        /// <summary>
+        /// Compares two 16-bit signed integers for equality and, if they are equal, replaces
+        /// the first value.
+        /// </summary>
+        public static short CompareExchange(ref short location1, short value, short comparand)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
+        }
+
+        /// <summary>
+        /// Compares two 16-bit unsigned integers for equality and, if they are equal, replaces
+        /// the first value.
+        /// </summary>
+        public static ushort CompareExchange(ref ushort location1, ushort value, ushort comparand)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
+        }
+
+        /// <summary>
+        /// Compares two instances of the specified type T for equality and, if they are equal,
+        /// replaces the first one. Reference types are compared for reference equality, and
+        /// primitive types and enums for bitwise equality.
+        /// </summary>
+        /// <remarks>
+        /// The runtime accepts reference types, primitive types and enums as T, and rejects any
+        /// other type with a <see cref="NotSupportedException"/>, which this method preserves by
+        /// delegating to the runtime after the scheduling point.
+        /// </remarks>
+        public static T CompareExchange<T>(ref T location1, T value, T comparand)
+        {
+            ExploreInterleaving();
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
+        }
+#else
         /// <summary>
         /// Compares two instances of the specified reference type T for reference equality
         /// and, if they are equal, replaces the first one.
@@ -335,6 +449,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             ExploreInterleaving();
             return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
+#endif
 
         /// <summary>
         /// Compares two platform-specific handles or pointers for equality and, if they

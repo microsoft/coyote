@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -155,6 +156,127 @@ namespace Microsoft.Coyote.BugFinding.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestMonitorWithConcurrentTryLock()
+        {
+            this.Test(async () =>
+            {
+                TryLockData data = new TryLockData();
+                Task t1 = Task.Run(data.AcquireAndRelease);
+                Task t2 = Task.Run(data.AcquireAndRelease);
+                await Task.WhenAll(t1, t2);
+            },
+            this.GetConfiguration().WithLockAccessRaceCheckingEnabled().WithTestingIterations(100));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [InlineData(5)]
+        public void TestMonitorTryEnterWithoutWaitingWithContention(int overload)
+        {
+            this.Test(() =>
+            {
+                object syncObject = new object();
+                Monitor.Enter(syncObject);
+                try
+                {
+                    Task worker = Task.Run(() =>
+                    {
+                        bool lockTaken = TryEnterWithoutWaiting(syncObject, overload);
+                        try
+                        {
+                            Specification.Assert(!lockTaken, "The worker acquired the parent's monitor.");
+                        }
+                        finally
+                        {
+                            if (lockTaken)
+                            {
+                                Monitor.Exit(syncObject);
+                            }
+                        }
+                    });
+
+                    worker.Wait();
+                    Specification.Assert(Monitor.IsEntered(syncObject), "The parent lost its monitor.");
+                }
+                finally
+                {
+                    Monitor.Exit(syncObject);
+                }
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(20)
+                .WithLockAccessRaceCheckingEnabled());
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [InlineData(5)]
+        public void TestMonitorTryEnterWithoutWaitingWithReentrancy(int overload)
+        {
+            this.Test(() =>
+            {
+                object syncObject = new object();
+                bool lockTaken = TryEnterWithoutWaiting(syncObject, overload);
+                Specification.Assert(lockTaken, "The free monitor was not acquired.");
+                try
+                {
+                    bool reentered = TryEnterWithoutWaiting(syncObject, overload);
+                    Specification.Assert(reentered, "The owner could not reenter its monitor.");
+                    try
+                    {
+                        Specification.Assert(Monitor.IsEntered(syncObject), "The monitor has no owner.");
+                    }
+                    finally
+                    {
+                        Monitor.Exit(syncObject);
+                    }
+
+                    Specification.Assert(Monitor.IsEntered(syncObject), "The outer lock was released early.");
+                }
+                finally
+                {
+                    Monitor.Exit(syncObject);
+                }
+
+                Specification.Assert(!Monitor.IsEntered(syncObject), "The monitor was not released.");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(20)
+                .WithLockAccessRaceCheckingEnabled());
+        }
+
+        private static bool TryEnterWithoutWaiting(object syncObject, int overload)
+        {
+            bool lockTaken = false;
+            switch (overload)
+            {
+                case 0:
+                    return Monitor.TryEnter(syncObject, 0);
+                case 1:
+                    Monitor.TryEnter(syncObject, 0, ref lockTaken);
+                    return lockTaken;
+                case 2:
+                    return Monitor.TryEnter(syncObject, TimeSpan.Zero);
+                case 3:
+                    Monitor.TryEnter(syncObject, TimeSpan.Zero, ref lockTaken);
+                    return lockTaken;
+                case 4:
+                    return Monitor.TryEnter(syncObject);
+                case 5:
+                    Monitor.TryEnter(syncObject, ref lockTaken);
+                    return lockTaken;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(overload));
+            }
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestComplexMonitor()
         {
             this.Test(async () =>
@@ -192,6 +314,33 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Specification.Assert(expected == actual, "ControlledMonitor out of order, '{0}' instead of '{1}'", actual, expected);
             },
             this.GetConfiguration());
+        }
+
+        private class TryLockData
+        {
+            private readonly object SyncObject;
+            private int EnteredCount;
+
+            internal TryLockData()
+            {
+                this.SyncObject = new object();
+                this.EnteredCount = 0;
+            }
+
+            internal void AcquireAndRelease()
+            {
+                while (!SynchronizedBlock.TryLock(this.SyncObject))
+                {
+                    SchedulingPoint.Interleave();
+                }
+
+                this.EnteredCount++;
+                Specification.Assert(this.EnteredCount is 1,
+                    "More than one operation acquired the lock, expected 1 but found {0}.", this.EnteredCount);
+                SchedulingPoint.Interleave();
+                this.EnteredCount--;
+                Monitor.Exit(this.SyncObject);
+            }
         }
 
         private class SignalData

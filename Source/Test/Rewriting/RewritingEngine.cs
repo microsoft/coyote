@@ -91,6 +91,14 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void Run()
         {
+            // Validate that the runtime of the Coyote host is compatible with each requested target
+            // assembly before creating or modifying any output. Rewriting an assembly that targets a
+            // different .NET major version injects runtime references that the assembly cannot load.
+            foreach (string assemblyPath in this.Options.AssemblyPaths)
+            {
+                TargetRuntimeValidator.ValidateRewritingTarget(assemblyPath);
+            }
+
             this.Profiler.StartMeasuringExecutionTime();
 
             // Create the output directory and copy any necessary files.

@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -237,5 +239,265 @@ namespace Microsoft.Coyote.BugFinding.Tests
             },
             replay: true);
         }
+
+#if NET10_0_OR_GREATER
+        [Fact(Timeout = 5000)]
+        public void TestWaitAllEnumerableWithAlreadyCanceledToken()
+        {
+            this.TestWithException<OperationCanceledException>(() =>
+            {
+                using var source = new CancellationTokenSource();
+                source.Cancel();
+                IEnumerable<Task> tasks = new[] { new TaskCompletionSource<bool>().Task };
+                Task.WaitAll(tasks, source.Token);
+            },
+            replay: true);
+        }
+#endif
+
+#if NET
+        [Theory(Timeout = 10000)]
+        [InlineData(false)]
+#if NET10_0_OR_GREATER
+        [InlineData(true)]
+#endif
+        public void TestWaitAllObservesCancellationWhileBlocked(bool isEnumerable)
+        {
+            string uncontrolled = WaitAllProvider.GetBlockedOutcome(isEnumerable, null, false);
+            Assert.Equal(WaitAsyncProvider.WaitTokenCanceledOutcome, uncontrolled);
+
+            this.Test(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                var pending = new TaskCompletionSource<int>();
+                bool isWaitStarted = false;
+
+                // There is no scheduling point between setting the flag and pausing the wait, so the
+                // canceler can only cancel the token after the wait has started. Completing a task to
+                // signal the canceler instead would introduce a scheduling point.
+                Task canceler = Task.Run(async () =>
+                {
+                    while (!isWaitStarted)
+                    {
+                        await Task.Yield();
+                    }
+
+                    Specification.Assert(!cancellation.IsCancellationRequested, "The token was canceled early.");
+                    cancellation.Cancel();
+                });
+
+                isWaitStarted = true;
+                OperationCanceledException error = null;
+                try
+                {
+                    WaitAll(new Task[] { pending.Task }, isEnumerable, cancellation.Token);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    error = ex;
+                }
+
+                Specification.Assert(error != null, "The wait was not canceled.");
+                Specification.Assert(error.CancellationToken == cancellation.Token,
+                    "The wait was canceled with an unexpected token.");
+                Specification.Assert(!pending.Task.IsCompleted, "The pending task completed.");
+                canceler.Wait();
+                Specification.Assert(canceler.Status is TaskStatus.RanToCompletion, "The canceler did not complete.");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(20)
+                .WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false));
+        }
+
+        [Theory(Timeout = 15000)]
+        [InlineData(false, WaitAsyncSourceEvent.Result, false)]
+        [InlineData(false, WaitAsyncSourceEvent.Result, true)]
+        [InlineData(false, WaitAsyncSourceEvent.Fault, false)]
+        [InlineData(false, WaitAsyncSourceEvent.Fault, true)]
+        [InlineData(false, WaitAsyncSourceEvent.Cancellation, false)]
+        [InlineData(false, WaitAsyncSourceEvent.Cancellation, true)]
+#if NET10_0_OR_GREATER
+        [InlineData(true, WaitAsyncSourceEvent.Result, false)]
+        [InlineData(true, WaitAsyncSourceEvent.Result, true)]
+        [InlineData(true, WaitAsyncSourceEvent.Fault, false)]
+        [InlineData(true, WaitAsyncSourceEvent.Fault, true)]
+        [InlineData(true, WaitAsyncSourceEvent.Cancellation, false)]
+        [InlineData(true, WaitAsyncSourceEvent.Cancellation, true)]
+#endif
+        public void TestWaitAllPreservesFirstEventWhileBlocked(bool isEnumerable, WaitAsyncSourceEvent sourceEvent,
+            bool isCancellationFirst)
+        {
+            // The uncontrolled wait is blocked when both events happen, so a completion that precedes
+            // the cancellation completes the wait, whereas a cancellation that precedes the completion
+            // can race with it, in which case only the canceled outcome is asserted. A canceled task
+            // completes the wait with an aggregate exception, unless the wait observes the requested
+            // cancellation first, which depends on when the blocked wait wakes up, so both are allowed.
+            string[] possibleOutcomes = isCancellationFirst ?
+                new[] { WaitAsyncProvider.WaitTokenCanceledOutcome } :
+                sourceEvent switch
+                {
+                    WaitAsyncSourceEvent.Result => new[] { WaitAsyncProvider.CompletedOutcome },
+                    WaitAsyncSourceEvent.Fault => new[] { $"aggregate({nameof(InvalidOperationException)})" },
+                    _ => new[]
+                    {
+                        WaitAsyncProvider.WaitTokenCanceledOutcome,
+                        $"aggregate({nameof(TaskCanceledException)})"
+                    }
+                };
+            string uncontrolled = WaitAllProvider.GetBlockedOutcome(isEnumerable, sourceEvent, isCancellationFirst);
+            if (!isCancellationFirst)
+            {
+                Assert.Contains(uncontrolled, possibleOutcomes);
+            }
+
+            this.Test(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                using var sourceCancellation = new CancellationTokenSource();
+                var pending = new TaskCompletionSource<int>();
+                bool isWaitStarted = false;
+                Task completer = Task.Run(async () =>
+                {
+                    while (!isWaitStarted)
+                    {
+                        await Task.Yield();
+                    }
+
+                    if (isCancellationFirst)
+                    {
+                        cancellation.Cancel();
+                        CompleteSource(pending, sourceEvent, sourceCancellation);
+                    }
+                    else
+                    {
+                        CompleteSource(pending, sourceEvent, sourceCancellation);
+                        cancellation.Cancel();
+                    }
+                });
+
+                isWaitStarted = true;
+                string actual = GetOutcome(new Task[] { pending.Task }, isEnumerable, cancellation.Token);
+                completer.Wait();
+                Specification.Assert(Array.IndexOf(possibleOutcomes, actual) >= 0,
+                    "Found outcome '{0}' instead of an expected outcome '{1}'.",
+                    actual, string.Join("' or '", possibleOutcomes));
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(20)
+                .WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+#if NET10_0_OR_GREATER
+        [InlineData(true)]
+#endif
+        public void TestWaitAllWithCompletedTasksAndAlreadyCanceledToken(bool isEnumerable)
+        {
+            using var uncontrolledCancellation = new CancellationTokenSource();
+            uncontrolledCancellation.Cancel();
+            string uncontrolled = WaitAllProvider.GetOutcome(
+                new[] { Task.CompletedTask }, isEnumerable, uncontrolledCancellation.Token);
+            string uncontrolledEmpty = WaitAllProvider.GetOutcome(
+                Array.Empty<Task>(), isEnumerable, uncontrolledCancellation.Token);
+
+            this.Test(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                cancellation.Cancel();
+                string actual = GetOutcome(new[] { Task.CompletedTask }, isEnumerable, cancellation.Token);
+                Specification.Assert(actual == uncontrolled,
+                    "Found outcome '{0}' instead of the uncontrolled outcome '{1}'.", actual, uncontrolled);
+                string actualEmpty = GetOutcome(Array.Empty<Task>(), isEnumerable, cancellation.Token);
+                Specification.Assert(actualEmpty == uncontrolledEmpty,
+                    "Found outcome '{0}' instead of the uncontrolled outcome '{1}'.", actualEmpty, uncontrolledEmpty);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(10));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+#if NET10_0_OR_GREATER
+        [InlineData(true)]
+#endif
+        public void TestWaitAllWithCancelableTokenAndControlledCompletion(bool isEnumerable)
+        {
+            this.Test(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                var pending = new TaskCompletionSource<int>();
+                Task producer = Task.Run(() => pending.SetResult(WaitAsyncProvider.ExpectedResult));
+                WaitAll(new Task[] { pending.Task, producer }, isEnumerable, cancellation.Token);
+                Specification.Assert(pending.Task.IsCompleted, "The pending task did not complete.");
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+#if NET10_0_OR_GREATER
+        [InlineData(true)]
+#endif
+        public void TestWaitAllWithNeverCanceledTokenDeadlock(bool isEnumerable)
+        {
+            this.TestWithError(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                var pending = new TaskCompletionSource<int>();
+                WaitAll(new Task[] { pending.Task }, isEnumerable, cancellation.Token);
+            },
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith("Deadlock detected.", e);
+            },
+            replay: true);
+        }
+
+        private static void WaitAll(Task[] tasks, bool isEnumerable, CancellationToken cancellationToken)
+        {
+#if NET10_0_OR_GREATER
+            if (isEnumerable)
+            {
+                Task.WaitAll((IEnumerable<Task>)tasks, cancellationToken);
+                return;
+            }
+#else
+            Assert.False(isEnumerable, "The enumerable overload requires .NET 10.");
+#endif
+
+            Task.WaitAll(tasks, cancellationToken);
+        }
+
+        private static string GetOutcome(Task[] tasks, bool isEnumerable, CancellationToken cancellationToken)
+        {
+            try
+            {
+                WaitAll(tasks, isEnumerable, cancellationToken);
+                return WaitAsyncProvider.CompletedOutcome;
+            }
+            catch (Exception ex) when (!(ex is ThreadInterruptedException))
+            {
+                return WaitAllProvider.GetExceptionOutcome(ex, cancellationToken);
+            }
+        }
+
+        private static void CompleteSource(TaskCompletionSource<int> source, WaitAsyncSourceEvent sourceEvent,
+            CancellationTokenSource sourceCancellation)
+        {
+            switch (sourceEvent)
+            {
+                case WaitAsyncSourceEvent.Result:
+                    source.SetResult(WaitAsyncProvider.ExpectedResult);
+                    break;
+                case WaitAsyncSourceEvent.Fault:
+                    source.SetException(new InvalidOperationException(WaitAsyncProvider.ExpectedFaultMessage));
+                    break;
+                default:
+                    sourceCancellation.Cancel();
+                    source.SetCanceled(sourceCancellation.Token);
+                    break;
+            }
+        }
+#endif
     }
 }

@@ -150,12 +150,22 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     return true;
                 }
+                else if (type.Name is nameof(System.Threading.EventWaitHandle) && member is MethodReference constructor &&
+                    constructor.Name is ".ctor" &&
+                    constructor.Parameters.Any(p => p.ParameterType.Name is "EventWaitHandleSecurity"))
+                {
+                    // The .NET Framework constructor that applies access control security creates a named system
+                    // event that can be shared with other processes, and it has no controlled replacement.
+                    return true;
+                }
                 else if (type.Name is nameof(System.Threading.WaitHandle) && member != null &&
                     (member.Name is nameof(System.Threading.WaitHandle.SignalAndWait)))
                 {
                     return true;
                 }
                 else if (type.Name is nameof(System.Threading.ExecutionContext) ||
+                    type.Name is nameof(System.Threading.Barrier) ||
+                    type.Name is nameof(System.Threading.CountdownEvent) ||
                     type.Name is nameof(System.Threading.ManualResetEventSlim) ||
                     type.Name is nameof(System.Threading.Mutex) ||
                     type.Name is nameof(System.Threading.ReaderWriterLock) ||

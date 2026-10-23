@@ -90,9 +90,8 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                var block = SynchronizedBlock.Find(obj) ??
-                    throw new SystemThreading.SynchronizationLockException();
-                return block.IsEntered();
+                var block = SynchronizedBlock.Find(obj);
+                return block != null && block.IsEntered();
             }
 
             return SystemThreading.Monitor.IsEntered(obj);
@@ -143,8 +142,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
+                // TODO: support nonzero timeouts during testing.
+                lockTaken = (long)timeout.TotalMilliseconds is 0 ?
+                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else
             {
@@ -167,8 +167,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                return SynchronizedBlock.Lock(obj).IsLockTaken;
+                // TODO: support nonzero timeouts during testing.
+                return (long)timeout.TotalMilliseconds is 0 ?
+                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -180,6 +181,27 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         }
 
         /// <summary>
+        /// Attempts, for the specified number of milliseconds, to acquire an exclusive lock on the specified object.
+        /// </summary>
+        public static bool TryEnter(object obj, int millisecondsTimeout)
+        {
+            var runtime = CoyoteRuntime.Current;
+            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            {
+                // TODO: support nonzero timeouts during testing.
+                return millisecondsTimeout is 0 ?
+                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
+            }
+            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
+                runtime.TryGetExecutingOperation(out ControlledOperation current))
+            {
+                runtime.DelayOperation(current);
+            }
+
+            return SystemThreading.Monitor.TryEnter(obj, millisecondsTimeout);
+        }
+
+        /// <summary>
         /// Attempts, for the specified number of milliseconds, to acquire an exclusive lock on the specified object,
         /// and atomically sets a value that indicates whether the lock was taken.
         /// </summary>
@@ -188,8 +210,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
+                // TODO: support nonzero timeouts during testing.
+                lockTaken = millisecondsTimeout is 0 ?
+                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else
             {
@@ -212,8 +235,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
+                lockTaken = SynchronizedBlock.TryLock(obj);
             }
             else
             {
@@ -235,7 +257,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                return SynchronizedBlock.Lock(obj).IsLockTaken;
+                return SynchronizedBlock.TryLock(obj);
             }
             else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -445,6 +467,13 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     () => new SynchronizedBlock(CoyoteRuntime.Current, key))).Value.EnterLock();
 
             /// <summary>
+            /// Tries to enter the lock associated with the specified synchronization object.
+            /// </summary>
+            internal static bool TryLock(object syncObject) =>
+                Cache.GetOrAdd(syncObject, key => new Lazy<SynchronizedBlock>(
+                    () => new SynchronizedBlock(CoyoteRuntime.Current, key))).Value.TryEnterLock();
+
+            /// <summary>
             /// Finds the synchronized block associated with the specified synchronization object.
             /// </summary>
             internal static SynchronizedBlock Find(object syncObject) =>
@@ -511,6 +540,47 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                 this.Owner = runtime.GetExecutingOperation();
                 this.LockCountMap.Add(this.Owner, 1);
                 return this;
+            }
+
+            /// <summary>
+            /// Tries to enter the lock without blocking.
+            /// </summary>
+            private bool TryEnterLock()
+            {
+                CoyoteRuntime runtime = this.GetRuntime();
+                var op = runtime.GetExecutingOperation();
+                if (this.Owner != null && this.Owner != op)
+                {
+                    return false;
+                }
+
+                // Reference count this access before reaching any scheduling point, else another operation
+                // can enter and exit this lock in the meantime, which would remove this instance from the
+                // cache and orphan the lock that this operation is about to acquire.
+                SystemInterlocked.Increment(ref this.UseCount);
+                if (runtime.Configuration.IsLockAccessRaceCheckingEnabled && this.Owner is null)
+                {
+                    // If this operation is trying to acquire this lock while it is free, then inject a scheduling
+                    // point to give another enabled operation the chance to race and acquire this lock.
+                    runtime.ScheduleNextOperation(default, SchedulingPointType.Acquire);
+                    if (this.Owner != null && this.Owner != op)
+                    {
+                        this.ReleaseUse();
+                        return false;
+                    }
+                }
+
+                if (this.Owner == op)
+                {
+                    this.LockCountMap[op]++;
+                }
+                else
+                {
+                    this.Owner = op;
+                    this.LockCountMap.Add(op, 1);
+                }
+
+                return true;
             }
 
             /// <summary>
@@ -693,8 +763,19 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
                     this.UnlockNextReady();
                 }
 
+                this.ReleaseUse();
+            }
+
+            /// <summary>
+            /// Releases an access to this synchronized block, removing it from the cache
+            /// if it is no longer being accessed.
+            /// </summary>
+            private void ReleaseUse()
+            {
                 int useCount = SystemInterlocked.Decrement(ref this.UseCount);
-                if (useCount is 0 && Cache[this.SyncObject].Value == this)
+                if (useCount is 0 &&
+                    Cache.TryGetValue(this.SyncObject, out Lazy<SynchronizedBlock> lazyBlock) &&
+                    lazyBlock.Value == this)
                 {
                     // It is safe to remove this instance from the cache.
                     Cache.TryRemove(this.SyncObject, out _);

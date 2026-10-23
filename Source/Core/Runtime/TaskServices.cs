@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Threading;
 using SystemTask = System.Threading.Tasks.Task;
 
 namespace Microsoft.Coyote.Runtime
@@ -12,24 +13,28 @@ namespace Microsoft.Coyote.Runtime
     public static class TaskServices
     {
         /// <summary>
-        /// Pauses the current operation until the specified task completes.
+        /// Pauses the current operation until the specified task completes or the wait is canceled.
         /// </summary>
-        internal static void WaitUntilTaskCompletes(CoyoteRuntime runtime, SystemTask task) =>
-            WaitUntilTaskCompletes(runtime, default, task);
+        internal static void WaitUntilTaskCompletes(CoyoteRuntime runtime, SystemTask task,
+            CancellationToken cancellationToken = default) =>
+            WaitUntilTaskCompletes(runtime, default, task, cancellationToken);
 
         /// <summary>
-        /// Pauses the current operation until the specified task completes.
+        /// Pauses the current operation until the specified task completes or the wait is canceled.
         /// </summary>
-        internal static void WaitUntilTaskCompletes(CoyoteRuntime runtime, ControlledOperation current, SystemTask task)
+        internal static void WaitUntilTaskCompletes(CoyoteRuntime runtime, ControlledOperation current, SystemTask task,
+            CancellationToken cancellationToken = default)
         {
-            if (task != null && !task.IsCompleted && runtime != null)
+            if (task != null && !task.IsCompleted && !cancellationToken.IsCancellationRequested && runtime != null)
             {
                 bool isTaskUncontrolled = runtime.CheckIfAwaitedTaskIsUncontrolled(task);
                 if (current != null || runtime.TryGetExecutingOperation(out current))
                 {
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
-                        runtime.PauseOperationUntil(current, () => task.IsCompleted, !isTaskUncontrolled, $"task '{task.Id}' to complete");
+                        runtime.PauseOperationUntil(current, () => task.IsCompleted || cancellationToken.IsCancellationRequested,
+                            !isTaskUncontrolled, $"task '{task.Id}' to complete" +
+                            (cancellationToken.CanBeCanceled ? " or the wait to be canceled" : string.Empty));
                     }
                     else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {
@@ -42,15 +47,37 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Pauses the current operation until all of the specified tasks complete.
         /// </summary>
-        internal static void WaitUntilAllTasksComplete(CoyoteRuntime runtime, SystemTask[] tasks)
+        internal static void WaitUntilAllTasksComplete(CoyoteRuntime runtime, SystemTask[] tasks) =>
+            WaitUntilAllTasksComplete(runtime, tasks, default);
+
+        /// <summary>
+        /// Pauses the current operation until all of the specified tasks complete or
+        /// the specified cancellation token is canceled.
+        /// </summary>
+        /// <remarks>
+        /// The caller is responsible for observing the cancellation after the operation resumes.
+        /// </remarks>
+        internal static void WaitUntilAllTasksComplete(CoyoteRuntime runtime, SystemTask[] tasks,
+            CancellationToken cancellationToken)
         {
             bool isAnyTaskUncontrolled = IsAnyTaskUncontrolled(runtime, tasks);
             if (runtime.TryGetExecutingOperation(out ControlledOperation current))
             {
                 if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    runtime.PauseOperationUntil(current, () => tasks.All(t => t.IsCompleted), !isAnyTaskUncontrolled,
-                        string.Format("all tasks ('{0}') to complete", string.Join("', '", tasks.Select(t => t.Id.ToString()))));
+                    string description = string.Format("all tasks ('{0}') to complete",
+                        string.Join("', '", tasks.Select(t => t.Id.ToString())));
+                    if (cancellationToken.CanBeCanceled)
+                    {
+                        runtime.PauseOperationUntil(current,
+                            () => cancellationToken.IsCancellationRequested || tasks.All(t => t.IsCompleted),
+                            !isAnyTaskUncontrolled, description + " or the wait to be canceled");
+                    }
+                    else
+                    {
+                        runtime.PauseOperationUntil(current, () => tasks.All(t => t.IsCompleted),
+                            !isAnyTaskUncontrolled, description);
+                    }
                 }
                 else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                 {

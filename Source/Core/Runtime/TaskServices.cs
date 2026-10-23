@@ -13,24 +13,28 @@ namespace Microsoft.Coyote.Runtime
     public static class TaskServices
     {
         /// <summary>
-        /// Pauses the current operation until the specified task completes.
+        /// Pauses the current operation until the specified task completes or the wait is canceled.
         /// </summary>
-        internal static void WaitUntilTaskCompletes(CoyoteRuntime runtime, SystemTask task) =>
-            WaitUntilTaskCompletes(runtime, default, task);
+        internal static void WaitUntilTaskCompletes(CoyoteRuntime runtime, SystemTask task,
+            CancellationToken cancellationToken = default) =>
+            WaitUntilTaskCompletes(runtime, default, task, cancellationToken);
 
         /// <summary>
-        /// Pauses the current operation until the specified task completes.
+        /// Pauses the current operation until the specified task completes or the wait is canceled.
         /// </summary>
-        internal static void WaitUntilTaskCompletes(CoyoteRuntime runtime, ControlledOperation current, SystemTask task)
+        internal static void WaitUntilTaskCompletes(CoyoteRuntime runtime, ControlledOperation current, SystemTask task,
+            CancellationToken cancellationToken = default)
         {
-            if (task != null && !task.IsCompleted && runtime != null)
+            if (task != null && !task.IsCompleted && !cancellationToken.IsCancellationRequested && runtime != null)
             {
                 bool isTaskUncontrolled = runtime.CheckIfAwaitedTaskIsUncontrolled(task);
                 if (current != null || runtime.TryGetExecutingOperation(out current))
                 {
                     if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
                     {
-                        runtime.PauseOperationUntil(current, () => task.IsCompleted, !isTaskUncontrolled, $"task '{task.Id}' to complete");
+                        runtime.PauseOperationUntil(current, () => task.IsCompleted || cancellationToken.IsCancellationRequested,
+                            !isTaskUncontrolled, $"task '{task.Id}' to complete" +
+                            (cancellationToken.CanBeCanceled ? " or the wait to be canceled" : string.Empty));
                     }
                     else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing)
                     {

@@ -975,7 +975,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy != SchedulingPolicy.None)
             {
-                TaskServices.WaitUntilTaskCompletes(runtime, task);
+                TaskServices.WaitUntilTaskCompletes(runtime, task, cancellationToken);
             }
 
             return task.Wait(millisecondsTimeout, cancellationToken);

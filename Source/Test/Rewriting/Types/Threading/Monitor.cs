@@ -142,8 +142,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
+                // TODO: support nonzero timeouts during testing.
+                lockTaken = (long)timeout.TotalMilliseconds is 0 ?
+                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else
             {
@@ -166,8 +167,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                return SynchronizedBlock.Lock(obj).IsLockTaken;
+                // TODO: support nonzero timeouts during testing.
+                return (long)timeout.TotalMilliseconds is 0 ?
+                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -186,8 +188,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                return SynchronizedBlock.Lock(obj).IsLockTaken;
+                // TODO: support nonzero timeouts during testing.
+                return millisecondsTimeout is 0 ?
+                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))
@@ -207,8 +210,9 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
+                // TODO: support nonzero timeouts during testing.
+                lockTaken = millisecondsTimeout is 0 ?
+                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
             }
             else
             {
@@ -231,8 +235,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                // TODO: how to implement this timeout?
-                lockTaken = SynchronizedBlock.Lock(obj).IsLockTaken;
+                lockTaken = SynchronizedBlock.TryLock(obj);
             }
             else
             {
@@ -254,7 +257,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
-                return SynchronizedBlock.Lock(obj).IsLockTaken;
+                return SynchronizedBlock.TryLock(obj);
             }
             else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
                 runtime.TryGetExecutingOperation(out ControlledOperation current))

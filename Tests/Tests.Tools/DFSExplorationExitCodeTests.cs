@@ -48,7 +48,12 @@ namespace Microsoft.Coyote.Tools.Tests
 
             // The CLI does not expose DFS, so exercise the same exit-code helper used by its test command.
             var framework = new DirectoryInfo(AppContext.BaseDirectory).Name;
-            var cliPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../bin", framework, "coyote.dll"));
+#if NETFRAMEWORK
+            const string cliAssembly = "coyote.exe";
+#else
+            const string cliAssembly = "coyote.dll";
+#endif
+            var cliPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../bin", framework, cliAssembly));
             var program = Assembly.LoadFrom(cliPath).GetType("Microsoft.Coyote.Program", throwOnError: true);
             var getExitCode = program.GetMethod("GetExitCodeFromTestReport", BindingFlags.Static | BindingFlags.NonPublic);
             Assert.NotNull(getExitCode);

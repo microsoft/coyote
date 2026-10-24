@@ -128,6 +128,9 @@ incomplete reason instead. In-process callers can use `Configuration.WithStrictB
 to apply the same warning-to-reason rule. A timeout before any paths were explored adds `NoExecutionPaths`
 and `TestingTimedOut` reasons. Reaching the time budget after exploring paths produces a `TestingTimedOut`
 warning; other incomplete reasons can still prevent a `Complete` verdict.
+Uncontrolled concurrency also adds `UncontrolledInvocations` when the runtime cannot identify a source
+method, so the list of named uncontrolled calls can be empty. A step bound of zero is disabled.
+Paths that finish normally exactly at their step limit are not counted as truncated.
 
 In-process callers can inspect `engine.TestReport.GetVerdict()` and obtain JSON with
 `engine.GetJsonReport()`. As shown in the unit-test example above, assert the required verdict explicitly;
@@ -148,6 +151,7 @@ without the `artifacts` field and does not emit files.
 | `settings` | Strategy, seed, requested iterations, time and step bounds, and strict-mode settings. |
 | `verdict` | `status`, incomplete `reasons`, and non-fatal `warnings`. |
 | `bugs`, `internalErrors`, `uncontrolledInvocations` | Bug count and messages, internal errors, and detected uncontrolled calls. |
+| `uncontrolledConcurrencyDetected` | Whether the runtime detected uncontrolled concurrency, including when its source method is unknown. |
 | `exploration` | Fair, unfair and unique path counts, truncation counts, the number of visited state hashes, scheduling steps, controlled operations and concurrency statistics. |
 | `artifacts` | Paths to emitted traces and other diagnostic reports, when present. |
 | `elapsedSeconds` | Execution time measured by the testing engine. |
@@ -157,6 +161,9 @@ fields are omitted. `coyoteVersion` is an assembly version, not a source revisio
 The assembly hash identifies the test entry, not the Coyote engine or every dependency, and
 `isRewritten` does not prove that all concurrent APIs were controlled. State counts depend on the
 configured state hashing and are not a business-state coverage percentage.
+JSON verdicts and statistics use a snapshot of the accumulated results. The CLI uses the same snapshot
+for these JSON fields, the console summary and exit code, including when a background iteration finishes
+after a timeout. Trace and coverage artifacts are emitted separately from this statistics snapshot.
 
 The path and concurrency statistics were already available in text reports; JSON makes them directly
 usable by automation. The new verdict and strict exit code distinguish "no bugs found" from incomplete

@@ -60,6 +60,11 @@ namespace Microsoft.Coyote.SystematicTesting
         public List<string> UncontrolledInvocations { get; set; }
 
         /// <summary>
+        /// Whether uncontrolled concurrency was detected, even if its source is unknown.
+        /// </summary>
+        public bool UncontrolledConcurrencyDetected { get; set; }
+
+        /// <summary>
         /// Statistics about the exploration.
         /// </summary>
         public JsonExploration Exploration { get; set; }
@@ -124,6 +129,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             result.InternalErrors = report.InternalErrors.ToList();
             result.UncontrolledInvocations = report.UncontrolledInvocations.ToList();
+            result.UncontrolledConcurrencyDetected = report.IsUncontrolledConcurrencyDetected;
 
             result.Exploration = new JsonExploration
             {

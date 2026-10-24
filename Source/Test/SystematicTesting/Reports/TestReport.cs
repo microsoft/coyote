@@ -59,6 +59,12 @@ namespace Microsoft.Coyote.SystematicTesting
         public HashSet<string> UncontrolledInvocations { get; internal set; }
 
         /// <summary>
+        /// Whether uncontrolled concurrency was detected, even if its source is unknown.
+        /// </summary>
+        [DataMember]
+        internal bool IsUncontrolledConcurrencyDetected { get; private set; }
+
+        /// <summary>
         /// The minimum number of controlled operations.
         /// </summary>
         [DataMember]
@@ -302,7 +308,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.MaxFairStepsHitInFairTests++;
                 }
 
-                if (executionSteps >= this.Configuration.MaxUnfairSchedulingSteps)
+                if (this.Configuration.MaxUnfairSchedulingSteps > 0 &&
+                    executionSteps >= this.Configuration.MaxUnfairSchedulingSteps)
                 {
                     this.MaxUnfairStepsHitInFairTests++;
                 }
@@ -335,6 +342,12 @@ namespace Microsoft.Coyote.SystematicTesting
         void ITestReport.SetUncontrolledInvocations(HashSet<string> invocations)
         {
             this.UncontrolledInvocations.UnionWith(invocations);
+        }
+
+        /// <inheritdoc/>
+        void ITestReport.SetUncontrolledConcurrencyDetected(bool isDetected)
+        {
+            this.IsUncontrolledConcurrencyDetected |= isDetected;
         }
 
         /// <summary>
@@ -391,6 +404,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.BugReports.UnionWith(testReport.BugReports);
                 this.UncontrolledInvocations.UnionWith(testReport.UncontrolledInvocations);
+                this.IsUncontrolledConcurrencyDetected |= testReport.IsUncontrolledConcurrencyDetected;
                 this.IsExplorationTimedOut |= testReport.IsExplorationTimedOut;
                 this.IsExplorationCanceled |= testReport.IsExplorationCanceled;
                 this.HasUnrewrittenTestAssembly |= testReport.HasUnrewrittenTestAssembly;
@@ -483,7 +497,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 reasons.Add(IncompleteExplorationReason.TestAssemblyNotRewritten);
             }
 
-            if (this.UncontrolledInvocations.Count > 0)
+            if (this.IsUncontrolledConcurrencyDetected || this.UncontrolledInvocations.Count > 0)
             {
                 reasons.Add(IncompleteExplorationReason.UncontrolledInvocations);
             }

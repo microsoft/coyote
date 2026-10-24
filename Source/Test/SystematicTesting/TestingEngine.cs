@@ -478,32 +478,37 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Returns a report with the testing results.
         /// </summary>
-        public string GetReport()
+        public string GetReport() => this.GetReport(this.TestReport.Clone());
+
+        /// <summary>
+        /// Returns the testing results from the specified report snapshot.
+        /// </summary>
+        internal string GetReport(TestReport snapshot)
         {
             if (this.Scheduler.IsReplaying)
             {
                 StringBuilder report = new StringBuilder();
-                report.AppendFormat("... Reproduced {0} bug{1}{2}.", this.TestReport.NumOfFoundBugs,
-                    this.TestReport.NumOfFoundBugs is 1 ? string.Empty : "s",
+                report.AppendFormat("... Reproduced {0} bug{1}{2}.", snapshot.NumOfFoundBugs,
+                    snapshot.NumOfFoundBugs is 1 ? string.Empty : "s",
                     Debugger.IsAttached ? string.Empty : " (use --break to attach the debugger)");
                 report.AppendLine();
                 return report.ToString();
             }
 
-            return this.TestReport.GetText(this.Configuration, "...");
+            return snapshot.GetText(this.Configuration, "...");
         }
 
         /// <summary>
         /// Returns a machine-readable report of the test run in JSON format. The report includes
         /// the exploration verdict, statistics, bug reports and uncontrolled invocations.
         /// </summary>
-        public string GetJsonReport() => this.CreateJsonReport(Array.Empty<string>()).ToJson();
+        public string GetJsonReport() => this.CreateJsonReport(this.TestReport.Clone(), Array.Empty<string>()).ToJson();
 
         /// <summary>
         /// Creates a machine-readable report of the test run that lists the specified emitted report paths.
         /// </summary>
-        private JsonTestReport CreateJsonReport(IEnumerable<string> reportPaths) => JsonTestReport.Create(
-            this.TestReport, this.Configuration, this.TestMethodInfo.Name, this.TestMethodInfo.Assembly,
+        private JsonTestReport CreateJsonReport(TestReport snapshot, IEnumerable<string> reportPaths) => JsonTestReport.Create(
+            snapshot, snapshot.Configuration, this.TestMethodInfo.Name, this.TestMethodInfo.Assembly,
             this.IsTestRewritten(), this.Scheduler.GetStrategyName(), this.Profiler.Results(), reportPaths);
 
         /// <summary>
@@ -527,7 +532,13 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Tries to emit the available reports to the specified directory with the given file name,
         /// and returns the paths of all emitted reports.
         /// </summary>
-        public bool TryEmitReports(string directory, string fileName, out IEnumerable<string> reportPaths)
+        public bool TryEmitReports(string directory, string fileName, out IEnumerable<string> reportPaths) =>
+            this.TryEmitReports(directory, fileName, this.TestReport.Clone(), out reportPaths);
+
+        /// <summary>
+        /// Emits reports using the specified snapshot of the testing results.
+        /// </summary>
+        internal bool TryEmitReports(string directory, string fileName, TestReport snapshot, out IEnumerable<string> reportPaths)
         {
             var paths = new List<string>();
             if (!this.Configuration.RunTestIterationsToCompletion)
@@ -560,7 +571,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 // Emit the trace visualization, if it exists.
                 if (this.Configuration.IsTraceAnalysisEnabled &&
-                    this.Scheduler.Graph.Length > 0 && this.TestReport.NumOfFoundBugs > 0)
+                    this.Scheduler.Graph.Length > 0 && snapshot.NumOfFoundBugs > 0)
                 {
                     string visualTracePath = Path.Combine(directory, fileName + ".trace.dgml");
                     File.WriteAllText(visualTracePath, TraceVisualizer.Visualize(this.Scheduler.Graph, TraceVisualizer.Layout.Trace));
@@ -568,7 +579,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 if (this.Configuration.IsActorTraceVisualizationEnabled &&
-                    this.LastCoverageGraph != null && this.TestReport.NumOfFoundBugs > 0)
+                    this.LastCoverageGraph != null && snapshot.NumOfFoundBugs > 0)
                 {
                     // TODO: combine with the new ExecutionGraphVisualizer capability.
                     string graphPath = Path.Combine(directory, fileName + ".actors.trace.dgml");
@@ -578,10 +589,10 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             // Emit the uncontrolled invocations report, if it exists.
-            if (this.TestReport.UncontrolledInvocations.Count > 0)
+            if (snapshot.UncontrolledInvocations.Count > 0)
             {
                 string reportPath = Path.Combine(directory, fileName + ".uncontrolled.json");
-                File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations));
+                File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(snapshot.UncontrolledInvocations));
                 paths.Add(reportPath);
             }
 
@@ -589,7 +600,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (this.Configuration.IsJsonReportEnabled)
             {
                 string jsonReportPath = Path.Combine(directory, fileName + ".report.json");
-                File.WriteAllText(jsonReportPath, this.CreateJsonReport(paths).ToJson());
+                File.WriteAllText(jsonReportPath, this.CreateJsonReport(snapshot, paths).ToJson());
                 paths.Add(jsonReportPath);
             }
 

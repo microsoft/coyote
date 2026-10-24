@@ -26,5 +26,10 @@ namespace Microsoft.Coyote.Testing
         /// Sets the specified uncontrolled invocations.
         /// </summary>
         void SetUncontrolledInvocations(HashSet<string> invocations);
+
+        /// <summary>
+        /// Records uncontrolled concurrency, including when its source is unknown.
+        /// </summary>
+        void SetUncontrolledConcurrencyDetected(bool isDetected);
     }
 }

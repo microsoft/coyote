@@ -46,12 +46,15 @@ namespace Microsoft.Coyote
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
                 engine.Run();
 
+                // Keep the emitted report, console summary and exit code on the same result snapshot.
+                var report = engine.TestReport.Clone();
+
                 string directory = OutputFileManager.CreateOutputDirectory(configuration);
                 string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
 
                 // Emit the test reports.
                 logWriter.LogImportant("... Emitting execution trace reports:");
-                if (engine.TryEmitReports(directory, fileName, out IEnumerable<string> reportPaths))
+                if (engine.TryEmitReports(directory, fileName, report, out IEnumerable<string> reportPaths))
                 {
                     foreach (var path in reportPaths)
                     {
@@ -77,9 +80,9 @@ namespace Microsoft.Coyote
                     logWriter.LogImportant("..... No coverage reports available.");
                 }
 
-                logWriter.LogImportant(engine.TestReport.GetText(configuration, "..."));
+                logWriter.LogImportant(report.GetText(configuration, "..."));
                 logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
-                return GetExitCodeFromTestReport(engine.TestReport, configuration);
+                return GetExitCodeFromTestReport(report, configuration);
             }
             catch (Exception ex)
             {
@@ -105,14 +108,16 @@ namespace Microsoft.Coyote
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
                 engine.Run();
 
+                var report = engine.TestReport.Clone();
+
                 // Emit the report.
-                if (engine.TestReport.NumOfFoundBugs > 0)
+                if (report.NumOfFoundBugs > 0)
                 {
-                    logWriter.LogImportant(engine.GetReport());
+                    logWriter.LogImportant(engine.GetReport(report));
                 }
 
                 logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
-                return GetExitCodeFromTestReport(engine.TestReport, configuration);
+                return GetExitCodeFromTestReport(report, configuration);
             }
             catch (Exception ex)
             {

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "coyote",
+  "version": "0.1.0",
+  "description": "Write, run, and troubleshoot Microsoft.Coyote systematic concurrency tests. Supports Coyote 1.7.11.",
+  "author": {
+    "name": "Microsoft"
+  },
+  "repository": "https://github.com/microsoft/coyote",
+  "license": "MIT",
+  "keywords": ["coyote", "dotnet", "concurrency", "testing"]
+}

@@ -82,6 +82,19 @@ how-tos, samples and more information about the project. Enjoy!
 
 Upgrading your `coyote` dependencies? Check the changelog [here](History.md).
 
+## GitHub Copilot plugin
+
+Install the Coyote plugin to help GitHub Copilot write, run, and troubleshoot systematic
+concurrency tests in your own .NET projects:
+
+```text
+copilot plugin install microsoft/coyote:plugins/coyote
+```
+
+The plugin is versioned independently of the Coyote NuGet packages. It currently supports
+**Coyote 1.7.11 only**. See the [plugin documentation](plugins/coyote/README.md) for usage,
+local installation, and its compatibility and release policy.
+
 ## Support
 
 Note that Coyote is an open-source project that is provided "as-is". We are not able to provide

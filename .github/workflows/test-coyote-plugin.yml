@@ -1,0 +1,58 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: Coyote plugin CI
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'plugins/coyote/**'
+      - 'README.md'
+      - '.github/workflows/test-coyote-plugin.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'plugins/coyote/**'
+      - 'README.md'
+      - '.github/workflows/test-coyote-plugin.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  plugin:
+    name: Validate plugin (${{ matrix.platform }})
+    strategy:
+      matrix:
+        platform: [ windows-latest, ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.platform }}
+    env:
+      COYOTE_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Check plugin metadata and compatibility declarations
+        shell: pwsh
+        run: |
+          $plugin = Join-Path $PWD "plugins/coyote"
+          $manifest = Get-Content (Join-Path $plugin "plugin.json") -Raw | ConvertFrom-Json
+          if ($manifest.name -ne "coyote" -or $manifest.version -notmatch '^\d+\.\d+\.\d+$' -or
+              $manifest.'$schema' -ne "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json") {
+              throw "Invalid plugin identity, version, or schema."
+          }
+          foreach ($relative in @("README.md", "skills/coyote/references/compatibility.md")) {
+              $text = Get-Content (Join-Path $plugin $relative) -Raw
+              if ($text -notmatch [regex]::Escape($manifest.version) -or $text -notmatch '\*\*1\.7\.11 only\*\*') {
+                  throw "Plugin version or supported Coyote version disagrees in $relative."
+              }
+          }
+          $changelog = Get-Content (Join-Path $plugin "CHANGELOG.md") -Raw
+          if ($changelog -notmatch [regex]::Escape("## $($manifest.version)")) {
+              throw "Missing changelog entry for the plugin version."
+          }
+      - name: Build, rewrite, run, and replay the supported Coyote version
+        run: ./plugins/coyote/skills/coyote/scripts/probe/run.ps1 -SelfTest
+        shell: pwsh

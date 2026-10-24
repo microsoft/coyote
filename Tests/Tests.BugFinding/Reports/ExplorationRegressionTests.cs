@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
             public override void WriteLine(string value)
             {
                 base.WriteLine(value);
-                if (value.Contains("Waiting task '", StringComparison.Ordinal))
+                if (value.IndexOf("Waiting task '", StringComparison.Ordinal) >= 0)
                 {
                     this.Complete();
                 }

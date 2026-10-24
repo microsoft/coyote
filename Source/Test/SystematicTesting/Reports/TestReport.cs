@@ -212,7 +212,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Lock for the test report.
         /// </summary>
-        private readonly object Lock;
+        private object Lock;
 
         /// <summary>
         /// Unhandled exception caught by RunNextIteration.
@@ -255,6 +255,15 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.InternalErrors = new HashSet<string>();
 
+            this.Lock = new object();
+        }
+
+        /// <summary>
+        /// Restores synchronization state that is not part of the serialized report.
+        /// </summary>
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
             this.Lock = new object();
         }
 
@@ -488,76 +497,79 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public ExplorationVerdict GetVerdict()
         {
-            var reasons = new List<IncompleteExplorationReason>();
-            var warnings = new List<ExplorationWarning>();
-
-            int totalExploredPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
-            if (this.HasUnrewrittenTestAssembly)
+            lock (this.Lock)
             {
-                reasons.Add(IncompleteExplorationReason.TestAssemblyNotRewritten);
-            }
+                var reasons = new List<IncompleteExplorationReason>();
+                var warnings = new List<ExplorationWarning>();
 
-            if (this.IsUncontrolledConcurrencyDetected || this.UncontrolledInvocations.Count > 0)
-            {
-                reasons.Add(IncompleteExplorationReason.UncontrolledInvocations);
-            }
-
-            if (this.NumOfTruncatedPaths > 0)
-            {
-                reasons.Add(IncompleteExplorationReason.TruncatedExecutionPaths);
-            }
-
-            if (this.MaxUnfairStepsHitInFairTests > 0)
-            {
-                if (this.Configuration.IsStrictBoundCheckingEnabled)
+                int totalExploredPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
+                if (this.HasUnrewrittenTestAssembly)
                 {
-                    reasons.Add(IncompleteExplorationReason.ExceededUnfairStepsBound);
+                    reasons.Add(IncompleteExplorationReason.TestAssemblyNotRewritten);
                 }
-                else
+
+                if (this.IsUncontrolledConcurrencyDetected || this.UncontrolledInvocations.Count > 0)
                 {
-                    warnings.Add(ExplorationWarning.ExceededUnfairStepsBound);
+                    reasons.Add(IncompleteExplorationReason.UncontrolledInvocations);
                 }
-            }
 
-            if (totalExploredPaths is 0)
-            {
-                reasons.Add(IncompleteExplorationReason.NoExecutionPaths);
-            }
+                if (this.NumOfTruncatedPaths > 0)
+                {
+                    reasons.Add(IncompleteExplorationReason.TruncatedExecutionPaths);
+                }
 
-            if (this.IsExplorationTimedOut)
-            {
+                if (this.MaxUnfairStepsHitInFairTests > 0)
+                {
+                    if (this.Configuration.IsStrictBoundCheckingEnabled)
+                    {
+                        reasons.Add(IncompleteExplorationReason.ExceededUnfairStepsBound);
+                    }
+                    else
+                    {
+                        warnings.Add(ExplorationWarning.ExceededUnfairStepsBound);
+                    }
+                }
+
                 if (totalExploredPaths is 0)
                 {
-                    reasons.Add(IncompleteExplorationReason.TestingTimedOut);
+                    reasons.Add(IncompleteExplorationReason.NoExecutionPaths);
                 }
-                else
+
+                if (this.IsExplorationTimedOut)
                 {
-                    warnings.Add(ExplorationWarning.TestingTimedOut);
+                    if (totalExploredPaths is 0)
+                    {
+                        reasons.Add(IncompleteExplorationReason.TestingTimedOut);
+                    }
+                    else
+                    {
+                        warnings.Add(ExplorationWarning.TestingTimedOut);
+                    }
                 }
-            }
 
-            if (this.IsExplorationCanceled)
-            {
-                reasons.Add(IncompleteExplorationReason.TestingCanceled);
-            }
+                if (this.IsExplorationCanceled)
+                {
+                    reasons.Add(IncompleteExplorationReason.TestingCanceled);
+                }
 
-            if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 && this.Configuration.TestingTimeout is 0 &&
-                totalExploredPaths < this.Configuration.TestingIterations && !this.IsExplorationExhausted)
-            {
-                reasons.Add(IncompleteExplorationReason.InsufficientExecutionPaths);
-            }
+                if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 && this.Configuration.TestingTimeout is 0 &&
+                    totalExploredPaths < this.Configuration.TestingIterations && !this.IsExplorationExhausted)
+                {
+                    reasons.Add(IncompleteExplorationReason.InsufficientExecutionPaths);
+                }
 
-            if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 &&
-                this.MaxExploredFairSteps <= 0 && this.MaxExploredUnfairSteps <= 0)
-            {
-                reasons.Add(IncompleteExplorationReason.NoSchedulingDecisions);
-            }
+                if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 &&
+                    this.MaxExploredFairSteps <= 0 && this.MaxExploredUnfairSteps <= 0)
+                {
+                    reasons.Add(IncompleteExplorationReason.NoSchedulingDecisions);
+                }
 
-            ExplorationStatus status = this.InternalErrors.Count > 0 ? ExplorationStatus.InternalError :
-                this.NumOfFoundBugs > 0 ? ExplorationStatus.BugFound :
-                reasons.Count > 0 ? ExplorationStatus.Incomplete :
-                ExplorationStatus.Complete;
-            return new ExplorationVerdict(status, reasons, warnings);
+                ExplorationStatus status = this.InternalErrors.Count > 0 ? ExplorationStatus.InternalError :
+                    this.NumOfFoundBugs > 0 ? ExplorationStatus.BugFound :
+                    reasons.Count > 0 ? ExplorationStatus.Incomplete :
+                    ExplorationStatus.Complete;
+                return new ExplorationVerdict(status, reasons, warnings);
+            }
         }
 
         /// <summary>

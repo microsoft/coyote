@@ -328,6 +328,26 @@ namespace Microsoft.Coyote
         internal bool IsXmlLogEnabled;
 
         /// <summary>
+        /// If true, then an exploration that detected uncontrolled invocations, truncated
+        /// execution paths or no scheduling decisions is reported as incomplete.
+        /// </summary>
+        [DataMember]
+        internal bool IsStrictExplorationEnabled;
+
+        /// <summary>
+        /// If true, then fair execution paths that exceed the unfair max-steps bound are
+        /// also considered a reason for reporting the exploration as incomplete.
+        /// </summary>
+        [DataMember]
+        internal bool IsStrictBoundCheckingEnabled;
+
+        /// <summary>
+        /// Produce a JSON formatted test report file.
+        /// </summary>
+        [DataMember]
+        internal bool IsJsonReportEnabled;
+
+        /// <summary>
         /// If true, then anonymized telemetry is enabled, else false.
         /// </summary>
         internal bool IsTelemetryEnabled;
@@ -389,6 +409,9 @@ namespace Microsoft.Coyote
             this.IsCoverageInfoSerialized = false;
             this.IsActorTraceVisualizationEnabled = false;
             this.IsXmlLogEnabled = false;
+            this.IsStrictExplorationEnabled = false;
+            this.IsStrictBoundCheckingEnabled = false;
+            this.IsJsonReportEnabled = false;
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
             this.IsTelemetryEnabled = optout != "1" && optout != "true";
@@ -945,6 +968,42 @@ namespace Microsoft.Coyote
         public Configuration WithXmlLogEnabled(bool isEnabled = true)
         {
             this.IsXmlLogEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with strict exploration enabled or disabled. If enabled,
+        /// an exploration that detected uncontrolled invocations, truncated execution paths or
+        /// no scheduling decisions is reported as incomplete, instead of being reported as a
+        /// successful test run.
+        /// </summary>
+        /// <param name="isEnabled">If true, then enables strict exploration.</param>
+        public Configuration WithStrictExplorationEnabled(bool isEnabled = true)
+        {
+            this.IsStrictExplorationEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with strict bound checking enabled or disabled. If enabled,
+        /// fair execution paths that exceed the unfair max-steps bound are also considered a
+        /// reason for reporting the exploration as incomplete, instead of only a warning.
+        /// </summary>
+        /// <param name="isEnabled">If true, then enables strict bound checking.</param>
+        public Configuration WithStrictBoundCheckingEnabled(bool isEnabled = true)
+        {
+            this.IsStrictBoundCheckingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with JSON report generation enabled or disabled. If enabled,
+        /// the testing engine emits a machine-readable report of the test run.
+        /// </summary>
+        /// <param name="isEnabled">If true, then enables JSON report generation.</param>
+        public Configuration WithJsonReportEnabled(bool isEnabled = true)
+        {
+            this.IsJsonReportEnabled = isEnabled;
             return this;
         }
 

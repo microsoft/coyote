@@ -75,6 +75,11 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly CancellationTokenSource CancellationTokenSource;
 
         /// <summary>
+        /// True if cancellation was requested by stopping the testing engine.
+        /// </summary>
+        private volatile bool IsStopRequested;
+
+        /// <summary>
         /// Data structure containing information
         /// gathered during testing.
         /// </summary>
@@ -222,7 +227,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (!this.IsTestRewritten())
                 {
-                    // TODO: eventually will throw an exception; we allow this for now.
+                    this.TestReport.RecordUnrewrittenTestAssembly();
                     this.LogWriter.LogError("... Assembly is not rewritten for testing, see {0}.", Documentation.LearnAboutRewritingUrl);
                 }
 
@@ -244,7 +249,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    this.LogWriter.LogWarning("... Test timed out.");
+                    this.LogWriter.LogWarning(this.IsStopRequested ? "... Test canceled." : "... Test timed out.");
                 }
             }
             catch (Exception ex)
@@ -268,6 +273,17 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             finally
             {
+                if (this.Configuration.TestingTimeout > 0)
+                {
+                    // Disarm the timeout so it cannot cancel the engine after normal completion.
+                    this.CancellationTokenSource.CancelAfter(Timeout.Infinite);
+                }
+
+                if (this.CancellationTokenSource.IsCancellationRequested)
+                {
+                    this.TestReport.RecordExplorationTermination(this.IsStopRequested);
+                }
+
                 this.Profiler.StopMeasuringExecutionTime();
             }
 
@@ -364,6 +380,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!this.Scheduler.InitializeNextIteration(iteration, iterationLogWriter))
             {
                 // The next iteration cannot run, so stop exploring.
+                this.TestReport.RecordExplorationExhaustion();
                 return false;
             }
 
@@ -459,6 +476,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public void Stop()
         {
+            this.IsStopRequested = true;
             this.CancellationTokenSource.Cancel();
         }
 
@@ -479,6 +497,19 @@ namespace Microsoft.Coyote.SystematicTesting
 
             return this.TestReport.GetText(this.Configuration, "...");
         }
+
+        /// <summary>
+        /// Returns a machine-readable report of the test run in JSON format. The report includes
+        /// the exploration verdict, statistics, bug reports and uncontrolled invocations.
+        /// </summary>
+        public string GetJsonReport() => this.CreateJsonReport(Array.Empty<string>()).ToJson();
+
+        /// <summary>
+        /// Creates a machine-readable report of the test run that lists the specified emitted report paths.
+        /// </summary>
+        private JsonTestReport CreateJsonReport(IEnumerable<string> reportPaths) => JsonTestReport.Create(
+            this.TestReport, this.Configuration, this.TestMethodInfo.Name, this.TestMethodInfo.Assembly,
+            this.IsTestRewritten(), this.Scheduler.GetStrategyName(), this.Profiler.Results(), reportPaths);
 
         /// <summary>
         /// Throws either an <see cref="AssertionFailureException"/>, if a bug was found,
@@ -557,6 +588,14 @@ namespace Microsoft.Coyote.SystematicTesting
                 string reportPath = Path.Combine(directory, fileName + ".uncontrolled.json");
                 File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations));
                 paths.Add(reportPath);
+            }
+
+            // Emit the machine-readable JSON report, which also lists the reports emitted above.
+            if (this.Configuration.IsJsonReportEnabled)
+            {
+                string jsonReportPath = Path.Combine(directory, fileName + ".report.json");
+                File.WriteAllText(jsonReportPath, this.CreateJsonReport(paths).ToJson());
+                paths.Add(jsonReportPath);
             }
 
             reportPaths = paths;

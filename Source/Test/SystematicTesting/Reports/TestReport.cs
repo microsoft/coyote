@@ -167,10 +167,41 @@ namespace Microsoft.Coyote.SystematicTesting
         public int MaxUnfairStepsHitInUnfairTests { get; internal set; }
 
         /// <summary>
+        /// Number of explored execution paths that were truncated because they reached the max-steps bound.
+        /// </summary>
+        public int NumOfTruncatedPaths => this.MaxFairStepsHitInFairTests + this.MaxUnfairStepsHitInUnfairTests;
+
+        /// <summary>
         /// Set of internal errors. If no internal errors occurred, then this set is empty.
         /// </summary>
         [DataMember]
         public HashSet<string> InternalErrors { get; internal set; }
+
+        /// <summary>
+        /// True if the exploration stopped because the testing timeout expired.
+        /// </summary>
+        [DataMember]
+        internal bool IsExplorationTimedOut { get; private set; }
+
+        /// <summary>
+        /// True if the exploration was canceled by a request to stop the testing engine.
+        /// </summary>
+        [DataMember]
+        internal bool IsExplorationCanceled { get; private set; }
+
+        /// <summary>
+        /// True if the engine detected that the test entry assembly was not rewritten.
+        /// False means no such limitation was recorded, not that rewriting was verified.
+        /// </summary>
+        [DataMember]
+        internal bool HasUnrewrittenTestAssembly { get; private set; }
+
+        /// <summary>
+        /// True if the scheduling strategy reported that no execution paths remain to explore.
+        /// False means exhaustion was not observed, not that unexplored paths necessarily remain.
+        /// </summary>
+        [DataMember]
+        internal bool IsExplorationExhausted { get; private set; }
 
         /// <summary>
         /// Lock for the test report.
@@ -307,6 +338,40 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Records that the test entry assembly was not rewritten for testing.
+        /// </summary>
+        internal void RecordUnrewrittenTestAssembly()
+        {
+            lock (this.Lock)
+            {
+                this.HasUnrewrittenTestAssembly = true;
+            }
+        }
+
+        /// <summary>
+        /// Records that the scheduling strategy has no execution paths left to explore.
+        /// </summary>
+        internal void RecordExplorationExhaustion()
+        {
+            lock (this.Lock)
+            {
+                this.IsExplorationExhausted = true;
+            }
+        }
+
+        /// <summary>
+        /// Records how the exploration was interrupted while statistics can still be merging.
+        /// </summary>
+        internal void RecordExplorationTermination(bool isCanceled)
+        {
+            lock (this.Lock)
+            {
+                this.IsExplorationTimedOut |= !isCanceled;
+                this.IsExplorationCanceled |= isCanceled;
+            }
+        }
+
+        /// <summary>
         /// Merges the information from the specified test report.
         /// </summary>
         /// <returns>True if merged successfully.</returns>
@@ -326,6 +391,19 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.BugReports.UnionWith(testReport.BugReports);
                 this.UncontrolledInvocations.UnionWith(testReport.UncontrolledInvocations);
+                this.IsExplorationTimedOut |= testReport.IsExplorationTimedOut;
+                this.IsExplorationCanceled |= testReport.IsExplorationCanceled;
+                this.HasUnrewrittenTestAssembly |= testReport.HasUnrewrittenTestAssembly;
+
+                int exploredPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
+                int sourceExploredPaths = testReport.NumOfExploredFairPaths + testReport.NumOfExploredUnfairPaths;
+                if (sourceExploredPaths > 0)
+                {
+                    // Empty reports are neutral; all contributing reports must have observed exhaustion.
+                    this.IsExplorationExhausted = exploredPaths > 0 ?
+                        this.IsExplorationExhausted && testReport.IsExplorationExhausted :
+                        testReport.IsExplorationExhausted;
+                }
 
                 this.TotalControlledOperations += testReport.TotalControlledOperations;
                 this.MaxControlledOperations = Math.Max(this.MaxControlledOperations, testReport.MaxControlledOperations);
@@ -391,6 +469,84 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Returns a verdict that summarizes whether the exploration was complete, based on
+        /// the statistics gathered in this report and the configuration used during testing.
+        /// </summary>
+        public ExplorationVerdict GetVerdict()
+        {
+            var reasons = new List<IncompleteExplorationReason>();
+            var warnings = new List<ExplorationWarning>();
+
+            int totalExploredPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
+            if (this.HasUnrewrittenTestAssembly)
+            {
+                reasons.Add(IncompleteExplorationReason.TestAssemblyNotRewritten);
+            }
+
+            if (this.UncontrolledInvocations.Count > 0)
+            {
+                reasons.Add(IncompleteExplorationReason.UncontrolledInvocations);
+            }
+
+            if (this.NumOfTruncatedPaths > 0)
+            {
+                reasons.Add(IncompleteExplorationReason.TruncatedExecutionPaths);
+            }
+
+            if (this.MaxUnfairStepsHitInFairTests > 0)
+            {
+                if (this.Configuration.IsStrictBoundCheckingEnabled)
+                {
+                    reasons.Add(IncompleteExplorationReason.ExceededUnfairStepsBound);
+                }
+                else
+                {
+                    warnings.Add(ExplorationWarning.ExceededUnfairStepsBound);
+                }
+            }
+
+            if (totalExploredPaths is 0)
+            {
+                reasons.Add(IncompleteExplorationReason.NoExecutionPaths);
+            }
+
+            if (this.IsExplorationTimedOut)
+            {
+                if (totalExploredPaths is 0)
+                {
+                    reasons.Add(IncompleteExplorationReason.TestingTimedOut);
+                }
+                else
+                {
+                    warnings.Add(ExplorationWarning.TestingTimedOut);
+                }
+            }
+
+            if (this.IsExplorationCanceled)
+            {
+                reasons.Add(IncompleteExplorationReason.TestingCanceled);
+            }
+
+            if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 && this.Configuration.TestingTimeout is 0 &&
+                totalExploredPaths < this.Configuration.TestingIterations && !this.IsExplorationExhausted)
+            {
+                reasons.Add(IncompleteExplorationReason.InsufficientExecutionPaths);
+            }
+
+            if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 &&
+                this.MaxExploredFairSteps <= 0 && this.MaxExploredUnfairSteps <= 0)
+            {
+                reasons.Add(IncompleteExplorationReason.NoSchedulingDecisions);
+            }
+
+            ExplorationStatus status = this.InternalErrors.Count > 0 ? ExplorationStatus.InternalError :
+                this.NumOfFoundBugs > 0 ? ExplorationStatus.BugFound :
+                reasons.Count > 0 ? ExplorationStatus.Incomplete :
+                ExplorationStatus.Complete;
+            return new ExplorationVerdict(status, reasons, warnings);
+        }
+
+        /// <summary>
         /// Returns the testing report as a string, given a configuration and an optional prefix.
         /// </summary>
         public string GetText(Configuration configuration, string prefix = "")
@@ -415,6 +571,21 @@ namespace Microsoft.Coyote.SystematicTesting
                     prefix.Equals("...") ? "....." : prefix,
                     numUncontrolledInvocations,
                     numUncontrolledInvocations is 1 ? string.Empty : "s");
+            }
+
+            ExplorationVerdict verdict = this.GetVerdict();
+            report.AppendLine();
+            report.AppendFormat(
+                "{0} Exploration verdict: {1}.",
+                prefix.Equals("...") ? "....." : prefix,
+                verdict);
+            if (verdict.Warnings.Count > 0)
+            {
+                report.AppendLine();
+                report.AppendFormat(
+                    "{0} Exploration warnings: {1}.",
+                    prefix.Equals("...") ? "....." : prefix,
+                    string.Join(", ", verdict.Warnings));
             }
 
             report.AppendLine();

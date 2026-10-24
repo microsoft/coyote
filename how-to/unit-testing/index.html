@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/how-to/unit-testing/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Integrate with a unit testing framework - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Integrate Coyote with a unit testing framework", url: "#_top", children: [
+          ]},
+          {title: "Replaying a trace", url: "#replaying-a-trace", children: [
+          ]},
+          {title: "Testing actors", url: "#testing-actors", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../liveness-checking/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../liveness-checking/" class="btn btn-xs btn-link">
+        Find liveness bugs effectively
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../concepts/actors/why-actors/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../concepts/actors/why-actors/" class="btn btn-xs btn-link">
+        Why Coyote actors?
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="integrate-coyote-with-a-unit-testing-framework">Integrate Coyote with a unit testing framework</h2>
+<p>Common unit testing frameworks like
+<a href="https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-mstest">MSTest</a>,
+<a href="https://xunit.net/">xUnit.net</a> and <a href="https://nunit.org/">nunit</a> cannot easily call the <code>coyote</code>
+command line tool for testing. In this case you can use the Coyote <code>TestingEngine</code> directly.</p>
+<p>Note that before running a Coyote test, you must first use <code>coyote rewrite</code> from the <code>coyote</code>
+command line tool (typically as a post-build task) to rewrite your binaries so that Coyote can
+inject logic that takes control of the concurrent execution during testing. Learn more about this
+step in <a href="../../get-started/using-coyote/#building-the-samples">rewriting binaries</a>.</p>
+<p>The Coyote <code>TestingEngine</code> is included in the <code>Microsoft.Coyote.Test</code> package. The following shows
+a complete example using xUnit. The project simply includes xUnit and the Coyote packages:</p>
+<pre><code class="language-xml">&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net8.0&lt;/TargetFramework&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;PackageReference Include=&quot;Microsoft.Coyote&quot; Version=&quot;1.4.1&quot; /&gt;
+    &lt;PackageReference Include=&quot;Microsoft.Coyote.Test&quot; Version=&quot;1.4.1&quot; /&gt;
+    &lt;PackageReference Include=&quot;xunit&quot; Version=&quot;2.4.2&quot; /&gt;
+    &lt;PackageReference Include=&quot;xunit.runner.visualstudio&quot; Version=&quot;2.4.5&quot;&gt;
+      &lt;PrivateAssets&gt;all&lt;/PrivateAssets&gt;
+      &lt;IncludeAssets&gt;runtime; build; native; contentfiles; analyzers; 
+                     buildtransitive&lt;/IncludeAssets&gt;
+    &lt;/PackageReference&gt;
+  &lt;/ItemGroup&gt;
+&lt;/Project&gt;
+</code></pre>
+<p>And then your <code>[Fact]</code> method which runs as an xUnit unit test can create a <code>TestingEngine</code> to run a
+Coyote test method.  This test code can run in the Visual Studio Test Explorer or from a <code>dotnet
+test</code> command line:</p>
+<pre><code class="language-csharp">public class Test
+{
+    ITestOutputHelper Output;
+
+    public Test(ITestOutputHelper output)
+    {
+        this.Output = output;
+    }
+
+
+    [Fact(Timeout = 5000)]
+    public void RunCoyoteTest()
+    {
+        var config = Configuration.Create();
+        TestingEngine engine = TestingEngine.Create(config, CoyoteTestMethod);
+        engine.Run();
+        var report = engine.TestReport;
+        Output.WriteLine(&quot;Coyote found {0} bug.&quot;, report.NumOfFoundBugs);
+        Assert.True(report.NumOfFoundBugs == 0, $&quot;Coyote found {report.NumOfFoundBugs} bug(s).&quot;);
+    }
+
+    private async Task CoyoteTestMethod()
+    {
+        // This is running as a Coyote test.
+        await Task.Delay(10);
+        Specification.Assert(false, &quot;This test failed!&quot;);
+    }
+}
+</code></pre>
+<p>This will produce the following test output because the <code>Specification.Assert</code> is hard wired to
+fail.</p>
+<pre><code class="language-plain">Coyote found 1 bug.
+</code></pre>
+<p>Most of the command line options you see on <code>coyote test</code> are available in the <code>Configuration</code>
+class. Use the <code>With*</code> helper methods to set the various configurations, for example, to specify
+<code>--strategy prioritization</code> together with <code>--strategy-value 10</code> use the following:</p>
+<pre><code class="language-csharp">var config = Configuration.Create().WithPrioritizationStrategy(false, 10);
+</code></pre>
+<p>For <code>--iterations</code> use <code>WithTestingIterations</code> and so on.</p>
+<p>If you want the rich Coyote log files, you can use the <code>TryEmitTraces</code> method on the <code>TestingEngine</code>
+to produce those log files in the folder of your choice like this:</p>
+<pre><code class="language-csharp">List&lt;string&gt; filenames = new List&lt;string&gt;(engine.TryEmitTraces(&quot;d:\\temp\\test&quot;, &quot;mytest&quot;));
+foreach (var item in filenames)
+{
+    Output.WriteLine(&quot;See log file: {0}&quot;, item);
+}
+</code></pre>
+<p>Note: <code>TryEmitTraces</code> is an iterator method, which means you must iterate the result in order to
+produce the log files.  You will see the following output:</p>
+<pre><code class="language-plain">Coyote found 1 bugs
+See log file: d:\temp\test\mytest_0.txt
+See log file: d:\temp\test\mytest_0.trace
+</code></pre>
+<p>And the log file contains the familiar output of <code>coyote test</code> as follows:</p>
+<pre><code class="language-xml">&lt;TestLog&gt; Running test.
+&lt;ErrorLog&gt; This test failed!
+&lt;StackTrace&gt;
+at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(
+    String text, Boolean killTasks, Boolean cancelExecution)
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.Assert(Boolean predicate, String s)
+   at ConsoleApp14.Test.CoyoteTestMethod()
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine]()
+   at ConsoleApp14.Test.CoyoteTestMethod()
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.RunTestb__0d.MoveNext()
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start[TStateMachine]()
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.RunTestb__0()
+   at System.Threading.Tasks.Task.InnerInvoke()
+   at System.Threading.Tasks.Task.c.cctorb__274_0(Object obj)
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(
+       Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task currentTaskSlot)
+   at System.Threading.Tasks.Task.ExecuteEntryUnsafe(Thread threadPoolThread)
+   at System.Threading.Tasks.Task.ExecuteFromThreadPool(Thread threadPoolThread)
+   at System.Threading.ThreadPoolWorkQueue.Dispatch()
+   at System.Threading._ThreadPoolWaitCallback.PerformWaitCallback()
+
+&lt;TestLog&gt; Exploration finished [found a bug using the 'random' strategy].
+&lt;StrategyLog&gt; Testing statistics:
+&lt;StrategyLog&gt; Found 1 bug.
+&lt;StrategyLog&gt; Exploration statistics:
+&lt;StrategyLog&gt; Explored 1 schedule: 1 fair and 0 unfair.
+&lt;StrategyLog&gt; Found 100.00% buggy schedules.
+&lt;StrategyLog&gt; Number of scheduling decisions in fair terminating schedules: 
+              3 (min), 3 (avg), 3 (max).
+</code></pre>
+<p>The <code>TestEngine.Create</code> method has overloads for supporting Coyote test methods with
+the following signatures:</p>
+<pre><code class="language-csharp">Action
+Action&lt;ICoyoteRuntime&gt;
+Action&lt;IActorRuntime&gt;
+Func&lt;Task&gt;
+Func&lt;ICoyoteRuntime, Task&gt;
+Func&lt;IActorRuntime, Task&gt;
+</code></pre>
+<p>Notice that you never create an <code>ICoyoteRuntime</code> or <code>IActorRuntime</code> yourself, the <code>TestingEngine</code>
+will do that for you so it can provide the non-production systematic test version of those runtimes.</p>
+<h2 id="replaying-a-trace">Replaying a trace</h2>
+<p>You can also easily replay and debug a trace, similar to using <code>coyote replay</code> from the command line
+tool. To do this you need to configure the <code>TestingEngine</code> to run in replay mode:</p>
+<pre><code class="language-csharp">var trace = ...
+var config = Configuration.Create().WithReproducibleTrace(trace);
+</code></pre>
+<p>The input to the <code>WithReproducibleTrace</code> method should either be the contents of a <code>.trace</code> file or
+the <code>string</code> value of <code>TestingEngine.ReproducibleTrace</code> (from a previous run).</p>
+<p>Then you add breakpoints to debug and replay as follows:</p>
+<pre><code class="language-csharp">var trace = ...
+var config = Configuration.Create().WithReproducibleTrace(trace);
+TestingEngine engine = TestingEngine.Create(config, CoyoteTestMethod);
+engine.Run();
+</code></pre>
+<h2 id="testing-actors">Testing actors</h2>
+<p>Actors run asynchronously, so you will need to design your actors in a way such that you know when
+they have finished doing what they are supposed to do. One way to do that is to use the Coyote
+<code>TaskCompletionSource&lt;bool&gt;</code> as follows:</p>
+<pre><code class="language-csharp">class TestConfigEvent : Event
+{
+    public TaskCompletionSource&lt;bool&gt; Completed = TaskCompletionSource.Create&lt;bool&gt;();
+}
+
+private async Task CoyoteTestActors(IActorRuntime runtime)
+{
+    // this method can be run by the Coyote TestingEngine.
+    TestConfigEvent config = new TestConfigEvent();
+    runtime.CreateActor(typeof(MyTestActor), config);
+    await config.Completed.Task;
+    Output.WriteLine(&quot;Coyote actor test passed&quot;);
+}
+</code></pre>
+<p>Where <code>MyTestActor</code> sets the result on the <code>TaskCompletionSource</code> as follows:</p>
+<pre><code class="language-csharp">[OnEventDoAction(typeof(MyEvent), nameof(HandleEvent))]
+class MyTestActor : Actor
+{
+    TestConfigEvent config;
+
+    protected override System.Threading.Tasks.Task OnInitializeAsync(Event initialEvent)
+    {
+        config = (TestConfigEvent)initialEvent;
+        var actor = this.CreateActor(typeof(MyActor));
+        this.SendEvent(actor, new MyEvent() { Caller = this.Id });
+
+        return base.OnInitializeAsync(initialEvent);
+    }
+
+    private void HandleEvent(Event e)
+    {
+        config.Completed.SetResult(true);
+    }
+}
+</code></pre>
+<p>This test actor creates <code>MyActor</code>, sends an event to it, waits for a response, then sets
+the <code>TaskCompletionSource</code> result.  <code>MyActor</code> is a simple ping-pong style actor:</p>
+<pre><code class="language-csharp">class MyEvent : Event
+{
+    public ActorId Caller;
+}
+
+[OnEventDoAction(typeof(MyEvent), nameof(HandleEvent))]
+class MyActor : Actor
+{
+    private void HandleEvent(Event e)
+    {
+        ActorId caller = ((MyEvent)e).Caller;
+        this.SendEvent(caller, new MyEvent() { Caller = this.Id });
+    }
+}
+</code></pre>
+<p>If you run this test setting <code>WithXmlLogEnabled(true)</code> on the <code>Configuration</code> you will get the
+following DGML diagram showing you what happened during this test:</p>
+<p><img alt="unittest" src="../../assets/images/unittest.svg" /></p>
+<p>See the following API documentation for more information:</p>
+<ul>
+<li><a href="../../ref/Microsoft.Coyote.SystematicTesting/TestingEngine/">TestingEngine</a></li>
+<li><a href="../../ref/Microsoft.Coyote.SystematicTesting/TestReport/">TestReport</a></li>
+<li><a href="../../ref/Microsoft.Coyote/Configuration/">Configuration</a></li>
+</ul>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../liveness-checking/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../liveness-checking/" class="btn btn-xs btn-link">
+        Find liveness bugs effectively
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../concepts/actors/why-actors/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../concepts/actors/why-actors/" class="btn btn-xs btn-link">
+        Why Coyote actors?
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

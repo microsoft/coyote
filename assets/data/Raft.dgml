@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Coyote.Examples.Raft.Client(8)" Bounds="105.933399610285,444.671603389388,199.983333333333,157.880213427734" Group="Expanded" Label="Coyote.Examples.Raft.Client(8)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Client(8).Init" Bounds="185.694458007813,484.671654322322,50,25.9600000000001" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.Client(8).PumpRequest" Bounds="164.046124674479,556.591667750057,93.2966666666666,25.96" Label="PumpRequest" />
+    <Node Id="Coyote.Examples.Raft.ClusterManager(2)" Bounds="-2.4787241334887,664.573454712705,411.439969482422,301.720362351938" Group="Expanded" Label="Coyote.Examples.Raft.ClusterManager(2)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Available" Bounds="38.3379914041833,920.333629150391,186.57,25.96" Label="Availability.Availability.Available" />
+    <Node Id="Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Unavailable" Bounds="17.5213247375168,848.413646240234,200.203333333333,25.96" Label="Availability.Availability.Unavailable" />
+    <Node Id="Coyote.Examples.Raft.ClusterManager(2).Availability.Available" Bounds="255.097571075407,920.333629150391,127.043333333333,25.96" Label="Availability.Available" />
+    <Node Id="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable" Bounds="248.284627553272,848.413585205078,140.676666666667,25.96" Label="Availability.Unavailable" />
+    <Node Id="Coyote.Examples.Raft.ClusterManager(2).Configuring" Bounds="277.269627553272,776.493724365234,82.7066666666667,25.96" Label="Configuring" />
+    <Node Id="Coyote.Examples.Raft.ClusterManager(2).Init" Bounds="293.622960886605,704.573527832031,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(11)" Bounds="1388.70425543787,476.759882125642,285.285833333333,229.800104785156" Group="Expanded" Label="Coyote.Examples.Raft.ElectionTimer(11)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(11).Active" Bounds="1501.85410454308,588.680095214844,52.2799999999997,25.96" Label="Active" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(11).Inactive" Bounds="1497.67916557824,660.599895019531,60.6300000000001,25.96" Label="Inactive" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(11).Init" Bounds="1502.99410454308,516.760051269531,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(13)" Bounds="840.685757149463,413.361643952259,285.285833333333,229.800165820312" Group="Expanded" Label="Coyote.Examples.Raft.ElectionTimer(13)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(13).Active" Bounds="953.83623928326,525.281901855469,52.28,25.96" Label="Active" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(13).Inactive" Bounds="949.661056177791,597.201823730469,60.63,25.96" Label="Inactive" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(13).Init" Bounds="954.975995142635,453.361857910156,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(15)" Bounds="247.459231320764,1239.00251963523,247.646666666667,229.800165820312" Group="Expanded" Label="Coyote.Examples.Raft.ElectionTimer(15)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(15).Active" Bounds="345.14268672441,1350.92254151023,52.28,25.96" Label="Active" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(15).Inactive" Bounds="340.967564654097,1422.84258545555,60.6300000000001,25.96" Label="Inactive" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(15).Init" Bounds="346.282839312301,1279.00261963523,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(17)" Bounds="1279.01163565605,1238.98065716817,247.646666666667,229.79955546875" Group="Expanded" Label="Coyote.Examples.Raft.ElectionTimer(17)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(17).Active" Bounds="1376.69509105969,1350.9009231838,52.2799999999997,25.96" Label="Active" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(17).Inactive" Bounds="1372.51996898938,1422.82011263692,60.6300000000001,25.96" Label="Inactive" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(17).Init" Bounds="1377.83496898938,1278.98075716817,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(9)" Bounds="843.256590504352,1271.74157630143,241.176666666667,229.80004374987" Group="Expanded" Label="Coyote.Examples.Raft.ElectionTimer(9)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(9).Active" Bounds="937.705106943154,1383.66159817631,52.2799999999997,25.96" Label="Active" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(9).Inactive" Bounds="933.529923837685,1455.58152005131,60.6300000000001,25.96" Label="Inactive" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.ElectionTimer(9).Init" Bounds="938.845656259561,1311.74167630144,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(10)" Bounds="525.105897987431,1263.47312799388,248.236666666667,85.9602" Group="Expanded" Label="Coyote.Examples.Raft.PeriodicTimer(10)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(10).Init" Bounds="624.224231320764,1303.47322799388,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(12)" Bounds="1378.26267534541,787.051300956921,285.285833333333,229.800270132488" Group="Expanded" Label="Coyote.Examples.Raft.PeriodicTimer(12)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(12).Active" Bounds="1491.41263034565,898.971617162053,52.2799999999997,25.96" Label="Active" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(12).Inactive" Bounds="1487.2376913808,970.891539037053,60.6300000000001,25.96" Label="Inactive" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(12).Init" Bounds="1492.55476657612,827.05157321674,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(14)" Bounds="540.053402271013,427.563413566995,248.236666666667,229.800043750001" Group="Expanded" Label="Coyote.Examples.Raft.PeriodicTimer(14)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(14).Active" Bounds="682.519271240234,539.483586771395,52.28,25.96" Label="Active" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(14).Inactive" Bounds="678.344240722656,611.403447611239,60.63,25.96" Label="Inactive" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(14).Init" Bounds="683.6591796875,467.563603861239,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(16)" Bounds="-5.42959106455146,1118.67558539885,248.236666666667,85.9602" Group="Expanded" Label="Coyote.Examples.Raft.PeriodicTimer(16)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(16).Init" Bounds="93.6887422687819,1158.67568539885,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(18)" Bounds="1194.86669849525,1086.49773215116,248.236665912712,85.9602" Group="Expanded" Label="Coyote.Examples.Raft.PeriodicTimer(18)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.PeriodicTimer(18).Init" Bounds="1293.98503182858,1126.49783215116,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.SafetyMonitor(1)" Bounds="820.5362948859,680.596956884765,231.056666666667,157.880030322266" Group="Expanded" Label="Coyote.Examples.Raft.SafetyMonitor" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.SafetyMonitor(1).Init" Bounds="919.273977991368,720.597056884765,50.0000000000005,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.SafetyMonitor(1).Monitoring" Bounds="904.505461552566,792.516887207031,79.5366666666671,25.96" Label="Monitoring" />
+    <Node Id="Coyote.Examples.Raft.Server(3)" Category="Server" Bounds="553.384723015223,688.480817937339,202.626666666667,301.719813037109" Group="Expanded" Label="Coyote.Examples.Raft.Server(3)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(3).Candidate" Bounds="647.415616322803,872.32046494554,73.8166666666666,25.96" Label="Candidate" />
+    <Node Id="Coyote.Examples.Raft.Server(3).Follower" Bounds="651.895982533741,800.400970316633,64.8566666666666,25.96" Label="Follower" />
+    <Node Id="Coyote.Examples.Raft.Server(3).Init" Bounds="659.324132761605,728.480987406477,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.Server(3).Leader" Category="Bug" Bounds="656.549102244027,944.240691996321,55.55,25.96" Label="Leader" />
+    <Node Id="Coyote.Examples.Raft.Server(4)" Category="Server" Bounds="1131.08075756235,676.179187933253,202.626666666667,301.720270800781" Group="Expanded" Label="Coyote.Examples.Raft.Server(4)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(4).Candidate" Bounds="1225.11175836175,860.019255101506,73.8166666666666,25.96" Label="Candidate" />
+    <Node Id="Coyote.Examples.Raft.Server(4).Follower" Bounds="1229.59175836175,788.099211156193,64.8566666666666,25.96" Label="Follower" />
+    <Node Id="Coyote.Examples.Raft.Server(4).Init" Bounds="1237.01996962477,716.179228246037,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.Raft.Server(4).Leader" Category="Bug" Bounds="1234.24509169509,931.939329564396,55.5500000000002,25.96" Label="Leader" />
+    <Node Id="Coyote.Examples.Raft.Server(5)" Category="Server" Bounds="308.393845285375,1047.23711441775,202.626666666667,157.880243945312" Group="Expanded" Label="Coyote.Examples.Raft.Server(5)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(5).Follower" Bounds="377.278845285375,1159.15725836306,64.8566666666666,25.96" Label="Follower" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(5).Init" Bounds="384.707056548396,1087.23721441775,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(6)" Category="Server" Bounds="943.04871643002,1048.05417341905,202.626666666667,157.880121874325" Group="Expanded" Label="Coyote.Examples.Raft.Server(6)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(6).Follower" Bounds="1011.93371643002,1159.97419529338,64.8566666666666,25.96" Label="Follower" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(6).Init" Bounds="1019.36119527117,1088.05427341905,50,25.96" Label="Init" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(7)" Category="Server" Bounds="606.402505365283,1050.92962983422,202.626666666667,157.880243945202" Group="Expanded" Label="Coyote.Examples.Raft.Server(7)" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(7).Follower" Bounds="675.287505365283,1162.84977377942,64.8566666666666,25.96" Label="Follower" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.Raft.Server(7).Init" Bounds="682.715350417366,1090.92972983422,50,25.96" Label="Init" UseManualLocation="True" />
+  </Nodes>
+  <Links>
+    <Link Source="Coyote.Examples.Raft.Client(8)" Target="Coyote.Examples.Raft.Client(8).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Client(8)" Target="Coyote.Examples.Raft.Client(8).PumpRequest" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Client(8).Init" Target="Coyote.Examples.Raft.Client(8).PumpRequest" Bounds="210.694229125977,510.631713867188,0,36.9600219726563" EventId="Coyote.Examples.Raft.Client+LocalEvent" Label="LocalEvent" LabelBounds="154.507566276952,525.631710103255,56.1866666666664,15.96" />
+    <Link Source="Coyote.Examples.Raft.Client(8).PumpRequest" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Available" Bounds="214.545714639183,582.551667750057,97.6622141791293,329.153744188174" EventId="Coyote.Examples.Raft.Client+Request" Label="Request" />
+    <Link Source="Coyote.Examples.Raft.Client(8).PumpRequest" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable" Bounds="215.495029464487,582.551667750057,95.2054404135905,257.420731619384" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2)" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Available" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2)" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Unavailable" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2)" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Available" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2)" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2)" Target="Coyote.Examples.Raft.ClusterManager(2).Configuring" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2)" Target="Coyote.Examples.Raft.ClusterManager(2).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Available" Bounds="173.772521972656,874.373657226563,111.100952148438,42.7293090820313" EventId="Coyote.Examples.Raft.ClusterManager+LocalEvent" Label="LocalEvent" LabelBounds="225.122927274389,889.373635888674,56.1866666666666,15.96" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Available" Bounds="318.622924804688,874.373657226563,0,36.9599609375" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Configuring" Target="Coyote.Examples.Raft.Client(8).Init" Bounds="218.616945070248,519.072840689044,95.205446869805,257.42088367619" EventId="Coyote.Examples.Raft.Client+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Configuring" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Unavailable" Bounds="162.372955322266,802.45361328125,119.973846435547,42.927978515625" EventId="Coyote.Examples.Raft.ClusterManager+LocalEvent" Label="LocalEvent" LabelBounds="218.122927274389,817.453635888674,56.1866666666666,15.9600000000005" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Configuring" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable" Bounds="318.622924804688,802.45361328125,0,36.9600219726563" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Configuring" Target="Coyote.Examples.Raft.Server(3).Init" Bounds="359.976294219939,745.914777763364,290.42441621733,38.1296866803847" EventId="Coyote.Examples.Raft.Server+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Configuring" Target="Coyote.Examples.Raft.Server(4).Init" Bounds="359.976294219939,731.331788512071,868.06201281697,55.4980802549934" EventId="Coyote.Examples.Raft.Server+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Configuring" Target="Coyote.Examples.Raft.Server(5).Init" Bounds="322.427615206122,802.453724365234,80.9432479833498,276.14686396984" EventId="Coyote.Examples.Raft.Server+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Configuring" Target="Coyote.Examples.Raft.Server(6).Init" Bounds="348.858118421536,802.453724365234,662.319503699147,284.334789659452" EventId="Coyote.Examples.Raft.Server+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Configuring" Target="Coyote.Examples.Raft.Server(7).Init" Bounds="334.684795817298,802.453724365234,349.968736129892,282.819130850703" EventId="Coyote.Examples.Raft.Server+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.ClusterManager(2).Init" Target="Coyote.Examples.Raft.ClusterManager(2).Configuring" Bounds="318.622924804688,730.533630371094,0,36.9600219726563" EventId="Coyote.Examples.Raft.ClusterManager+LocalEvent" Label="LocalEvent" LabelBounds="262.436260607722,745.533635888674,56.1866666666666,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(11)" Target="Coyote.Examples.Raft.ElectionTimer(11).Active" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(11)" Target="Coyote.Examples.Raft.ElectionTimer(11).Inactive" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(11)" Target="Coyote.Examples.Raft.ElectionTimer(11).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(11).Active" Target="Coyote.Examples.Raft.ElectionTimer(11).Active" Bounds="1458.35424804688,595.169921875,43.5,12.9798583984375" EventId="Coyote.Examples.Raft.ElectionTimer+TickEvent" Label="TickEvent" LabelBounds="1408.70425543787,593.67993451822,49.6499999999996,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(11).Active" Target="Coyote.Examples.Raft.ElectionTimer(11).Inactive" Bounds="1543.16040039063,614.639953613281,16.3463134765625,40.0960083007813" EventId="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" Label="CancelTimerEvent" LabelBounds="1560.00675543787,629.63993451822,93.9833333333327,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(11).Active" Target="Coyote.Examples.Raft.Server(4).Follower" Bounds="1286.53288418193,614.640095214844,224.149225618468,168.060179763948" EventId="Coyote.Examples.Raft.ElectionTimer+TimeoutEvent" Label="TimeoutEvent" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(11).Inactive" Target="Coyote.Examples.Raft.ElectionTimer(11).Active" Bounds="1495.74426269531,620.423645019531,16.7288818359375,40.17626953125" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="1411.91425543787,629.63993451822,83.3299999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(11).Init" Target="Coyote.Examples.Raft.ElectionTimer(11).Active" Bounds="1527.99426269531,542.719909667969,0,36.9600219726563" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="1444.66425543787,557.71993451822,83.3299999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(13)" Target="Coyote.Examples.Raft.ElectionTimer(13).Active" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(13)" Target="Coyote.Examples.Raft.ElectionTimer(13).Inactive" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(13)" Target="Coyote.Examples.Raft.ElectionTimer(13).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(13).Active" Target="Coyote.Examples.Raft.ElectionTimer(13).Active" Bounds="910.335754394531,531.771728515625,43.5,12.9798583984375" EventId="Coyote.Examples.Raft.ElectionTimer+TickEvent" Label="TickEvent" LabelBounds="860.685757149463,530.281726862415,49.6500000000001,15.9599999999998" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(13).Active" Target="Coyote.Examples.Raft.ElectionTimer(13).Inactive" Bounds="995.141967773438,551.24169921875,16.3463134765625,40.0960083007813" EventId="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" Label="CancelTimerEvent" LabelBounds="1011.98825714946,566.241726862415,93.9833333333331,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(13).Active" Target="Coyote.Examples.Raft.Server(3).Follower" Bounds="704.861682803716,551.241901855469,261.165825163293,243.028009771043" EventId="Coyote.Examples.Raft.ElectionTimer+TimeoutEvent" Label="TimeoutEvent" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(13).Inactive" Target="Coyote.Examples.Raft.ElectionTimer(13).Active" Bounds="947.725769042969,557.025451660156,16.7288818359375,40.17626953125" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="863.895757149463,566.241726862415,83.3299999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(13).Init" Target="Coyote.Examples.Raft.ElectionTimer(13).Active" Bounds="979.975769042969,479.321716308594,0,36.9600219726563" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="896.645757149463,494.321726862415,83.3299999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(15)" Target="Coyote.Examples.Raft.ElectionTimer(15).Active" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(15)" Target="Coyote.Examples.Raft.ElectionTimer(15).Inactive" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(15)" Target="Coyote.Examples.Raft.ElectionTimer(15).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(15).Active" Target="Coyote.Examples.Raft.ElectionTimer(15).Active" Bounds="358.212677001953,1320.92248535156,26.1383056640625,30" EventId="Coyote.Examples.Raft.ElectionTimer+TickEvent" Label="TickEvent" LabelBounds="313.542997738723,1305.45915749147,49.6500000000001,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(15).Active" Target="Coyote.Examples.Raft.ElectionTimer(15).Inactive" Bounds="371.28260196088,1376.88254151023,6.27324997140022E-05,36.9600439453329" EventId="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" Label="CancelTimerEvent" LabelBounds="375.28263332713,1387.38256687751,93.9833333333335,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(15).Init" Target="Coyote.Examples.Raft.ElectionTimer(15).Active" Bounds="371.282733357968,1304.96261963523,7.8415498535378E-05,36.9599218750204" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="375.282792169592,1306.22260434726,83.3300000000002,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(17)" Target="Coyote.Examples.Raft.ElectionTimer(17).Active" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(17)" Target="Coyote.Examples.Raft.ElectionTimer(17).Inactive" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(17)" Target="Coyote.Examples.Raft.ElectionTimer(17).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(17).Active" Target="Coyote.Examples.Raft.ElectionTimer(17).Active" Bounds="1389.76513671875,1320.90087890625,26.13818359375,30" EventId="Coyote.Examples.Raft.ElectionTimer+TickEvent" Label="TickEvent" LabelBounds="1345.095402074,1305.43753916504,49.6500000000001,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(17).Active" Target="Coyote.Examples.Raft.ElectionTimer(17).Inactive" Bounds="1402.83500629661,1376.8609231838,6.27317926955584E-05,36.9591894531329" EventId="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" Label="CancelTimerEvent" LabelBounds="1406.8350376625,1387.36052130502,93.9833333333333,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(17).Init" Target="Coyote.Examples.Raft.ElectionTimer(17).Active" Bounds="1402.83499102037,1304.94075716817,6.27325987352378E-05,36.9601660156429" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="1406.83500670352,1306.20079527747,83.3299999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(9)" Target="Coyote.Examples.Raft.ElectionTimer(9).Active" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(9)" Target="Coyote.Examples.Raft.ElectionTimer(9).Inactive" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(9)" Target="Coyote.Examples.Raft.ElectionTimer(9).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(9).Active" Target="Coyote.Examples.Raft.ElectionTimer(9).Active" Bounds="950.775085449219,1353.66162109375,26.1383056640625,30" EventId="Coyote.Examples.Raft.ElectionTimer+TickEvent" Label="TickEvent" LabelBounds="906.105417957467,1338.19821415755,49.6500000000001,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(9).Active" Target="Coyote.Examples.Raft.ElectionTimer(9).Inactive" Bounds="963.844979797954,1409.62159817631,9.4098598083292E-05,36.9599218750288" EventId="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" Label="CancelTimerEvent" LabelBounds="967.845026847254,1420.12156420575,93.9833333333335,15.96" />
+    <Link Source="Coyote.Examples.Raft.ElectionTimer(9).Init" Target="Coyote.Examples.Raft.ElectionTimer(9).Active" Bounds="963.845274823962,1337.70167630144,0.000282295794590937,36.9599218751325" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="967.845486545808,1338.961672046,83.3299999999996,15.96" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(10)" Target="Coyote.Examples.Raft.PeriodicTimer(10).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(12)" Target="Coyote.Examples.Raft.PeriodicTimer(12).Active" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(12)" Target="Coyote.Examples.Raft.PeriodicTimer(12).Inactive" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(12)" Target="Coyote.Examples.Raft.PeriodicTimer(12).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(12).Active" Target="Coyote.Examples.Raft.PeriodicTimer(12).Active" Bounds="1447.91271972656,905.46142578125,43.5,12.9798583984375" EventId="Coyote.Examples.Raft.PeriodicTimer+TickEvent" Label="TickEvent" LabelBounds="1398.26267534541,903.971436023165,49.6499999999996,15.96" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(12).Active" Target="Coyote.Examples.Raft.PeriodicTimer(12).Inactive" Bounds="1532.71887207031,924.931457519531,16.3463134765625,40.095947265625" EventId="Coyote.Examples.Raft.PeriodicTimer+CancelTimerEvent" Label="CancelTimerEvent" LabelBounds="1549.56517534541,939.931436023165,93.9833333333336,15.96" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(12).Active" Target="Coyote.Examples.Raft.Server(4).Candidate" Bounds="1307.82564743688,879.98167151337,183.586982908769,27.9852681996198" EventId="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" Label="TimeoutEvent" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(12).Inactive" Target="Coyote.Examples.Raft.PeriodicTimer(12).Active" Bounds="1485.302734375,930.715148925781,16.728759765625,40.17626953125" EventId="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="1401.47267534541,939.931436023165,83.3299999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(12).Init" Target="Coyote.Examples.Raft.PeriodicTimer(12).Active" Bounds="1517.552734375,853.011413574219,0,36.9600219726563" EventId="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="1434.22267534541,868.011436023165,83.3299999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(14)" Target="Coyote.Examples.Raft.PeriodicTimer(14).Active" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(14)" Target="Coyote.Examples.Raft.PeriodicTimer(14).Inactive" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(14)" Target="Coyote.Examples.Raft.PeriodicTimer(14).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(14).Active" Target="Coyote.Examples.Raft.PeriodicTimer(14).Active" Bounds="639.019226074219,545.973449707031,43.5,12.9798583984375" EventId="Coyote.Examples.Raft.PeriodicTimer+TickEvent" Label="TickEvent" LabelBounds="589.369235604347,544.483435441995,49.6500000000001,15.96" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(14).Active" Target="Coyote.Examples.Raft.PeriodicTimer(14).Inactive" Bounds="708.659240722656,565.443420410156,0,36.9600219726563" EventId="Coyote.Examples.Raft.PeriodicTimer+CancelTimerEvent" Label="CancelTimerEvent" LabelBounds="614.675902271013,580.443435441995,93.9833333333333,15.96" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(14).Init" Target="Coyote.Examples.Raft.PeriodicTimer(14).Active" Bounds="708.659240722656,493.5234375,0,36.9600219726563" EventId="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" Label="StartTimerEvent" LabelBounds="625.329235604347,508.523435441995,83.3299999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(16)" Target="Coyote.Examples.Raft.PeriodicTimer(16).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.PeriodicTimer(18)" Target="Coyote.Examples.Raft.PeriodicTimer(18).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.SafetyMonitor(1)" Target="Coyote.Examples.Raft.SafetyMonitor(1).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.SafetyMonitor(1)" Target="Coyote.Examples.Raft.SafetyMonitor(1).Monitoring" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.SafetyMonitor(1).Init" Target="Coyote.Examples.Raft.SafetyMonitor(1).Monitoring" Bounds="944.273803710938,746.556945800781,0,36.9600219726563" EventId="Coyote.Examples.Raft.SafetyMonitor+LocalEvent" Label="LocalEvent" LabelBounds="888.087128219234,761.556972045898,56.1866666666665,15.96" />
+    <Link Source="Coyote.Examples.Raft.Server(3)" Target="Coyote.Examples.Raft.Server(3).Candidate" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(3)" Target="Coyote.Examples.Raft.Server(3).Follower" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(3)" Target="Coyote.Examples.Raft.Server(3).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(3)" Target="Coyote.Examples.Raft.Server(3).Leader" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Candidate" Target="Coyote.Examples.Raft.ElectionTimer(13).Inactive" Bounds="698.272711272951,629.292875282909,261.165941025668,243.027589662631" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Candidate" Target="Coyote.Examples.Raft.PeriodicTimer(14).Init" Bounds="685.104347263136,502.507381296267,22.23430242814,369.813083649273" EventId="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Candidate" Target="Coyote.Examples.Raft.Server(3).Leader" Bounds="684.323913574219,898.280700683594,0,36.9600219726563" EventId="Coyote.Examples.Raft.Server+BecomeLeader" Label="BecomeLeader" LabelBounds="606.430556348557,913.280724455893,77.8933333333332,15.96" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Candidate" Target="Coyote.Examples.Raft.Server(4).Candidate" Bounds="721.23228298947,873.976763709102,494.881515050119,10.5377912739367" EventId="Coyote.Examples.Raft.Server+VoteRequest" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Candidate" Target="Coyote.Examples.Raft.Server(5).Follower" Bounds="428.358171113801,898.28046494554,243.538761611919,254.375860548284" EventId="Coyote.Examples.Raft.Server+VoteRequest" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Candidate" Target="Coyote.Examples.Raft.Server(6).Follower" Bounds="700.570200082788,898.28046494554,320.514192240508,256.075962516054" EventId="Coyote.Examples.Raft.Server+VoteRequest" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Candidate" Target="Coyote.Examples.Raft.Server(7).Follower" Bounds="685.369030859785,898.28046494554,20.5794314606998,255.598339561782" EventId="Coyote.Examples.Raft.Server+VoteRequest" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Follower" Target="Coyote.Examples.Raft.ElectionTimer(13).Init" Bounds="695.382316708495,486.172795861724,267.699184708824,314.228174454909" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Follower" Target="Coyote.Examples.Raft.Server(3).Candidate" Bounds="684.323913574219,826.360717773438,0,36.9600219726563" EventId="Coyote.Examples.Raft.Server+BecomeCandidate" Label="BecomeCandidate" LabelBounds="588.16388968189,841.360724455894,96.16,15.9599999999998" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Init" Target="Coyote.Examples.Raft.ElectionTimer(13).Init" Bounds="698.272858103719,485.452918007562,261.16577738596,243.028069398915" EventId="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Init" Target="Coyote.Examples.Raft.PeriodicTimer(14).Init" Bounds="685.534741670855,502.484712896143,21.0780511078248,225.996274510334" EventId="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Init" Target="Coyote.Examples.Raft.Server(3).Follower" Bounds="684.323913574219,754.440734863281,0,36.9599609375" EventId="Coyote.Examples.Raft.Server+BecomeFollower" Label="BecomeFollower" LabelBounds="597.12388968189,769.440724455893,87.1999999999998,15.96" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Leader" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Available" Bounds="391.121734757422,938.053302917086,265.427367486605,17.351666251894" />
+    <Link Source="Coyote.Examples.Raft.Server(3).Leader" Target="Coyote.Examples.Raft.SafetyMonitor(1).Monitoring" Bounds="706.562847279306,823.013655750318,207.699318217058,121.227036246003" EventId="Coyote.Examples.Raft.SafetyMonitor+NotifyLeaderElected" Label="NotifyLeaderElected" />
+    <Link Source="Coyote.Examples.Raft.Server(4)" Target="Coyote.Examples.Raft.Server(4).Candidate" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(4)" Target="Coyote.Examples.Raft.Server(4).Follower" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(4)" Target="Coyote.Examples.Raft.Server(4).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(4)" Target="Coyote.Examples.Raft.Server(4).Leader" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.ElectionTimer(11).Inactive" Bounds="1279.33206921614,691.958834634977,224.149323674614,168.060420466529" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.PeriodicTimer(12).Inactive" Bounds="1291.9357119582,885.979255101506,188.472256580768,81.7756699978668" EventId="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.PeriodicTimer(12).Init" Bounds="1298.92842502842,844.408522314463,184.700320647386,23.8290221002378" EventId="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.Server(3).Candidate" Bounds="730.230243311631,873.785165064007,494.881515050119,10.5377912739367" EventId="Coyote.Examples.Raft.Server+VoteResponse" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.Server(3).Leader" Bounds="721.004956069342,878.380065983853,504.106802292408,73.4929790283993" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.Server(4).Leader" Bounds="1262.01989746094,885.979309082031,0,36.9600219726563" EventId="Coyote.Examples.Raft.Server+BecomeLeader" Label="BecomeLeader" LabelBounds="1184.12659089568,900.979323333644,77.8933333333334,15.96" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.Server(5).Follower" Bounds="450.332411167175,885.481149681791,776.123894534683,272.397787869585" EventId="Coyote.Examples.Raft.Server+VoteRequest" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.Server(6).Follower" Bounds="1059.06654577814,885.979255101506,193.53479327874,266.710647710317" EventId="Coyote.Examples.Raft.Server+VoteRequest" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Candidate" Target="Coyote.Examples.Raft.Server(7).Follower" Bounds="739.372737696079,885.979255101506,498.888621770478,272.555549189023" EventId="Coyote.Examples.Raft.Server+VoteRequest" Label="VoteRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Follower" Target="Coyote.Examples.Raft.ElectionTimer(11).Init" Bounds="1274.74344017235,549.147236942608,234.227213963827,238.951974213585" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Follower" Target="Coyote.Examples.Raft.Server(4).Candidate" Bounds="1262.01989746094,814.059326171875,0,36.9600219726563" EventId="Coyote.Examples.Raft.Server+BecomeCandidate" Label="BecomeCandidate" LabelBounds="1165.85992422902,829.059323333644,96.1599999999999,15.96" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Init" Target="Coyote.Examples.Raft.ElectionTimer(11).Init" Bounds="1279.3319670143,548.118986918528,224.149341998904,168.060241327509" EventId="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Init" Target="Coyote.Examples.Raft.PeriodicTimer(12).Init" Bounds="1286.90635402413,739.957021067673,197.505685739435,85.6944681672724" EventId="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Init" Target="Coyote.Examples.Raft.Server(4).Follower" Bounds="1262.01989746094,742.139343261719,0,36.9599609375" EventId="Coyote.Examples.Raft.Server+BecomeFollower" Label="BecomeFollower" LabelBounds="1174.81992422902,757.139323333643,87.1999999999998,15.96" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Leader" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Available" Bounds="391.140223461594,934.205781018245,843.104868233496,10.3718609934546" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Leader" Target="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable" Bounds="397.926225494956,868.414874532999,836.318866200134,74.0453341862959" EventId="Coyote.Examples.Raft.ClusterManager+NotifyLeaderUpdate" Label="NotifyLeaderUpdate" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Leader" Target="Coyote.Examples.Raft.SafetyMonitor(1).Monitoring" Bounds="982.09697338062,822.093146475536,252.8322805596,110.93911846145" EventId="Coyote.Examples.Raft.SafetyMonitor+NotifyLeaderElected" Label="NotifyLeaderElected" />
+    <Link Source="Coyote.Examples.Raft.Server(4).Leader" Target="Coyote.Examples.Raft.Server(5).Follower" Bounds="450.831792806771,952.323861251712,783.413298888318,208.849994451251" EventId="Coyote.Examples.Raft.Server+AppendEntriesRequest" Label="AppendEntriesRequest" />
+    <Link Source="Coyote.Examples.Raft.Server(5)" Target="Coyote.Examples.Raft.Server(5).Follower" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(5)" Target="Coyote.Examples.Raft.Server(5).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(5).Follower" Target="Coyote.Examples.Raft.ElectionTimer(15).Init" Bounds="378.192204837771,1185.11725836306,27.3533782139257,85.3150777147023" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(5).Follower" Target="Coyote.Examples.Raft.Server(4).Candidate" Bounds="441.840262998432,888.461656262912,776.123894534683,272.397787869584" EventId="Coyote.Examples.Raft.Server+VoteResponse" Label="VoteResponse" />
+    <Link Source="Coyote.Examples.Raft.Server(5).Init" Target="Coyote.Examples.Raft.ElectionTimer(15).Init" Bounds="375.651847019226,1113.19721441775,31.4543945429687,156.980809220927" EventId="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(5).Init" Target="Coyote.Examples.Raft.PeriodicTimer(16).Init" Bounds="152.429246274495,1106.35415387102,232.277810273901,57.0189943195883" EventId="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(5).Init" Target="Coyote.Examples.Raft.Server(5).Follower" Bounds="409.707078579426,1113.19721441775,6.27324993729417E-05,36.9600439453229" EventId="Coyote.Examples.Raft.Server+BecomeFollower" Label="BecomeFollower" LabelBounds="413.707109945676,1123.6972329958,87.1999999999998,15.96" />
+    <Link Source="Coyote.Examples.Raft.Server(6)" Target="Coyote.Examples.Raft.Server(6).Follower" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(6)" Target="Coyote.Examples.Raft.Server(6).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(6).Follower" Target="Coyote.Examples.Raft.ElectionTimer(17).Init" Bounds="1076.69416753413,1183.68787688455,292.599195362439,97.1376703227565" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(6).Follower" Target="Coyote.Examples.Raft.Server(3).Candidate" Bounds="707.601607096193,903.898232777326,320.514192240509,256.075962516054" EventId="Coyote.Examples.Raft.Server+VoteResponse" Label="VoteResponse" />
+    <Link Source="Coyote.Examples.Raft.Server(6).Init" Target="Coyote.Examples.Raft.ElectionTimer(17).Init" Bounds="1067.91612743793,1113.57985053868,303.420346216084,161.604513490898" EventId="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(6).Init" Target="Coyote.Examples.Raft.PeriodicTimer(18).Init" Bounds="1069.36119527117,1104.53392945893,215.71074399999,30.19653632425" EventId="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(6).Init" Target="Coyote.Examples.Raft.Server(6).Follower" Bounds="1044.36134948864,1114.01427341905,0.000439126788705835,36.9599218749652" EventId="Coyote.Examples.Raft.Server+BecomeFollower" Label="BecomeFollower" LabelBounds="1048.36156905204,1124.51421059421,87.1999999999998,15.96" />
+    <Link Source="Coyote.Examples.Raft.Server(7)" Target="Coyote.Examples.Raft.Server(7).Follower" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(7)" Target="Coyote.Examples.Raft.Server(7).Init" Category="Contains" />
+    <Link Source="Coyote.Examples.Raft.Server(7).Follower" Target="Coyote.Examples.Raft.ElectionTimer(9).Init" Bounds="730.044554872079,1188.80977377942,203.717835892213,118.424072810042" EventId="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(7).Follower" Target="Coyote.Examples.Raft.Server(3).Candidate" Bounds="686.091326034268,907.251434217638,20.5794314606999,255.598339561782" EventId="Coyote.Examples.Raft.Server+VoteResponse" Label="VoteResponse" />
+    <Link Source="Coyote.Examples.Raft.Server(7).Follower" Target="Coyote.Examples.Raft.Server(4).Candidate" Bounds="731.474570927142,890.294224590397,498.888621770478,272.555549189023" EventId="Coyote.Examples.Raft.Server+VoteResponse" Label="VoteResponse" />
+    <Link Source="Coyote.Examples.Raft.Server(7).Follower" Target="Coyote.Examples.Raft.Server(4).Leader" Bounds="738.309262271311,959.797828331057,487.994752688492,203.287426550951" />
+    <Link Source="Coyote.Examples.Raft.Server(7).Init" Target="Coyote.Examples.Raft.ElectionTimer(9).Init" Bounds="722.771471352042,1116.88972983422,219.201505392058,188.975337826623" EventId="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(7).Init" Target="Coyote.Examples.Raft.PeriodicTimer(10).Init" Bounds="655.184264762608,1116.88972983422,48.9590416616566,177.906084582293" EventId="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" Label="ConfigureEvent" />
+    <Link Source="Coyote.Examples.Raft.Server(7).Init" Target="Coyote.Examples.Raft.Server(7).Follower" Bounds="707.715438541487,1116.88972983422,0.00025092999771914,36.9600439454073" EventId="Coyote.Examples.Raft.Server+BecomeFollower" Label="BecomeFollower" LabelBounds="711.715564006485,1127.38973822848,87.1999999999998,15.96" />
+  </Links>
+  <Categories>
+    <Category Id="Bug" Label="Bug" IsTag="True" />
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+    <Category Id="Server" Label="Server" IsTag="True" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="EventId" DataType="System.String" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsTag" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Server" ValueLabel="True">
+      <Condition Expression="HasCategory('Server')" />
+      <Setter Property="Background" Value="#FF4BA94A" />
+    </Style>
+  </Styles>
+</DirectedGraph>

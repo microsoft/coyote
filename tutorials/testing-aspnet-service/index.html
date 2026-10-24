@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/tutorials/testing-aspnet-service/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Testing an ASP.NET Core service - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Systematically testing an ASP.NET service", url: "#_top", children: [
+          ]},
+          {title: "What you will need", url: "#what-you-will-need", children: [
+          ]},
+          {title: "Build the sample", url: "#build-the-sample", children: [
+          ]},
+          {title: "Optional: deploying and running the sample locally", url: "#optional-deploying-and-running-the-sample-locally", children: [
+          ]},
+          {title: "Sample structure", url: "#sample-structure", children: [
+          ]},
+          {title: "The Image Gallery sample service", url: "#the-image-gallery-sample-service", children: [
+          ]},
+          {title: "Bugs in the service", url: "#bugs-in-the-service", children: [
+          ]},
+          {title: "How to run the unit tests", url: "#how-to-run-the-unit-tests", children: [
+          ]},
+          {title: "Coyote is here to help", url: "#coyote-is-here-to-help", children: [
+          ]},
+          {title: "How to run the Coyote systematic tests", url: "#how-to-run-the-coyote-systematic-tests", children: [
+          ]},
+          {title: "How to reproduce a buggy concurrent trace", url: "#how-to-reproduce-a-buggy-concurrent-trace", children: [
+          ]},
+          {title: "Troubleshooting", url: "#troubleshooting", children: [
+          ]},
+          {title: "Summary", url: "#summary", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../test-failover/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../test-failover/" class="btn btn-xs btn-link">
+        Test failover and liveness
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../mocks/optimistic-concurrency-control/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../mocks/optimistic-concurrency-control/" class="btn btn-xs btn-link">
+        Simulating optimistic concurrency control
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="systematically-testing-an-aspnet-service">Systematically testing an ASP.NET service</h2>
+<p>This sample shows how to use Coyote to <strong>systematically test</strong> an ASP.NET service. The sample
+ASP.NET service included here implements a simple <strong>image gallery</strong>. Please note that this sample
+service contains some interesting <em>bugs</em> on purpose. You can run the unit tests with and without
+Coyote and you can run the web front end using the Azure storage emulators.</p>
+<p><img alt="screenshot" src="../../assets/images/ImageGallery.png" /></p>
+<h2 id="what-you-will-need">What you will need</h2>
+<p>You will also need to:</p>
+<ul>
+<li>Install <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio 2022</a>.</li>
+<li>Install the <a href="../../get-started/install/">.NET 8.0 version of the coyote tool</a>.</li>
+<li>Be familiar with the <code>coyote</code> tool. See <a href="../../get-started/using-coyote/">using Coyote</a>.</li>
+<li>Clone the <a href="https://github.com/microsoft/coyote">Coyote git repo</a>.</li>
+</ul>
+<p>If you want to actually run the sample (rather than just running the unit tests) then you will also
+need the following:</p>
+<ul>
+<li><a href="https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator">Azure Storage
+Emulator</a> must be
+installed and running.</li>
+<li><a href="https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=cli%2Cssl-netstd21">Azure Cosmos
+Emulator</a>
+must be installed and running.</li>
+<li>Open Azure Cosmos Data Explorer from taskbar tray and copy the <code>Primary Connection String</code> from
+there into <code>~/ImageGalleryAspNet/ImageGalleryService/appsettings.json</code>.</li>
+</ul>
+<h2 id="build-the-sample">Build the sample</h2>
+<p>After cloning the <a href="https://github.com/microsoft/coyote">Coyote</a> git repo run the following command:</p>
+<pre><code>cd Samples/WebApps/ImageGalleryAspNet/
+dotnet build
+</code></pre>
+<h2 id="optional-deploying-and-running-the-sample-locally">Optional: deploying and running the sample locally</h2>
+<p>You do not need to do this unless you really want to, you can do all the unit testing using Coyote
+without running the development version of the service. But some people like to see the code running
+before they think about how to test it.</p>
+<p>Once all the above prerequisites are complete (including the storage emulators) you can run this app
+using two separate console windows as follows:</p>
+<pre><code class="language-shell">cd ImageGalleryService
+dotnet run
+</code></pre>
+<p>And in the second window:</p>
+<pre><code class="language-shell">cd ImageGallery
+dotnet run
+</code></pre>
+<p>Navigate your web browser to <code>http://localhost:5000/</code> and you will see the empty ImageGallery site.
+Create a new test account and upload some of your favorite photos (you can do more than one at a
+time) and you will see them appear. The &ldquo;dotnet run&rdquo; consoles will also show logging output that
+shows you what is happening behind the scenes.</p>
+<h2 id="sample-structure">Sample structure</h2>
+<p>The <code>ImageGallery.sln</code> solution consists of five projects (all will be discussed below):</p>
+<ul>
+<li><code>ImageGallery</code> - this is the web front end that uses the API service.</li>
+<li><code>ImageGalleryService</code> - this is the ASP.NET API service.</li>
+<li><code>ImageGalleryClient</code> - a helper API for talking to the service.</li>
+<li><code>Tests</code> - this contains two regular unit tests that use <code>MSTest</code>.</li>
+<li><code>Tests.Coyote</code> - this invokes the two tests in <code>Tests</code> wrapping them with the Coyote testing
+  engine.</li>
+<li><code>TraceReplayer</code> - makes it easy to reproduce the bugs found by <code>coyote test</code>.</li>
+</ul>
+<h2 id="the-image-gallery-sample-service">The Image Gallery sample service</h2>
+<p>This service is based on a 3-tier architecture: (1) a client (implemented by the unit tests and by
+the ImageGallery web front end), (2) two ASP.NET API services, one for managing accounts
+(<code>AccountController</code>) and one for managing image galleries (<code>GalleryController</code>) associated with
+these accounts, and (3) two backend storage systems used by these API services (Cosmos DB to
+store accounts, and Azure Blob Storage to store images).</p>
+<p>The <code>AccountController</code> has 4 APIs to <code>Create</code>, <code>Update</code>, <code>Get</code> and <code>Delete</code> an account. <code>Create</code>
+first checks if the account already exists, and if not it creates it in Cosmos DB. Similarly,
+<code>Update</code> and <code>Get</code> first check if the account exists and, if it does, it updates it, or returns it,
+accordingly. Finally, <code>Delete</code> first checks if the account exists, and if it does it deletes it from
+Cosmos DB and then also deletes the associated image container for this account from Azure Blob
+Storage.</p>
+<p>The <code>GalleryController</code> is similar. It has 4 APIs: <code>Store</code>, <code>Get</code>, <code>Delete</code> <code>GetList</code>. <code>Store</code>
+first checks if the account already exists in Cosmos DB and, if it does, it stores the image in
+Azure Blob Storage. <code>Get</code> is simple, it checks if the image blob exists, if it it does, it returns
+the image. Finally, <code>Delete</code> first checks if the account already exists in Cosmos DB and, if it
+does, it deletes the image blob from Azure Blob Storage. <code>GetList</code> can be used to enumerate
+the images in an account in pages.</p>
+<h2 id="bugs-in-the-service">Bugs in the service</h2>
+<p>As mentioned above, this service was designed in purpose to contain some interesting bugs to
+showcase systematic testing with Coyote. You can read the comments in the controllers for more
+details about the bugs, but briefly a lot of the above APIs have race conditions. For example, the
+controller checks that the account exists, and tries to update it, but another request could delete
+the account between those two operations, resulting in an unhandled exception, and thus a 500
+internal server error, which is a bad bug. The service should never return a 500 to its users!</p>
+<p>These kind of bugs involving race conditions between concurrent requests are hard to test. Unit
+tests are typically tailored to test sequential programs. Async race conditions can result in flaky
+tests and when you start debugging them, adding break points, and diving in, the race condition
+might just disappear, something known as a <a href="https://en.wikipedia.org/wiki/Heisenbug">Heisenbug</a>!</p>
+<p>We wrote two unit tests (using <code>MSTest</code> and <code>Microsoft.AspNetCore.Mvc.Testing</code>) to exercise the
+service and uncover bugs: <code>TestConcurrentAccountRequests</code> and
+<code>TestConcurrentAccountAndImageRequests</code>. The former only tests the <code>AccountController</code>, while the
+later tests both controllers at the same time. You can read more details in the comments for these
+tests, but let us quickly summarize what these tests do and what the bugs are.</p>
+<p>The <code>TestConcurrentAccountRequests</code> method initializes the mocks and injects them into the ASP.NET
+service, then creates a client, which does a <code>Create</code> account request to create a new account for
+Alice. It waits for this request to complete. It then <em>concurrently</em> invokes two requests: <code>Update</code>
+account and <code>Delete</code> account, and waits for both to complete. These requests are now racing, and
+because there is a race condition in the <code>AccountController</code> controller logic, the update request
+can fail due to an unhandled exception (500 error code) and this failure is nondeterministic. The
+issue is that the controller first checks if the account exists and, if it does, it then updates
+it. But after the &ldquo;does account exists check&rdquo;, the delete request could run, deleting the account!
+The update then tries to run which triggers the bug! Interestingly the non-coyote test run rarely
+finds this bug although it is possible to see it with the ImageGallery web front end if you use
+multiple browser windows and do batch upload and delete operations in each.</p>
+<p>The <code>TestConcurrentAccountAndImageRequests</code> initializes the mocks and injects them into the ASP.NET
+service, then creates a client, which does a <code>Create</code> account request to create a new account for
+Alice. It waits for this request to complete. It then <em>concurrently</em> invokes two requests: <code>Store</code>
+image and <code>Delete</code> account, and waits for both to complete. Similar to the above test, these
+requests are now racing, and because there is a race condition in the controller logic, the store
+request can nondeterministically store the image in an &ldquo;orphan&rdquo; container in Azure Storage, even
+if the associated account was deleted. This is more subtle bug because the request itself is not
+throwing an unhandled exception, it is just a sneaky race when trying to read/write from/to two
+backend systems at the same time. This issue is also a data race and you can see the detail in the
+controller logic.</p>
+<p>Most of the bugs described in this tutorial (and in the comments in the service code) can be fixed
+by catching the exceptions thrown by the (mock) storage systems (or checking their returned error
+codes) and returning back an appropriate non-500 error code to the client. Some of the bugs might
+also require to implement roll back logic in the case where a request updates one or more storage
+accounts in a non-transactional manner, which could result in stale data being stored, even if the
+the request failed.</p>
+<p>Before going further (and into Coyote), lets build and run the tests!</p>
+<h2 id="how-to-run-the-unit-tests">How to run the unit tests</h2>
+<p>Just run them from inside Visual Studio, or run the following:</p>
+<pre><code>cd Samples/WebApps/ImageGalleryAspNet/
+dotnet test bin/net8.0/ImageGalleryTests.dll
+</code></pre>
+<p>The tests may or may not trigger the bug! Most likely you will see this output:</p>
+<pre><code>Total tests: 2
+     Passed: 2
+ Total time: 1.2053 Seconds
+</code></pre>
+<p>And even if you do get them to fail, if you try to debug them, the bugs may or may not manifest (as
+they are <a href="https://en.wikipedia.org/wiki/Heisenbug">Heizenbugs</a>). We surely want some better way of
+testing concurrent code, right?</p>
+<h2 id="coyote-is-here-to-help">Coyote is here to help</h2>
+<p>You can learn more about the systematic testing capabilities of Coyote
+<a href="../../concepts/concurrency-unit-testing/">here</a>, but lets give a brief summary here to get quickly in action.</p>
+<p>Coyote serializes the execution of a concurrent program (i.e., only executes a single task at at
+time). A Coyote test executes this serialized program lots of times (called testing iterations),
+each time exploring different interleavings in a clever manner. If a bug is found, Coyote gives a
+trace that allows you to deterministically reproduce the bug. You can use the VS Debugger to go over
+the trace as many times as required to fix the bug.</p>
+<p>To be able to test this service, use Coyote&rsquo;s binary rewriting capabilities to instrument
+concurrency primitives (learn more about this <a href="../../get-started/using-coyote/">here</a>). This is
+handled by the build script above.</p>
+<h2 id="how-to-run-the-coyote-systematic-tests">How to run the Coyote systematic tests</h2>
+<p>Please do not run the MSTest from inside Visual Studio, as it will currently run the un-rewritten
+binaries (requires a post build task to get around this). Instead, once you build the service and
+the tests, run the following from the root directory of the repo:</p>
+<pre><code>coyote rewrite rewrite.coyote.json
+dotnet test bin/coyote/ImageGalleryTests.Coyote.dll
+</code></pre>
+<p>This will <a href="../../concepts/binary-rewriting/">rewrite</a> the tests, and then run the tests inside the
+Coyote testing engine, up to 1000 iterations each, and report any found bugs. The bug should be
+found most of the time after just a few iterations (as they are not too deep).</p>
+<p>Besides the error output, you should see a bug error such as:</p>
+<pre><code>X TestConcurrentAccountRequests [10s 407ms]
+  Error Message:
+   Assert.Fail failed. Found bug: Found unexpected error code.
+   Replay trace using Coyote by running:
+     TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.trace
+</code></pre>
+<p>Which also tells you how to reliably reproduce the bug using Coyote.</p>
+<h2 id="how-to-reproduce-a-buggy-concurrent-trace">How to reproduce a buggy concurrent trace</h2>
+<p>As you can see above, the <code>TestConcurrentAccountRequests</code> failed. This bug is nondeterministic, and
+if you try debug it without Coyote it might not always happen. However, Coyote gives you a reliable
+repro. Right now, someone can use the replay functionality from the <code>coyote replay</code> tool or
+programmatically through the replay API, but for the purposes of this sample there is a simple
+<code>TraceReplayer</code> executable that takes the name of the test and the trace file produced by Coyote,
+and replays it in the VS debugger. To do this, just invoke the command mentioned in the error above
+(change the paths to the ones on your machine):</p>
+<pre><code>cd bin/coyote
+TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.trace
+</code></pre>
+<p>You will also see that the trace output contains logs such as:</p>
+<pre><code class="language-text">[0HM34OD7O65E5] Creating account with id '0' (name: 'alice', email: 'alice@coyote.com').
+[0HM34OD7O65E5] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
+[0HM34OD7O65E5] Checking if item with partition key '0' and id '0' exists in container 'Accounts'.
+[0HM34OD7O65E5] Creating new item with partition key '0' and id '0' in container 'Accounts'.
+[0HM34OD7O65E7] Storing image with name 'beach' and account id '0'.
+[0HM34OD7O65E6] Deleting account with id '0'.
+[0HM34OD7O65E6] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
+[0HM34OD7O65E7] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
+[0HM34OD7O65E7] Checking if item with partition key '0' and id '0' exists in container 'Accounts'.
+[0HM34OD7O65E6] Checking if item with partition key '0' and id '0' exists in container 'Accounts'.
+[0HM34OD7O65E6] Deleting item with partition key '0' and id '0' in container 'Accounts'.
+[0HM34OD7O65E7] Creating container 'gallery-0' if it does not exist.
+[0HM34OD7O65E6] Deleting container 'gallery-0' if it exists.
+[0HM34OD7O65E7] Creating blob 'beach' in container 'gallery-0'.
+</code></pre>
+<p>In the above logs, the <code>[0HM34OD7O65E5]</code> prefix is the <code>HttpContext.TraceIdentifier</code> which is a
+unique id per HTTP request. This makes it easier to see how Coyote explores lots of async
+interleaving during testing and debugging. In this example you can see it bouncing between 3 async
+tasks <code>[0HM34OD7O65E5]</code>, <code>[0HM34OD7O65E6]</code> and <code>[0HM34OD7O65E7]</code> and this controlled interleaving
+of tasks can help find lots of bugs.</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p><strong>Login fails with an unhandled exception has occurred while executing the request.</strong></p>
+<p>Make sure the Azure storage emulators are running.</p>
+<p><strong>SocketException: No connection could be made because the target machine actively refused it.</strong></p>
+<p>Make sure the Azure storage emulators are running.</p>
+<p><strong>System.AggregateException: &lsquo;Retry failed after 6 tries</strong></p>
+<p>Make sure the Azure storage emulators are running. Make sure you can then connect to the azure
+storage emulator from the Azure storage <code>explorer</code>.</p>
+<h2 id="summary">Summary</h2>
+<p>In this tutorial you learned:</p>
+<ol>
+<li>How to mock external systems like Azure Cosmos DB and Azure Storage for systematic testing.</li>
+<li>How to use the <code>coyote rewrite</code> command line to rewrite an ASP.NET service with task-based
+   concurrency for systematic testing with Coyote.</li>
+<li>How to run a systematic test of unmodified code with Coyote inside an MSTest.</li>
+<li>How to replay a buggy trace of unmodified code with Coyote.</li>
+</ol>
+<p>Happy debugging!</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../test-failover/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../test-failover/" class="btn btn-xs btn-link">
+        Test failover and liveness
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../mocks/optimistic-concurrency-control/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../mocks/optimistic-concurrency-control/" class="btn btn-xs btn-link">
+        Simulating optimistic concurrency control
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

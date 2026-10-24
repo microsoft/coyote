@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="LeftToRight" Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="FailoverDriver" Bounds="231,93,92.2866666666666,25.96" UseManualLocation="True" />
+    <Node Id="MockStorage" Bounds="582.896666666667,-31,90.02,25.96" UseManualLocation="True" />
+    <Node Id="Navigator" Category="Category1" Bounds="525.076666666667,92,78.65,25.96" Label="Navigator1" UseManualLocation="True" />
+    <Node Id="Navigator1" Bounds="361.73,-31,78.65,25.96" Label="Navigator2" UseManualLocation="True" />
+    <Node Id="Robot" Bounds="383.71,47,52.0066666666667,25.96" />
+  </Nodes>
+  <Links>
+    <Link Source="FailoverDriver" Target="Navigator" Bounds="323.286643880208,105.148230010893,192.790077321139,0.671145647355132" Label="terminate" LabelBounds="394.174720132858,85.5238028344967,51,15.96" />
+    <Link Source="FailoverDriver" Target="Navigator1" Bounds="290.114065277525,1.32622786453897,91.6084866027371,91.6737831217891" Label="create" LabelBounds="302.060257942329,29.7894097834139,32.4433333333334,15.96" />
+    <Link Source="Navigator" Target="MockStorage" Bounds="571.103251271794,2.95700641664881,45.9729703384143,89.0429935833512" Label="store" LabelBounds="565.67261956369,30.6009763126003,26.6400000000001,15.96" />
+    <Link Source="Navigator1" Target="MockStorage" Bounds="440.38,-18.02,133.516666666667,1.77635683940025E-14" Label="pending request?" LabelBounds="460.958333333334,-37.98,92.3600000000001,15.96" />
+    <Link Source="Navigator1" Target="Robot" Bounds="402.495835444685,-5.03999999999995,4.78372254280748,43.0949410876077" Label="completed request" LabelBounds="408.887771706554,8.30681727764726,99.5866666666669,15.96" />
+    <Link Source="Robot" Target="Navigator" Bounds="435.716666463216,67.544564917977,81.0464834681029,23.5770320216004" Label="get drink" LabelBounds="469.638527258581,59.3697808049885,47.5966666666665,15.96" />
+  </Links>
+  <Categories>
+    <Category Id="Category1" Label="Category 1" Background="#FFE51400" IsTag="True" />
+  </Categories>
+  <Properties>
+    <Property Id="Background" Label="Background" Description="The background color" DataType="System.Windows.Media.Brush" />
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsTag" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Category 1" ValueLabel="Has category">
+      <Condition Expression="HasCategory('Category1')" />
+      <Setter Property="Background" Value="#FFE51400" />
+    </Style>
+  </Styles>
+</DirectedGraph>

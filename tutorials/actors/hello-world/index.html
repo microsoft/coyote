@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/tutorials/actors/hello-world/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello world with actors - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Hello world example with actors", url: "#_top", children: [
+          ]},
+          {title: "What you will need", url: "#what-you-will-need", children: [
+          ]},
+          {title: "Build the sample", url: "#build-the-sample", children: [
+          ]},
+          {title: "Run the HelloWorldActors application", url: "#run-the-helloworldactors-application", children: [
+          ]},
+          {title: "Finding the bug using Coyote test tool", url: "#finding-the-bug-using-coyote-test-tool", children: [
+          ]},
+          {title: "The Greeter", url: "#the-greeter", children: [
+          ]},
+          {title: "The inbox is crucial to the Actor model", url: "#the-inbox-is-crucial-to-the-actor-model", children: [
+          ]},
+          {title: "A TestActor", url: "#a-testactor", children: [
+          ]},
+          {title: "Summary", url: "#summary", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../raft-azure/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../raft-azure/" class="btn btn-xs btn-link">
+        Raft actor service (on Azure)
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../test-failover/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../test-failover/" class="btn btn-xs btn-link">
+        Test failover and liveness
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="hello-world-example-with-actors">Hello world example with actors</h2>
+<p><a href="https://github.com/microsoft/coyote/tree/main/Samples/HelloWorldActors">HelloWorldActors</a> is a
+simple program to get you started using the Coyote <a href="../../../concepts/actors/overview/">actors programming
+model</a>.</p>
+<h2 id="what-you-will-need">What you will need</h2>
+<p>To run the Hello World Actors  example, you will need to:</p>
+<ul>
+<li>Install <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio 2022</a>.</li>
+<li>Install the <a href="../../../get-started/install/">.NET 8.0 version of the coyote tool</a>.</li>
+<li>Be familiar with the <code>coyote</code> tool. See <a href="../../../get-started/using-coyote/">using Coyote</a>.</li>
+<li>Clone the <a href="https://github.com/microsoft/coyote">Coyote git repo</a>.</li>
+</ul>
+<h2 id="build-the-sample">Build the sample</h2>
+<p>You can build the sample by following the instructions
+<a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+<h2 id="run-the-helloworldactors-application">Run the HelloWorldActors application</h2>
+<p>Now you can run the HelloWorldActors application:</p>
+<pre><code class="language-plain">&quot;./Samples/bin/net8.0/HelloWorldActors.exe&quot;
+</code></pre>
+<p>Press the ENTER key to terminate the program when it is done. Note that a bug has been inserted into
+the code intentionally and will be caught by a Coyote <code>Assert</code>. The program should display 1 to 5
+greetings like <code>Hello World!</code> or <code>Good Morning</code>. The intentional bug is hard to reproduce when you
+run the program manually.</p>
+<p>The typical &ldquo;normal&rdquo; run will look like this:</p>
+<pre><code class="language-plain">press ENTER to terminate...
+Requesting 5 greetings
+Received greeting: Good Morning
+Received greeting: Hello World!
+Received greeting: Hello World!
+Received greeting: Hello World!
+Received greeting: Good Morning
+</code></pre>
+<p>When the error is caught, an extra line of output is written saying:</p>
+<pre><code class="language-plain">Exception 'Microsoft.Coyote.Runtime.AssertionFailureException' was thrown in 0 (action '1'):
+Too many greetings returned!
+</code></pre>
+<h2 id="finding-the-bug-using-coyote-test-tool">Finding the bug using Coyote test tool</h2>
+<p>See <a href="../../../get-started/using-coyote/">Using Coyote</a> for information on how to
+find the <code>coyote</code> test tool and setup your environment to use it.</p>
+<p>Enter the following from the command line:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/HelloWorldActors.dll --iterations 30
+</code></pre>
+<p>The result is:</p>
+<pre><code class="language-plain">. Testing .\Samples\bin\net8.0\HelloWorldActors.dll
+Starting TestingProcessScheduler in process 16432
+... Created '1' testing task.
+... Task 0 is using 'random' strategy (seed:308255541).
+..... Iteration #1
+..... Iteration #2
+... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing .\Samples\bin\net8.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
+..... Writing .\Samples\bin\net8.0\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.trace
+... Elapsed 0.0906639 sec.
+... Testing statistics:
+..... Found 1 bug.
+... Exploration statistics:
+..... Explored 2 schedules: 2 fair and 0 unfair.
+..... Found 50.00% buggy schedules.
+..... Number of scheduling decisions in fair terminating schedules: 23 (min), 30 (avg), 37 (max).
+... Elapsed 0.1819877 sec.
+. Done
+</code></pre>
+<p>The Coyote tester has found the bug very quickly&mdash;something that takes much longer if testing
+manually. When using Coyote for testing more complex, real-world systems the time savings can be
+huge! This will give you the ability to find and fix even the most difficult to reproduce
+concurrency bugs <strong>before pushing to production</strong>.</p>
+<p>To learn more about testing with Coyote read <a href="../../../get-started/using-coyote/">here</a>.</p>
+<h2 id="the-greeter">The Greeter</h2>
+<p>Please read <a href="../../../concepts/actors/overview/">Programming model: asynchronous
+actors</a> to gain a basic understanding of the
+Actors programming model.</p>
+<p>The core of an <code>Actor</code> based Coyote program, is, well, an <code>Actor</code> class! The following <code>Actor</code> named
+<code>Greeter</code> is able to receive a <code>RequestGreetingEvent</code> to which it responds with a <code>GreetingEvent</code>:</p>
+<pre><code class="language-csharp">[OnEventDoAction(typeof(RequestGreetingEvent), nameof(HandleGreeting))]
+public class Greeter : Actor
+{
+    /// This method is called when this actor receives a RequestGreetingEvent.
+    private void HandleGreeting(Event e)
+    {
+        if (e is RequestGreetingEvent ge)
+        {
+            string greeting = this.RandomBoolean() ? &quot;Hello World!&quot; : &quot;Good Morning&quot;;
+            this.SendEvent(ge.Caller, new GreetingEvent(greeting));
+            if (this.RandomBoolean(10))
+            {
+                // bug: a 1 in 10 chance of sending too many greetings.
+                this.SendEvent(ge.Caller, new GreetingEvent(greeting));
+            }
+        }
+    }
+}
+</code></pre>
+<p>Notice the <code>OnEventDoAction</code> custom attribute decorating the class.  This tells the Coyote runtime
+that this class expects to receive <code>RequestGreetingEvents</code>.  These events will be queued in the
+inbox for this <code>Actor</code> until the right time to dequeue them and process them. The custom attribute
+tells the <code>Coyote</code> runtime to call the <code>HandleGreeting</code> method.  The Coyote runtime will also report
+an error if a different type of event is sent to the <code>Greeter</code>.</p>
+<p>The <code>HandleGreeting</code> method is called with an <code>Event</code> parameter, and you know in this case the
+event will be of type <code>RequestGreetingEvent</code>.  This event is defined in <code>Events.cs</code> like this:</p>
+<pre><code class="language-csharp">internal class RequestGreetingEvent : Event
+{
+    public readonly ActorId Caller;
+
+    public RequestGreetingEvent(ActorId caller)
+    {
+        this.Caller = caller;
+    }
+}
+</code></pre>
+<h2 id="the-inbox-is-crucial-to-the-actor-model">The inbox is crucial to the Actor model</h2>
+<p>You can think of an <code>Event</code> declaration as a type of <strong>interface</strong> definition for <code>Actors</code>.  Events
+really define the interface of an <code>Actor</code> because the caller will never get to see the <code>Greeter</code>
+class, so the caller can&rsquo;t just call <code>HandleGreeting</code> directly. The caller only gets to see an
+<code>ActorId</code>, which is like a Coyote runtime handle to the actor.</p>
+<p><strong>There is a really important reason for this</strong>.</p>
+<p>Events are queued in an inbox managed by the <code>Actor</code> base class.  This serializes the incoming
+events so that at any given time, only one event is being handled in the <code>Greeter</code>.  This greatly
+simplifies concurrent programming. For example, there is no need to use <code>lock</code> to protect against
+data race conditions, and therefore no need to worry about deadlocks.  Each <code>Actor</code> instance can run
+in a separate thread, so all actors in the system can be hugely parallel, but at the same time the
+processing inside an <code>Actor</code> is incredibly simple.  So you get the best of both worlds, code that
+scales but is also easy to write.  An <code>Actor</code> receives messages, and can create other <code>Actor</code>
+objects, and can send events.</p>
+<p>Notice the <code>Greeter</code> gets an <code>ActorId</code> from the <code>RequestGreetingEvent</code> and uses that to send a
+greeting back to the caller using <code>SendEvent</code>:</p>
+<pre><code class="language-csharp">this.SendEvent(ge.Caller, new GreetingEvent(greeting));
+</code></pre>
+<p>You can also see the bug which has been injected deliberately, namely, it randomly returns more than
+one <code>GreetingEvent</code>.</p>
+<h2 id="a-testactor">A TestActor</h2>
+<p>To test this <code>Greeter</code> you will need to setup a <code>TestActor</code> which is done in <code>Program.cs</code>. The
+<code>TestActor</code> creates the <code>Greeter</code> and sends between 1 and 5 <code>RequestGreetingEvents</code>. The <code>TestActor</code>
+is declared in a way that tells the <code>Coyote</code> runtime it is expecting to receive <code>GreetingEvents</code> as
+follows:</p>
+<pre><code class="language-csharp">[OnEventDoAction(typeof(GreetingEvent), nameof(HandleGreeting))]
+</code></pre>
+<p>To make this a good test, the <code>TestActor</code> keeps track of how many greetings were sent and how many
+were received, and it writes an <code>Assert</code> to ensure it doesn&rsquo;t receive too many as follows:</p>
+<pre><code class="language-csharp">private void HandleGreeting(Event e)
+{
+    // this is perfectly thread safe, because all message handling in actors is
+    // serialized within the Actor class.
+    this.Count--;
+    string greeting = ((GreetingEvent)e).Greeting;
+    Console.WriteLine(&quot;Received greeting: {0}&quot;, greeting);
+    this.Assert(this.Count &gt;= 0, &quot;Too many greetings returned!&quot;);
+}
+</code></pre>
+<p>Lastly, to test the <code>TestActor</code> you need to fire up the Coyote runtime which is done in the <code>HostProgram</code>
+<code>Main</code> entry point as follows:</p>
+<pre><code class="language-csharp">public static void Main()
+{
+    var config = Configuration.Create();
+    IActorRuntime runtime = RuntimeFactory.Create(config);
+    Execute(runtime);
+
+    runtime.OnFailure += OnRuntimeFailure;
+
+    Console.WriteLine(&quot;press ENTER to terminate...&quot;);
+    Console.ReadLine();
+}
+</code></pre>
+<p>Notice that Coyote actors run in parallel, so you have to stop the program from terminating
+prematurely, which can be done with a <code>Console.ReadLine</code> call.  In order for this program to also be
+testable using the <code>coyote test</code> tool, you need to declare a test method as follows:</p>
+<pre><code class="language-csharp">[Microsoft.Coyote.SystematicTesting.Test]
+public static void Execute(IActorRuntime runtime)
+{
+    runtime.CreateActor(typeof(TestActor));
+}
+</code></pre>
+<p>The <code>coyote test</code> tool will call this method.  But it will <strong>not</strong> call your <code>Main</code> entry point. So
+this <code>Execute</code> method needs to be standalone.  It cannot depend on anything except statically
+initialized variables.  There is no way to get command line arguments from <code>coyote</code> test through to
+this method.</p>
+<p>This <code>Execute</code> method is very simple, it just creates the <code>TestActor</code>.  In Coyote once an actor is
+created it lives forever until it is halted.  Note that Coyote programs can run forever, the <code>coyote test</code>
+tool has ways of interrupting and restarting this <code>Execute</code> method based on <code>--iterations</code> and
+<code>--max-steps</code> arguments provided to the test tool.</p>
+<p>So now you know what happened when you ran the following command line:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/HelloWorldActors.exe --iterations 30
+</code></pre>
+<p>A special coyote <code>TestingEngine</code> was created, it invoked the <code>Execute</code> method 30 times, and during
+those executions the test engine took over all concurrent activity and the non-determinism (like
+<code>RandomInteger</code>) to ensure the program covered lots of async non-deterministic choices, and recorded
+all this in a way that when a bug was found, it is able to reproduce that bug.  See also <a href="../../../get-started/using-coyote/">Using
+Coyote</a> for information on how to replay a test that found a bug
+using <code>coyote replay</code>.</p>
+<h2 id="summary">Summary</h2>
+<p>In this tutorial you learned:</p>
+<ol>
+<li>How to create an <code>Actor</code> and use <code>SendEvent</code> to send messages to it.</li>
+<li>How an <code>Actor</code> can handle events using <code>OnEventDoAction</code>.</li>
+<li>The importance of the inbox to simplify parallel programming.</li>
+<li>How to run the HelloWorldActors sample from the command-line.</li>
+<li>How to use <code>Assert</code> in Coyote code.</li>
+<li>How to write a <code>[Test]</code> method for use in <code>coyote test</code> runs.</li>
+<li>How to run that test using the <code>coyote test</code> tool.</li>
+</ol>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../raft-azure/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../raft-azure/" class="btn btn-xs btn-link">
+        Raft actor service (on Azure)
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../test-failover/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../test-failover/" class="btn btn-xs btn-link">
+        Test failover and liveness
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

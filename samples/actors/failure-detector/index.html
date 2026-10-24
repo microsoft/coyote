@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/samples/actors/failure-detector/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bug in failure detector - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Bug in failure detector", url: "#_top", children: [
+          ]},
+          {title: "What you will need", url: "#what-you-will-need", children: [
+          ]},
+          {title: "Build the sample", url: "#build-the-sample", children: [
+          ]},
+          {title: "Run the sample", url: "#run-the-sample", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../failover-robot-navigator/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../failover-robot-navigator/" class="btn btn-xs btn-link">
+        Robot navigator failover
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../tasks/bounded-buffer/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../tasks/bounded-buffer/" class="btn btn-xs btn-link">
+        Deadlock in bounded-buffer
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="bug-in-failure-detector">Bug in failure detector</h2>
+<p>There is a particularly hard bug to find in the <code>coyote/Samples/Monitors</code> sample application. If you
+run this application from your command prompt it will write output forever. It seems perfectly
+happy, right?  But there is a bug that happens rarely, the kind of pesky bug that would keep you up
+late at night scratching your head. Read further to learn how to find this bug using Coyote!</p>
+<h2 id="what-you-will-need">What you will need</h2>
+<p>You will also need to:</p>
+<ul>
+<li>Install <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio 2022</a>.</li>
+<li>Install the <a href="../../../get-started/install/">.NET 8.0 version of the coyote tool</a>.</li>
+<li>Be familiar with the <code>coyote</code> tool. See <a href="../../../get-started/using-coyote/">using Coyote</a>.</li>
+<li>Clone the <a href="https://github.com/microsoft/coyote">Coyote git repo</a>.</li>
+</ul>
+<h2 id="build-the-sample">Build the sample</h2>
+<p>You can build the sample by following the instructions
+<a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+<h2 id="run-the-sample">Run the sample</h2>
+<p>Let&rsquo;s see if Coyote can find the bug in this sample. Type <code>coyote -?</code> to see the help page to make
+sure you have installed it correctly. Now you are ready to run a <code>coyote</code> test as follows:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/Monitors.dll --iterations 1000 -ms 200
+</code></pre>
+<p>This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to find. It can be
+found using the <code>prioritization</code> exploration strategy with a given maximum number of priority switch
+points <code>--strategy prioritization</code> (or with the default <code>random</code> exploration strategy, but with a
+much larger number of iterations, typically more than 100,000 of them).</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/Monitors.dll --iterations 1000 -ms 200 -s prioritization -sv 10
+</code></pre>
+<p>Even then you might need to run it a few times to catch the bug. Set <code>--iterations</code> to a bigger
+number if necessary. You can also let <code>coyote</code> decide which exploration strategy to use. Just use
+<code>--strategy portfolio</code> Coyote will select and run different exploration strategies for you. <code>coyote</code>
+manages the portfolio to give you the best chance of revealing bugs. These strategies were developed
+from real-world experience on large products in Microsoft Azure. When you use the right scheduling
+strategy, you will see a bug report:</p>
+<pre><code class="language-plain">... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing .\Samples\bin\net8.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.txt
+..... Writing .\Samples\bin\net8.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.trace
+</code></pre>
+<p>The <code>*.txt</code> file is the text log of the iteration that found the bug. The <code>*.trace</code> contains the
+information needed to reproduce the bug.</p>
+<p>Finding a hard to find bug is one thing, but if you can&rsquo;t reproduce this bug while debugging there
+is no point. So the <code>*.trace</code> can be used with the <code>coyote replay</code> command as follows:</p>
+<pre><code class="language-plain">coyote replay ./Samples/bin/net8.0/Monitors.dll
+    .\Samples\bin\net8.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.trace
+
+. Reproducing trace in ./Samples/bin/net8.0/Monitors.exe
+... Reproduced 1 bug.
+... Elapsed 0.1724228 sec.
+</code></pre>
+<p>Attach a debugger during replay and you can see what exactly is going wrong.</p>
+<p>You might be wondering what the <code>Monitors</code> sample app is really doing. The <code>coyote</code> command line
+tool can help you with that also. If you run the following command line it will produce a DGML
+diagram of the state machines that are being tested:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/Monitors.dll --iterations 10 --max-steps 20 --actor-graph
+</code></pre>
+<p>You will see the following output:</p>
+<pre><code class="language-plain">... Emitting graph:
+..... Writing .\Samples\bin\net8.0\Output\Monitors.exe\CoyoteOutput\Monitors_0_1.dgml
+</code></pre>
+<p>Open the DGML diagram using Visual Studio 2022 and you will see the following:</p>
+<p><img alt="monitors" src="../../../assets/images/Monitors.svg" /></p>
+<p>Download the <a href="../../../assets/images/Monitors.dgml">Monitors.dgml</a> file to view it interactively using
+Visual Studio. Make sure the downloaded file keeps the file extension <code>.dgml</code>. Use CTRL+A to select
+everything and this will show you all the detailed links as well.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../failover-robot-navigator/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../failover-robot-navigator/" class="btn btn-xs btn-link">
+        Robot navigator failover
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../tasks/bounded-buffer/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../tasks/bounded-buffer/" class="btn btn-xs btn-link">
+        Deadlock in bounded-buffer
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/concepts/actors/synchronous-execution/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Synchronous execution - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Obsolete", url: "#_top", children: [
+          ]},
+          {title: "Synchronous execution of actors", url: "#synchronous-execution-of-actors", children: [
+          ]},
+          {title: "Potential deadlocks with ReceiveEventAsync", url: "#potential-deadlocks-with-receiveeventasync", children: [
+          ]},
+          {title: "Extracting information from an actor", url: "#extracting-information-from-an-actor", children: [
+          ]},
+          {title: "Running an actor synchronously", url: "#running-an-actor-synchronously", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+      
+
+      <h2 id="obsolete">Obsolete</h2>
+<p><strong>Note:</strong> <em>these api&rsquo;s are now obsolete</em> and it is recommended instead that you use the
+<a href="../event-groups/">Event Group</a> construct to track the
+asynchronous completion of operations across your actors.</p>
+<h2 id="synchronous-execution-of-actors">Synchronous execution of actors</h2>
+<p>Coyote offers the following APIs (and overloads) for synchronous execution of actor creation and
+event sending.</p>
+<pre><code class="language-csharp">Task&lt;ActorId&gt; CreateActorAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
+Task&lt;bool&gt; SendEventAndExecuteAsync(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null);
+</code></pre>
+<p>Both of these are <code>async</code> methods and must be <code>awaited</code> by the caller. The method
+<code>CreateActorAndExecuteAsync</code> when awaited, returns only when the newly created actor becomes idle.
+That is, it creates the actor, passes it the initial event <code>e</code>, starts executing the actor, and then
+waits for the actor to become idle. An actor is idle when no events can be received from its inbox.
+The method <code>SendEventAndExecuteAsync</code> when awaited has two possible executions. If the <code>target</code>
+actor is running (i.e., it is not idle) then the method only enqueues the event and returns
+immediately with the return value <code>false</code>. If the <code>target</code> actor was idle then the method enqueues
+the event (which causes the <code>target</code> actor to start executing) and waits until the actor becomes
+idle again. In this case, the method returns <code>true</code> indicating that the event has been processed by
+the <code>target</code> actor.</p>
+<p>Note that this is only one level deep. If the event handler invoked by the actor creation or event
+handling decides to send more events to other actors, then the above synchronous methods do <strong>not</strong>
+wait for that additional work to be completed, unless those events are sent to <code>this.Id</code> which does
+stop the actor from becoming idle.</p>
+<p>Another type of synchronous execution is provided by the <code>Actor</code> method <code>ReceiveEventAsync</code>. This
+method allows an actor to wait for a given type of event to be received, and can even provide a
+predicate that conditionally receives the event. This means instead of declaring an event handler
+like this which means you can receive this event any time and call HandlePoing:</p>
+<pre><code class="language-csharp">[OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
+</code></pre>
+<p>You can instead explicitly receive the event in a specific place in your actor like this so that the
+event is not generally handled at other times:</p>
+<pre><code class="language-csharp">Event e = await this.ReceiveEventAsync(typeof(PongEvent));
+HandlePong(e);
+</code></pre>
+<p>A second overload of <code>ReceiveEventAsync</code> allows you to provide a list of event types each with their
+own predicates. This version of the method receives the first matching event.</p>
+<p>A <code>ReceiveEventAsync</code> call blocks all non-matching events from being dequeued from the actor&rsquo;s inbox.</p>
+<h2 id="potential-deadlocks-with-receiveeventasync">Potential deadlocks with ReceiveEventAsync</h2>
+<p>You should be careful with the use of <code>ReceiveEventAsync</code> when using <code>CreateActorAndExecuteAsync</code>
+and <code>SendEventAndExecuteAsync</code>. In the absence of <code>ReceiveEventAsync</code>, the semantics of these
+methods guarantee that the program cannot deadlock. With a <code>ReceiveEventAsync</code> the following
+situation can occur. Let&rsquo;s suppose there are two actors <code>A</code> and <code>B</code> and the latter is idle. Then
+actor <code>A</code> does <code>SendEventAndExecuteAsync</code> to pass an event <code>e</code> to <code>B</code>. Because <code>B</code> was idle, <code>A</code>
+will wait until <code>B</code> becomes idle again. But if <code>B</code> executes a <code>ReceiveEventAsync</code> while processing
+the event <code>e</code>, expecting another event from <code>A</code> then the program deadlocks. (Blocking on a
+<code>ReceiveEventAsync</code> is not considered as being idle.)</p>
+<h2 id="extracting-information-from-an-actor">Extracting information from an actor</h2>
+<p>Suppose there is a Coyote actor <code>M1</code> that holds some information that you are interested in grabbing.
+The usual way of getting this information would be to <code>SendEvent</code> a &ldquo;get&rdquo; message to <code>M1</code> and then
+wait for its response via <code>ReceiveEventAsync</code>. However, a <code>ReceiveEventAsync</code> can only be executed
+by an actor. How do you get the result outside the context of an actor, from, say, a static method?
+One option is to use these <code>*AndExecuteAsync</code> methods. First define a trampoline actor <code>T</code> that you
+create from your static method via <code>CreateActorAndExecuteAsync</code>. The trampoline actor, in its
+<code>OnEntry</code> method of the start state (which is called immediately when a actor is created), sends the
+&ldquo;get&rdquo; message to <code>M1</code> and waits for its response via <code>ReceiveEventAsync</code>. Once it gets the response,
+it can stash the result in an object that can be safely shared with the calling static method
+without any race conditions.</p>
+<p>You can use a <a href="../sharing-objects/">SharedRegister</a>, which will rule out race conditions as well, but
+this still requires a separate protocol to know when the result has been made available.</p>
+<h2 id="running-an-actor-synchronously">Running an actor synchronously</h2>
+<p>Another programming pattern is to drive an actor synchronously. The program can do
+<code>CreateActorAndExecuteAsync</code> to create the actor, then repeatedly do <code>SendEventAndExecuteAsync</code> to
+make the actor process events one after another. Let&rsquo;s consider an example. Suppose that we need to
+define a actor <code>M</code> that is easily decomposed into two smaller actors <code>M1</code> and <code>M2</code>. For each
+incoming event, <code>M</code> decides to run one of the two actors; there is no need to run them in parallel.
+In this case, you only need to code up the smaller actors <code>M1</code> and <code>M2</code>. The actor <code>M</code> can be a
+simple wrapper. On instantiation, <code>M</code> creates the two child actors as follows:</p>
+<pre><code class="language-csharp">ActorId m1 = this.CreateActorAndExecuteAsync(typeof(M1), ...);
+ActorId m2 = this.CreateActorAndExecuteAsync(typeof(M2), ...);
+</code></pre>
+<p>When <code>M</code> receives an event <code>e</code>, it will choose to run the appropriate actor as follows:</p>
+<pre><code class="language-csharp">if (SomeCondition(e))
+{
+   bool b1 = await this.SendEventAndExecuteAsync(m1, e);
+   this.Assert(b1);
+}
+else
+{
+   bool b2 = await this.SendEventAndExecuteAsync(m2, e);
+   this.Assert(b2);
+}
+</code></pre>
+<p>Note that the two assertions above are guaranteed to never fail because the <code>m1</code> and <code>m2</code> actors are
+always left in an idle state by <code>M</code>, provided that <code>M</code> never gives out the <code>ActorId</code> of <code>m1</code> or <code>m2</code>
+to any other actors and does not so long as <code>M1</code> and <code>M2</code> do not queue other events on themselves
+using <code>SendEvent</code>.</p>
+
+    <br>
+      
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="ConsoleApp14.Test+MyActor" Category="Category2" Bounds="10.2766666666666,0,193.843333333333,85.96" Group="Expanded" />
+    <Node Id="ConsoleApp14.Test+MyTestActor" Category="Category2" Bounds="0,117.6475,214.396666666667,85.96" Group="Expanded" />
+    <Node Id="MyActor" Bounds="74.6299999999999,40,65.1366666666668,25.96" />
+    <Node Id="MyTestActor" Bounds="64.3533333333333,157.6475,85.69,25.96" />
+  </Nodes>
+  <Links>
+    <Link Source="ConsoleApp14.Test+MyActor" Target="MyActor" Category="Contains" />
+    <Link Source="ConsoleApp14.Test+MyTestActor" Target="MyTestActor" Category="Contains" />
+    <Link Source="MyActor" Target="MyTestActor" Bounds="-1114.91583450329,-697.039989013672,4.45099699839875,112.00708678695" />
+    <Link Source="MyTestActor" Target="MyActor" Bounds="-1114.55846978677,-688.04708678695,4.45099699839875,112.00708678695" />
+  </Links>
+  <Categories>
+    <Category Id="Category2" Label="Category 2" Background="#FF339933" IsTag="True" />
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+  </Categories>
+  <Properties>
+    <Property Id="Background" Label="Background" Description="The background color" DataType="System.Windows.Media.Brush" />
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsTag" DataType="System.Boolean" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Category 2" ValueLabel="Has category">
+      <Condition Expression="HasCategory('Category2')" />
+      <Setter Property="Background" Value="#FF339933" />
+    </Style>
+  </Styles>
+</DirectedGraph>

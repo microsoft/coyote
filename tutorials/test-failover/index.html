@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/tutorials/test-failover/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test failover and liveness - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Test failover and liveness", url: "#_top", children: [
+          ]},
+          {title: "What you will need", url: "#what-you-will-need", children: [
+          ]},
+          {title: "Build the sample", url: "#build-the-sample", children: [
+          ]},
+          {title: "Run the failover coffee machine application", url: "#run-the-failover-coffee-machine-application", children: [
+          ]},
+          {title: "The Coffee Machine", url: "#the-coffee-machine", children: [
+          ]},
+          {title: "Coyote testing", url: "#coyote-testing", children: [
+              {title: "Testing the scheduling of highly asynchronous operations", url: "#testing-the-scheduling-of-highly-asynchronous-operations" },
+              {title: "Liveness monitor", url: "#liveness-monitor" },
+              {title: "Reliable termination handshake", url: "#reliable-termination-handshake" },
+          ]},
+          {title: "Summary", url: "#summary", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../actors/hello-world/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../actors/hello-world/" class="btn btn-xs btn-link">
+        Hello world with actors
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../testing-aspnet-service/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../testing-aspnet-service/" class="btn btn-xs btn-link">
+        Testing an ASP.NET Core service
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="test-failover-and-liveness">Test failover and liveness</h2>
+<p><em>Wikipedia</em> provides this <a href="https://en.wikipedia.org/wiki/Failover">definition</a>: &ldquo;<strong>Failover</strong> is
+switching to a redundant or standby computer server, system, hardware component or network upon the
+failure or abnormal termination of the previously active application, server, system, hardware
+component, or network. Systems designers usually provide failover capability in servers, systems or
+networks requiring near-continuous availability and a high degree of reliability.&rdquo;</p>
+<p>This sample applies the failover concept to the firmware of an automated espresso machine using the
+Coyote <a href="../../concepts/tasks/overview/">asynchronous tasks</a> programming model. Imagine what
+would happen if the tiny CPU running the machine rebooted in the middle of making a coffee. What
+bad things might happen? Can we design a code that can handle this scenario and provide a more fault
+tolerant coffee machine?</p>
+<p>An identical version of this tutorial is also available that uses the coyote <a href="../actors/test-failover/">asynchronous
+actors</a> programming model.</p>
+<p>The following diagram shows how Coyote can be used to test this scenario and help you design more
+reliable software.</p>
+<p><img alt="FailoverCoffeeMachine" src="../../assets/images/FailoverCoffeeMachine.svg" /></p>
+<p>The <code>CoffeeMachine</code> is modeled as an asynchronous interface using
+<a href="../../concepts/tasks/overview/">controlled Tasks</a>. This example it not providing real
+firmware, instead it <code>mocks</code> the hardware sensor platform built into the machine. This is done in
+the asynchronous <code>MockSensors</code> class. This class provides async ways of reading sensor values like
+the water temperature and setting things like the power button, or turning on and off the coffee
+grinder and so on.</p>
+<p>The reason we are using an asynchronous design is that even in the smallest of devices, often times
+there is a message passing architecture where different hardware components are connected via some
+sort of bus, whether it is a simple serial port, or something more sophisticated like a <a href="https://en.wikipedia.org/wiki/CAN_bus">CAN
+bus</a>.</p>
+<p>We will test that we can kill the <code>CoffeeMachine</code> and restart it without anything bad happening.
+This test is setup by the <code>FailoverDriver</code>. The FailoverDriver lets the first <code>CoffeeMachine</code>
+instance run for a bit then it randomly kills it by using the <code>TerminateAsync</code> method, then it
+starts a new <code>CoffeeMachine</code>. The new <code>CoffeeMachine</code> instance needs to figure out the state of the
+sensors such that when a <code>MakeCoffeeEvent</code> arrives, it doesn&rsquo;t do something silly that breaks the
+machine. The <code>MockSensors</code> class is not killed so that it acts as a persistent store for sensor state
+across all instances of the <code>CoffeeMachine</code>.</p>
+<p>Some safety <code>Asserts</code> are placed in the code that verify certain important things, including:
+- do not turn on heater if there is no water
+- do not turn on grinder if there are no beans in the hopper
+- do not turn on shot maker if there is no water</p>
+<p>There is also a correctness assert in the <code>CoffeeMachine</code> to make sure the correct number of
+espresso shots are made and there is a <code>LivenessMonitor</code> that monitors the <code>CoffeeMachine</code> to make
+sure it never gets stuck, i.e., it always finishes the job it was given or it goes to an error state
+if the machine needs to be fixed. See <a href="../../how-to/liveness-checking/">Liveness Checking</a>.</p>
+<p>A number of excellent bugs were found by Coyote during the development of this sample, and this
+illustrates the fact that Coyote can be applied to any type of asynchronous software, not just cloud
+services. There is still one bug remaining in the code which you can find using <code>coyote test</code>, and
+it happens after failover just to prove the usefulness of this testing methodology.</p>
+<h2 id="what-you-will-need">What you will need</h2>
+<p>To run the <code>CoffeeMachine</code> example, you will need to:</p>
+<ul>
+<li>Install <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio 2022</a>.</li>
+<li>Install the <a href="../../get-started/install/">.NET 8.0 version of the coyote tool</a>.</li>
+<li>Be familiar with the <code>coyote</code> tool. See <a href="../../get-started/using-coyote/">using Coyote</a>.</li>
+<li>Clone the <a href="https://github.com/microsoft/coyote">Coyote git repo</a>.</li>
+</ul>
+<h2 id="build-the-sample">Build the sample</h2>
+<p>You can build the sample by following the instructions
+<a href="https://github.com/microsoft/coyote/tree/main/Samples/README.md">here</a>.</p>
+<h2 id="run-the-failover-coffee-machine-application">Run the failover coffee machine application</h2>
+<p>Now you can run the <code>CoffeeMachine</code> application:</p>
+<pre><code class="language-plain">./Samples/bin/net8.0/CoffeeMachineTasks.exe
+</code></pre>
+<h2 id="the-coffee-machine">The Coffee Machine</h2>
+<p>There are many different types of coffee machines. This example is based on the following machine
+which can automatically heat water, grind beans, and make an espresso shot all with the press of a
+button:</p>
+<p><img alt="image" src="../../assets/images/GaggiaEspresso.png" /></p>
+<p>The following diagram shows the abstract state machine that is implemented in C# code:</p>
+<p><img alt="image" src="../../assets/images/CoffeeMachineTasks.svg" /></p>
+<p>Run the executable without using <code>coyote test</code> (this is called running in <code>production mode</code>), you
+will see the following console output. Notice in the output below that the <code>FailoverDriver</code> forces
+the termination of the <code>CoffeeMachine</code> right in the middle of making a coffee. Then when the
+<code>CoffeeMachine</code> is restarted, the <code>FailoverDriver</code> requests another coffee and the <code>CoffeeMachine</code>
+is able to continue on, the water is already warm, and it dumps the old grinds so you have the
+freshest possible coffee each time.</p>
+<pre><code class="language-xml">&lt;FailoverDriver&gt; #################################################################
+&lt;FailoverDriver&gt; starting new CoffeeMachine iteration 0.
+&lt;CoffeeMachine&gt; initializing...
+&lt;CoffeeMachine&gt; checking initial state of sensors...
+&lt;CoffeeMachine&gt; Water level is 23 %
+&lt;CoffeeMachine&gt; Hopper level is 85 %
+&lt;CoffeeMachine&gt; Warming the water to 100 degrees
+&lt;CoffeeMachine&gt; Turning on the water heater
+&lt;CoffeeMachine&gt; Coffee machine is warming up (71 degrees)...
+&lt;CoffeeMachine&gt; Coffee machine is warming up (81 degrees)...
+&lt;CoffeeMachine&gt; Coffee machine is warming up (91 degrees)...
+&lt;CoffeeMachine&gt; Coffee machine water temperature is now 100
+&lt;CoffeeMachine&gt; Coffee machine water temperature is now 100
+&lt;CoffeeMachine&gt; Coffee machine is ready to make coffee (green light is on)
+&lt;CoffeeMachine&gt; Turning off the water heater
+&lt;CoffeeMachine&gt; Coffee machine is ready to make coffee (green light is on)
+&lt;CoffeeMachine&gt; Coffee requested, shots=2
+&lt;CoffeeMachine&gt; Grinding beans...
+&lt;CoffeeMachine&gt; PortaFilter is 10 % full
+&lt;CoffeeMachine&gt; PortaFilter is 20 % full
+&lt;CoffeeMachine&gt; PortaFilter is 30 % full
+&lt;FailoverDriver&gt; forcing termination of CoffeeMachine.
+&lt;CoffeeMachine&gt; Coffee Machine Terminating...
+&lt;CoffeeMachine&gt; Dumping the grinds!
+&lt;CoffeeMachine&gt; #################################################################
+&lt;CoffeeMachine&gt; # Coffee Machine Halted                                         #
+&lt;CoffeeMachine&gt; #################################################################
+&lt;CoffeeMachine&gt;
+&lt;FailoverDriver&gt; #################################################################
+&lt;FailoverDriver&gt; starting new CoffeeMachine iteration 1.
+&lt;CoffeeMachine&gt; initializing...
+&lt;CoffeeMachine&gt; checking initial state of sensors...
+&lt;CoffeeMachine&gt; Water level is 22 %
+&lt;CoffeeMachine&gt; Hopper level is 38 %
+&lt;CoffeeMachine&gt; Warming the water to 100 degrees
+&lt;CoffeeMachine&gt; Coffee machine water temperature is now 100
+&lt;CoffeeMachine&gt; Coffee machine is ready to make coffee (green light is on)
+&lt;CoffeeMachine&gt; Coffee requested, shots=3
+&lt;CoffeeMachine&gt; Grinding beans...
+&lt;CoffeeMachine&gt; PortaFilter is 10 % full
+&lt;CoffeeMachine&gt; PortaFilter is 20 % full
+&lt;CoffeeMachine&gt; PortaFilter is 30 % full
+&lt;CoffeeMachine&gt; PortaFilter is 40 % full
+&lt;CoffeeMachine&gt; PortaFilter is 50 % full
+&lt;CoffeeMachine&gt; PortaFilter is 60 % full
+&lt;CoffeeMachine&gt; PortaFilter is 70 % full
+&lt;CoffeeMachine&gt; PortaFilter is 80 % full
+&lt;CoffeeMachine&gt; PortaFilter is 90 % full
+&lt;CoffeeMachine&gt; PortaFilter is full
+&lt;CoffeeMachine&gt; Making shots...
+&lt;CoffeeMachine&gt; Shot count is 0
+&lt;CoffeeMachine&gt; Shot count is 1
+&lt;CoffeeMachine&gt; 2 shots completed and 2 shots requested!
+&lt;CoffeeMachine&gt; Dumping the grinds!
+&lt;FailoverDriver&gt; CoffeeMachine completed the job.
+...
+</code></pre>
+<p>You will not see this exact output because the test injects some randomness.</p>
+<p>The test will continue on making coffee until it runs out of either water or coffee beans and the
+<code>FailoverDriver</code> halts each <code>CoffeeMachine</code> instance at random times until the machine is out of
+resources, at which point the test is complete. The <code>MockSensors</code> also randomly choose some error
+conditions, so instead of the above you may see some errors like:</p>
+<pre><code class="language-xml">&lt;CoffeeMachine&gt; Cannot safely operate coffee machine with the door open!
+&lt;CoffeeMachine&gt; Coffee machine needs manual refilling of water and/or coffee beans!
+</code></pre>
+<p>If you see these errors, just press ENTER to terminate the program and run it again. These random
+start conditions just help the test cover more cases.</p>
+<p>Each halted machine is terminated and discarded, then a new <code>CoffeeMachine</code> instance is started.
+Each new <code>CoffeeMachine</code> instance must figure out what is happening with the sensors and make the
+next coffee without incident. Eventually a <code>CoffeeMachine</code> will report there is no more water or
+coffee beans and then it will stop with an error message saying the machine needs to be manually
+refilled.</p>
+<h2 id="coyote-testing">Coyote testing</h2>
+<p>You can now use <a href="../../get-started/using-coyote/">coyote test</a> to exercise the code and see if any
+bugs can be found. First you need to rewrite the assembly, from the <code>Samples</code> directory:</p>
+<pre><code class="language-plain">coyote rewrite ./Samples/bin/net8.0/CoffeeMachineTasks.dll
+</code></pre>
+<p>Then you can run the test:</p>
+<pre><code class="language-plain">coyote test ./Samples/bin/net8.0/CoffeeMachineTasks.dll -i 1000 -ms 500 -s fair-prioritization -sv 10
+</code></pre>
+<p>Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
+that a test output log is produced, like this:</p>
+<pre><code class="language-plain">.\Samples\bin\net8.0\Output\CoffeeMachineTasks.exe\CoyoteOutput\CoffeeMachine_0_0.txt
+</code></pre>
+<p>This log contains only the one test iteration that failed, and towards the end you will see
+something like this:</p>
+<pre><code class="language-xml">&lt;ErrorLog&gt; Please do not turn on grinder if there are no beans in the hopper
+</code></pre>
+<p>So the <code>CoffeeMachine</code> accidentally tried to grind beans when the hopper was empty.</p>
+<p>In the log you will see that the <code>FailoverDriver</code> has halted <code>CoffeeMachine</code> once or twice then the
+new <code>CoffeeMachine</code> instance which made it all the way to <code>Grinding beans</code> where it tripped the
+safety assert in <code>MockSensors</code>. So the bug here is that somehow, the second <code>CoffeeMachine</code> instance
+missed the fact that it was low on coffee beans. A bug exists in the code somewhere. Can you find
+it?</p>
+<p>It is not a trivial bug because the <code>CheckSensors</code> state is clearly checking the coffee level by
+sending the <code>ReadHopperLevelEvent</code> to the <code>MockSensors</code> actor and <code>CheckInitialState</code> does not
+advance to the <code>HeatingWater</code> state until this reading is returned. So what happened?</p>
+<p>Hint: if you search backwards in the output log you will find the following situation reported:</p>
+<pre><code class="language-xml">&lt;CoffeeMachine&gt; Hopper level is -54 %
+</code></pre>
+<p>The first <code>CoffeeMachine</code> instance left the grinder running a bit too long, and the sensor got
+confused thinking the coffee level is negative. The new <code>CoffeeMachine</code> instance never thought
+about this situation and checked only:</p>
+<pre><code class="language-csharp">if ((int)this.HopperLevel.Value == 0)
+...
+</code></pre>
+<p>And so it missed the fact it might be negative. The fix is easy, just change this condition to <code>&lt;=</code>
+and the bug goes away. The fact that such a bug was found shows the usefulness of the failover
+testing strategy.</p>
+<h3 id="testing-the-scheduling-of-highly-asynchronous-operations">Testing the scheduling of highly asynchronous operations</h3>
+<p>This raises a bigger design question, how did the coffee level become negative?  In firmware it is
+common to poll sensor readings and do something based on that. In this case we are polling a
+<code>PortaFilterCoffeeLevelEvent</code> in a tight loop while in the <code>GrindingBeans</code> state. Meanwhile the
+<code>MockSensors</code> class has a <code>ControlledTimer</code> running and when <code>MonitorGrinder</code> is called it decreases
+the coffee level by 10 percent during every time interval. So we have a very asynchronous operation
+going on here. Coffee level is decreasing based on a timer, and the <code>CoffeeMachine</code> is monitoring
+that coffee level using async events. This all seems to work perfectly in the production code where
+we see this output:</p>
+<pre><code class="language-xml">&lt;CoffeeMachine&gt; Grinding beans...
+&lt;CoffeeMachine&gt; PortaFilter is 10 % full
+&lt;CoffeeMachine&gt; PortaFilter is 20 % full
+&lt;CoffeeMachine&gt; PortaFilter is 30 % full
+&lt;CoffeeMachine&gt; PortaFilter is 40 % full
+&lt;CoffeeMachine&gt; PortaFilter is 50 % full
+&lt;CoffeeMachine&gt; PortaFilter is 60 % full
+&lt;CoffeeMachine&gt; PortaFilter is 70 % full
+&lt;CoffeeMachine&gt; PortaFilter is 80 % full
+&lt;CoffeeMachine&gt; PortaFilter is 90 % full
+&lt;CoffeeMachine&gt; PortaFilter is full
+</code></pre>
+<p>And the reason it works is because your Operating System is scheduling both of these async threads
+in a way that is relatively <code>fair</code> meaning one does not run for a long time without the other being
+scheduled also. But what if these two systems were running in a distributed world and one of them
+hangs for a long time? This is the kind of thread scheduling that <code>coyote test</code> is testing where one
+set of async tasks can run way ahead of the others.</p>
+<p>You need to take this into account when using timer based async events. One way to improve the
+design in a firmware based system like a coffee machine is to switch from a polling based system to
+an interrupt based system where the <code>MockSensors</code> can send important events to the <code>CoffeeMachine</code>.
+This style of <code>interrupt</code> based eventing is used to model the <code>ShotCompleteEvent</code>, <code>WaterHotEvent</code>,
+<code>WaterEmptyEvent</code> and <code>HopperEmptyEvent</code>.</p>
+<p>This shows how Coyote can help find actual design flaws in your code so you can design a system that
+is more robust in the face of unexpected faults. The <code>coyote test</code> engine provides several different
+<code>scheduling strategies</code> that test different kinds of fairness algorithms. These are designed to find
+different kinds of bugs.</p>
+<h3 id="liveness-monitor">Liveness monitor</h3>
+<p>As described in the documentation on <a href="../../how-to/liveness-checking/">Liveness Checking</a> the
+<code>CoffeeMachine</code> must also eventually <code>finish</code> what it is doing. It must either make a coffee when
+requested and return to the <code>Ready</code> state, or it must find a problem and go to the <code>Error</code> state or
+the <code>RefillRequired</code> state. This &ldquo;liveness&rdquo; property can be enforced using a very simple
+<code>LivenessMonitor</code> as shown below:</p>
+<pre><code class="language-csharp">internal class LivenessMonitor : Monitor
+{
+    public class BusyEvent : Event { }
+
+    public class IdleEvent : Event { }
+
+    [Start]
+    [Cold]
+    [OnEventGotoState(typeof(BusyEvent), typeof(Busy))]
+    [IgnoreEvents(typeof(IdleEvent))]
+    private class Idle : State { }
+
+    [Hot]
+    [OnEventGotoState(typeof(IdleEvent), typeof(Idle))]
+    [IgnoreEvents(typeof(BusyEvent))]
+    private class Busy : State { }
+}
+</code></pre>
+<p>This type of <code>Monitor</code> is also a special kind of limited <a href="../../concepts/actors/state-machines/">state
+machine</a>. The <code>CoffeeMachine</code> can send
+events to this monitor to tell it when it has switched into <code>Busy</code> state or <code>Idle</code> state. When the
+<code>CoffeeMachine</code> starts heating water, or making coffee it sends this event:</p>
+<pre><code class="language-csharp">Specification.Monitor&lt;LivenessMonitor&gt;(new LivenessMonitor.BusyEvent());
+</code></pre>
+<p>and when the <code>CoffeeMachine</code> is done making coffee or it has moved to an error state it sends this
+event:</p>
+<pre><code class="language-csharp">Specification.Monitor&lt;LivenessMonitor&gt;(new LivenessMonitor.IdleEvent());
+</code></pre>
+<p>The <code>Busy</code> state is marked as a <code>[Hot]</code> state and the <code>Idle</code> state is marked as a <code>[Cold]</code> state.
+During testing if <code>coyote test</code> finds the <code>LivenessMonitor</code> to be stuck in the <code>[Hot]</code> state too
+long it raises an exception and the test fails.</p>
+<h3 id="reliable-termination-handshake">Reliable termination handshake</h3>
+<p>You may notice in the code that when the <code>FailoverDriver</code> wants to stop the first <code>CoffeeMachine</code> it
+calls <code>TerminateAsync</code> and waits for this async task to complete before it starts a new
+<code>CoffeeMachine</code>.</p>
+<p>This may seem a bit convoluted but you can&rsquo;t just create a new  <code>CoffeeMachine</code> hoping the old one
+would be garbage collected because this would lead to confusion in the <code>MockSensors</code> class which was
+written to expect one and only one client <code>CoffeeMachine</code> at a time. The <code>TerminateAsync</code> handshake
+solves that problem.</p>
+<h2 id="summary">Summary</h2>
+<p>Failover testing is simple to achieve using Coyote and yields many interesting bugs in your code,
+including some thought provoking design bugs. The technique of halting your &ldquo;production&rdquo; objects,
+and recreating them by reading from a &ldquo;persistent&rdquo; mock (which is not halted during testing) can be
+generalized to many other scenarios (e.g. cloud services) where someone needs to test failover logic
+of production code using Coyote.</p>
+<p>In this tutorial you learned:</p>
+<ol>
+<li>How to do failover testing in the Coyote controlled <code>Task</code> programming model.</li>
+<li>How to use Coyote in a firmware/sensor scenario.</li>
+<li>How to use <code>--strategy portfolio</code> testing to find tricky bugs more quickly.</li>
+<li>How <code>Assert</code> helps find violations of safety properties during testing.</li>
+<li>How to write a <code>LivenessMonitor</code>.</li>
+</ol>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../actors/hello-world/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../actors/hello-world/" class="btn btn-xs btn-link">
+        Hello world with actors
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../testing-aspnet-service/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../testing-aspnet-service/" class="btn btn-xs btn-link">
+        Testing an ASP.NET Core service
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

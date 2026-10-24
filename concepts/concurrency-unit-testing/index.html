@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/concepts/concurrency-unit-testing/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Concurrency unit testing - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Concurrency unit testing", url: "#_top", children: [
+          ]},
+          {title: "Systematic testing of unmodified programs", url: "#systematic-testing-of-unmodified-programs", children: [
+          ]},
+          {title: "Expressing nondeterminism and mocking", url: "#expressing-nondeterminism-and-mocking", children: [
+          ]},
+          {title: "Testing other programming models", url: "#testing-other-programming-models", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../binary-rewriting/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../binary-rewriting/" class="btn btn-xs btn-link">
+        Binary rewriting for systematic testing
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../non-determinism/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../non-determinism/" class="btn btn-xs btn-link">
+        Program non-determinism
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="concurrency-unit-testing">Concurrency unit testing</h2>
+<p>Coyote gives you the ability to write <em>concurrency unit tests</em>. These simple but very powerful tests
+look similar to traditional (sequential) tests, but allow (and encourage) the use of concurrency and
+<a href="../non-determinism/">non-determinism</a>, which you would normally avoid due to flakiness. By writing
+such a test, Coyote allows you to exercise what happens, for example, when <a href="../../tutorials/first-concurrency-unit-test/">two requests execute
+concurrently</a> in your service, as if it was
+deployed in production.</p>
+<p>Now the cool thing is that once a bug is found, Coyote allows you to fully reproduce the exact same
+trace that led to the bug 100% of the time, and as many times as you want. Coyote achieves this by
+automatically replaying all nondeterministic choices in your test that led to this bug. This is a
+game changer!</p>
+<p>Let&rsquo;s see how this kind of testing works in practice.</p>
+<h2 id="systematic-testing-of-unmodified-programs">Systematic testing of unmodified programs</h2>
+<p>During testing, Coyote takes over the non-determinism in your program. Once Coyote has control over
+the non-determinism, it will repeatedly run the concurrency unit test from start to completion, each
+time exercising a different set of non-deterministic choices, offering much better coverage than
+using traditional techniques such as stress testing (which rely on luck). This type of testing that
+Coyote performs is known as <em>systematic testing</em>.</p>
+<p>This powerful testing ability, however, has one requirement: you must declare <em>all</em> sources of
+non-determinism in your logic in a way that Coyote understands so that it is able to reproduce any
+nondeterministic bug that it finds and help you easily debug the issue. Luckily, in most common
+cases you do not need to do much thanks to the awesome <a href="../binary-rewriting/">binary rewriting</a> that
+Coyote does to enable testing of unmodified programs.</p>
+<p>Out of the box, Coyote supports most common types and methods available in the .NET Task Parallel
+Library (such as <code>Task</code>, <code>Task&lt;TResult&gt;</code> and <code>TaskCompletionSource&lt;TResult&gt;</code>), as well as the
+<code>async</code>, <code>await</code> and <code>lock</code> C# keywords, and we are adding more types and APIs over time. You can
+read more about binary rewriting in Coyote <a href="../binary-rewriting/">here</a> and supported scenarios
+<a href="../../get-started/using-coyote/">here</a>.</p>
+<p>Take the simple example that was used to explain concurrency <a href="../non-determinism/">non-determinism</a>.
+Notice that the code below is using the C# <code>Task</code> type. Coyote understands this <code>Task</code> type and is
+able to control its schedule during systematic testing, as discussed above.</p>
+<pre><code class="language-csharp">using System.Threading.Tasks;
+
+// Shared variable x.
+int x = 0;
+
+// Concurrency unit test.
+int foo()
+{
+   // Concurrent operations on x.
+   var t1 = Task.Run(() =&gt; { x = 1; });
+   var t2 = Task.Run(() =&gt; { x = 2; });
+
+   // Join all.
+   Task.WaitAll(t1, t2);
+}
+</code></pre>
+<p>When this method <code>foo</code> executes as part of a test case, the Coyote tester will understand that it is
+spawning two tasks that can run concurrently. The tester will explore different ways of executing
+the tasks to systematically cover all possibilities.</p>
+<h2 id="expressing-nondeterminism-and-mocking">Expressing nondeterminism and mocking</h2>
+<p>Coyote also offers APIs for expressing other forms of non-determinism that are not supported out of
+the box using binary rewriting. The <code>CoyoteRuntime.Random</code> API, for instance, returns a
+non-deterministic <code>bool</code> value. The exact value is chosen by the tester.</p>
+<p>This simple API can be used to build more complex <a href="https://en.wikipedia.org/wiki/Mock_object">mocks</a>
+of external dependencies in the system. As an example, suppose that our code calls into an external
+service. Either this call returns successfully and the external service does the work that we
+requested, or it may timeout, or return an error code if the external service is unable to perform
+the work at the time. For testing your code, you will write a mock for it as follows:</p>
+<pre><code class="language-csharp">Status CallExternalServiceMock(WorkItem work)
+{
+   if (CoyoteRuntime.Random())
+   {
+     // Perform some work.
+     ...
+     // Return success.
+     return Status.Success;
+   }
+   else if (CoyoteRuntime.Random())
+   {
+     // Return error code.
+     return Status.ErrorCode1;
+   }
+   else if (CoyoteRuntime.Random())
+   {
+     // Return error code.
+     return Status.ErrorCode2;
+   }
+   else
+   {
+     // Timeout.
+     return Status.Timeout;
+   }
+}
+</code></pre>
+<p>When using such a mock, the Coyote tester will control the values that <code>Random</code> returns in a way
+that provides good coverage. All these techniques can be put together to write very expressive test
+cases. A Coyote concurrency unit test has the power of encoding many different scenarios concisely
+and leave their exploration to the automated tester.</p>
+<p>Using Coyote involves two main activities. First, you write a concurrency unit test. Second, you
+design mocks for external dependencies, capturing the sources of non-determinism that you want
+tested in your system. Additionally, Coyote also offers ways of writing safety and liveness
+<a href="../specifications/">specifications</a> concisely.</p>
+<h2 id="testing-other-programming-models">Testing other programming models</h2>
+<p>Besides the popular <a href="https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap">task-based programming
+model</a>
+of C#, you can also choose to use the <code>Microsoft.Coyote.Actor</code> library that provides APIs for
+expressing in-memory <a href="../actors/overview/">asynchronous actors and state
+machines</a>. Programs written using this more advanced
+programming model can also be systematically tested with Coyote similar to unmodified task-based
+programs.</p>
+<p>See this <a href="../actors/state-machine-demo/">demo</a> which shows the systematic testing
+process in action on a test application that implements the <a href="https://raft.github.io/">Raft consensus
+protocol</a> using Coyote state machines.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../binary-rewriting/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../binary-rewriting/" class="btn btn-xs btn-link">
+        Binary rewriting for systematic testing
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../non-determinism/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../non-determinism/" class="btn btn-xs btn-link">
+        Program non-determinism
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

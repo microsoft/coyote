@@ -360,6 +360,10 @@ namespace Microsoft.Coyote.SystematicTesting
                     {
                         ExceptionDispatchInfo.Capture(innerException).Throw();
                     }
+                    else if (!this.CancellationTokenSource.IsCancellationRequested)
+                    {
+                        this.TestReport.RecordExecutionInterruption();
+                    }
                 }
             }, this.CancellationTokenSource.Token);
         }
@@ -559,7 +563,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (!this.Configuration.RunTestIterationsToCompletion)
             {
-                if (this.Configuration.IsXmlLogEnabled)
+                if (this.Configuration.IsXmlLogEnabled && this.XmlLog != null)
                 {
                     string xmlPath = Path.Combine(directory, fileName + ".trace.xml");
                     File.WriteAllText(xmlPath, this.XmlLog.ToString());

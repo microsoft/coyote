@@ -128,7 +128,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The test entry assembly was not rewritten by the current version of Coyote.
         /// Native concurrent operations in this assembly might not be intercepted and controlled.
         /// </summary>
-        TestAssemblyNotRewritten
+        TestAssemblyNotRewritten,
+
+        /// <summary>
+        /// An execution path or the exploration was interrupted without normal completion.
+        /// </summary>
+        ExecutionInterrupted
     }
 
     /// <summary>

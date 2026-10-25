@@ -117,7 +117,7 @@ The following rewritten test cases illustrate the difference from the published 
 | Test executes but makes no scheduling decisions | Exit `0`; text reports zero scheduling steps | `Incomplete`, reason `NoSchedulingDecisions`, exit `4` |
 
 Other incomplete reasons include `UncontrolledInvocations`, `NoExecutionPaths`,
-`InsufficientExecutionPaths`, `TestingCanceled` and `TestAssemblyNotRewritten`. A strategy that reports
+`InsufficientExecutionPaths`, `TestingCanceled`, `ExecutionInterrupted` and `TestAssemblyNotRewritten`. A strategy that reports
 exhaustion can finish before the requested iteration count without adding `InsufficientExecutionPaths`;
 other limitations still apply. `InsufficientExecutionPaths` is only reported when no timeout is configured.
 
@@ -131,6 +131,11 @@ warning; other incomplete reasons can still prevent a `Complete` verdict.
 Uncontrolled concurrency also adds `UncontrolledInvocations` when the runtime cannot identify a source
 method, so the list of named uncontrolled calls can be empty. A step bound of zero is disabled.
 Paths that finish normally exactly at their step limit are not counted as truncated.
+An ignored potential deadlock or an unexpected `TaskCanceledException` that ends exploration while
+the engine has not been canceled records `ExecutionInterrupted`.
+A replay scheduling mismatch records an internal error instead of a successful exploration.
+With `--json-report`, an internal setup failure also attempts to emit its diagnostic report before
+returning the original command error (`1`); report emission does not hide the original exception.
 
 In-process callers can inspect `engine.TestReport.GetVerdict()` and obtain JSON with
 `engine.GetJsonReport()`. As shown in the unit-test example above, assert the required verdict explicitly;

@@ -203,7 +203,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 info.Name = assembly?.GetName().Name;
                 info.IsRewritten = isRewritten;
 
-                string location = assembly?.Location;
+                string location = assembly != null && !assembly.IsDynamic ? assembly.Location : null;
                 if (!string.IsNullOrEmpty(location))
                 {
                     info.Path = location;

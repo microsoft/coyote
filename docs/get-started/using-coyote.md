@@ -145,6 +145,13 @@ is reported as reason `TestingCanceled` even if some paths were explored. With `
 incomplete runs exit with code `4`; without it, the default exit codes above still apply.
 A detected bug or an internal error retains its verdict and exit-code priority.
 
+An ignored potential deadlock or an unexpected `TaskCanceledException` that ends exploration while
+the engine has not been canceled adds `ExecutionInterrupted`, even when some paths were explored.
+A replay scheduling mismatch records an internal error and its diagnostic. When an internal setup
+exception aborts the command, `--json-report` also attempts to emit the failure report; the command
+keeps its original error exit code (`1`), and a secondary report-writing failure does not replace
+the original exception.
+
 If the test entry assembly has no rewriting signature matching the current Coyote version,
 the engine records `TestAssemblyNotRewritten`. In the absence of a bug or internal error,
 the verdict is `Incomplete`, even when an explicit scheduling point produces nonzero step counts.

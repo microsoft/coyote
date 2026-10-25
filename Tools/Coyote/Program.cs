@@ -44,7 +44,35 @@ namespace Microsoft.Coyote
                 logWriter.LogImportant(". Testing {0}.", configuration.AssemblyToBeAnalyzed);
                 using TestingEngine engine = new TestingEngine(configuration, logWriter);
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-                engine.Run();
+                try
+                {
+                    engine.Run();
+                }
+                catch (Exception)
+                {
+                    if (configuration.IsJsonReportEnabled && engine.TestReport.InternalErrors.Count > 0)
+                    {
+                        try
+                        {
+                            var failureReport = engine.TestReport.Clone();
+                            string failureDirectory = OutputFileManager.CreateOutputDirectory(configuration);
+                            string failureFileName = OutputFileManager.GetResolvedFileName(
+                                configuration.AssemblyToBeAnalyzed, failureDirectory);
+                            engine.TryEmitReports(failureDirectory, failureFileName, failureReport, out var failurePaths);
+                            foreach (string path in failurePaths)
+                            {
+                                logWriter.LogImportant("..... Writing {0}", path);
+                            }
+                        }
+                        catch (Exception reportException)
+                        {
+                            logWriter.LogError("... Could not emit the failure report: {0}", reportException.Message);
+                        }
+                    }
+
+                    // Preserve the original failure even when diagnostic emission also fails.
+                    throw;
+                }
 
                 // Keep the emitted report, console summary and exit code on the same result snapshot.
                 var report = engine.TestReport.Clone();

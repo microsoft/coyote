@@ -31,5 +31,15 @@ namespace Microsoft.Coyote.Testing
         /// Records uncontrolled concurrency, including when its source is unknown.
         /// </summary>
         void SetUncontrolledConcurrencyDetected(bool isDetected);
+
+        /// <summary>
+        /// Records an execution path that was interrupted without being completed.
+        /// </summary>
+        void SetExecutionInterrupted(bool isInterrupted);
+
+        /// <summary>
+        /// Records an error reported by the scheduling strategy.
+        /// </summary>
+        void SetInternalError(string error);
     }
 }

@@ -19,6 +19,7 @@ public enum IncompleteExplorationReason
 | TestingTimedOut | `6` | The testing timeout expired before any execution paths were explored. |
 | TestingCanceled | `7` | The exploration was canceled by a request to stop the testing engine. |
 | TestAssemblyNotRewritten | `8` | The test entry assembly was not rewritten by the current version of Coyote. Native concurrent operations in this assembly might not be intercepted and controlled. |
+| ExecutionInterrupted | `9` | An execution path or the exploration was interrupted without normal completion. |
 
 ## See Also
 

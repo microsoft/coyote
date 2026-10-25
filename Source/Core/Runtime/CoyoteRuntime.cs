@@ -2594,6 +2594,8 @@ namespace Microsoft.Coyote.Runtime
 
                 report.SetUncontrolledInvocations(this.UncontrolledInvocations);
                 report.SetUncontrolledConcurrencyDetected(this.IsUncontrolledConcurrencyDetected);
+                report.SetExecutionInterrupted(this.ExecutionStatus is ExecutionStatus.Deadlocked);
+                report.SetInternalError(this.Scheduler.GetLastError());
             }
         }
 

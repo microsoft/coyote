@@ -196,6 +196,12 @@ namespace Microsoft.Coyote.SystematicTesting
         internal bool IsExplorationCanceled { get; private set; }
 
         /// <summary>
+        /// True if a path or the exploration was interrupted without normal completion.
+        /// </summary>
+        [DataMember]
+        internal bool IsExecutionInterrupted { get; private set; }
+
+        /// <summary>
         /// True if the engine detected that the test entry assembly was not rewritten.
         /// False means no such limitation was recorded, not that rewriting was verified.
         /// </summary>
@@ -359,6 +365,38 @@ namespace Microsoft.Coyote.SystematicTesting
             this.IsUncontrolledConcurrencyDetected |= isDetected;
         }
 
+        /// <inheritdoc/>
+        void ITestReport.SetExecutionInterrupted(bool isInterrupted)
+        {
+            if (isInterrupted)
+            {
+                this.RecordExecutionInterruption();
+            }
+        }
+
+        /// <inheritdoc/>
+        void ITestReport.SetInternalError(string error)
+        {
+            if (!string.IsNullOrEmpty(error))
+            {
+                lock (this.Lock)
+                {
+                    this.InternalErrors.Add(error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Records an unexpected interruption independently of the configured testing budget.
+        /// </summary>
+        internal void RecordExecutionInterruption()
+        {
+            lock (this.Lock)
+            {
+                this.IsExecutionInterrupted = true;
+            }
+        }
+
         /// <summary>
         /// Records that the test entry assembly was not rewritten for testing.
         /// </summary>
@@ -416,6 +454,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.IsUncontrolledConcurrencyDetected |= testReport.IsUncontrolledConcurrencyDetected;
                 this.IsExplorationTimedOut |= testReport.IsExplorationTimedOut;
                 this.IsExplorationCanceled |= testReport.IsExplorationCanceled;
+                this.IsExecutionInterrupted |= testReport.IsExecutionInterrupted;
                 this.HasUnrewrittenTestAssembly |= testReport.HasUnrewrittenTestAssembly;
 
                 int exploredPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
@@ -550,6 +589,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.IsExplorationCanceled)
                 {
                     reasons.Add(IncompleteExplorationReason.TestingCanceled);
+                }
+
+                if (this.IsExecutionInterrupted)
+                {
+                    reasons.Add(IncompleteExplorationReason.ExecutionInterrupted);
                 }
 
                 if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 && this.Configuration.TestingTimeout is 0 &&
@@ -752,6 +796,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             var serializerSettings = new DataContractSerializerSettings();
             serializerSettings.PreserveObjectReferences = true;
+            serializerSettings.KnownTypes = new[] { this.GetType(), this.Configuration?.GetType() ?? typeof(Configuration) };
             var serializer = new DataContractSerializer(typeof(TestReport), serializerSettings);
             using (var ms = new System.IO.MemoryStream())
             {

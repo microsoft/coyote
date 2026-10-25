@@ -21,7 +21,7 @@ public class TestReport
 | [MaxExploredUnfairSteps](TestReport/MaxExploredUnfairSteps.md) { get; } | The max explored execution steps in unfair tests. |
 | [MaxFairStepsHitInFairTests](TestReport/MaxFairStepsHitInFairTests.md) { get; } | Number of times the fair max steps bound was hit in fair tests. |
 | [MaxOperationGroupingDegree](TestReport/MaxOperationGroupingDegree.md) { get; } | The maximum degree of operation grouping. |
-| [MaxUnfairStepsHitInFairTests](TestReport/MaxUnfairStepsHitInFairTests.md) { get; } | Number of times the unfair max steps bound was hit in fair tests. |
+| [MaxUnfairStepsHitInFairTests](TestReport/MaxUnfairStepsHitInFairTests.md) { get; } | Number of fair execution paths that exceeded the positive unfair max steps bound. |
 | [MaxUnfairStepsHitInUnfairTests](TestReport/MaxUnfairStepsHitInUnfairTests.md) { get; } | Number of times the unfair max steps bound was hit in unfair tests. |
 | [MinConcurrencyDegree](TestReport/MinConcurrencyDegree.md) { get; } | The min degree of concurrency. |
 | [MinControlledOperations](TestReport/MinControlledOperations.md) { get; } | The minimum number of controlled operations. |

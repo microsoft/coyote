@@ -1,4 +1,6 @@
 ## vNext
+- Fixed fair paths completing exactly at the unfair step bound being counted as exceeding it,
+  which could produce a spurious warning or reject a completed run with `--strict-bounds`.
 - Added the `TestReport.GetVerdict` API, which summarizes whether an exploration was
   complete, found a bug, or is incomplete due to uncontrolled invocations, truncated
   execution paths, insufficient execution paths, no scheduling decisions, no execution paths,

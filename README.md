@@ -122,7 +122,7 @@ exhaustion can finish before the requested iteration count without adding `Insuf
 other limitations still apply. `InsufficientExecutionPaths` is only reported when no timeout is configured.
 
 `reasons` identify exploration limitations, while `warnings` do not change the verdict by themselves.
-For example, fair paths that reach the unfair step bound normally produce an
+For example, fair paths that exceed the unfair step bound normally produce an
 `ExceededUnfairStepsBound` warning; `--strict-bounds` enables strict exploration and treats this as an
 incomplete reason instead. In-process callers can use `Configuration.WithStrictBoundCheckingEnabled()`
 to apply the same warning-to-reason rule. A timeout before any paths were explored adds `NoExecutionPaths`
@@ -131,6 +131,7 @@ warning; other incomplete reasons can still prevent a `Complete` verdict.
 Uncontrolled concurrency also adds `UncontrolledInvocations` when the runtime cannot identify a source
 method, so the list of named uncontrolled calls can be empty. A step bound of zero is disabled.
 Paths that finish normally exactly at their step limit are not counted as truncated.
+Fair paths that finish exactly at the unfair step bound are not counted as exceeding it.
 An ignored potential deadlock or an unexpected `TaskCanceledException` that ends exploration while
 the engine has not been canceled records `ExecutionInterrupted`.
 A replay scheduling mismatch records an internal error instead of a successful exploration.

@@ -214,6 +214,47 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
             }
         }
 
+        [Theory(Timeout = 10000)]
+        [InlineData(-1, false)]
+        [InlineData(0, false)]
+        [InlineData(1, false)]
+        [InlineData(-1, true)]
+        [InlineData(0, true)]
+        [InlineData(1, true)]
+        public void TestFairCompletionRelativeToUnfairBound(int boundOffset, bool strictBounds)
+        {
+            Action test = () =>
+            {
+                SchedulingPoint.Interleave();
+                SchedulingPoint.Interleave();
+            };
+            using var measured = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(1)
+                .WithPrioritizationStrategy(true).WithMaxSchedulingSteps(1000, 10000), test);
+            measured.Run();
+            int steps = measured.TestReport.MaxExploredFairSteps;
+            Assert.True(steps > 1);
+            Assert.Equal(ExplorationStatus.Complete, measured.TestReport.GetVerdict().Status);
+
+            using var bounded = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(1)
+                .WithPrioritizationStrategy(true).WithStrictBoundCheckingEnabled(strictBounds)
+                .WithMaxSchedulingSteps((uint)(steps + boundOffset), (uint)(steps + 100)), test);
+            bounded.Run();
+            var report = bounded.TestReport;
+            var verdict = report.GetVerdict();
+            this.TestOutput.WriteLine(bounded.GetJsonReport());
+            Assert.Equal(steps, report.MaxExploredFairSteps);
+            Assert.Equal(1, report.NumOfExploredFairPaths);
+            Assert.Equal(0, report.NumOfFoundBugs);
+            Assert.Equal(0, report.NumOfTruncatedPaths);
+            bool exceeded = boundOffset < 0;
+            Assert.Equal(exceeded ? 1 : 0, report.MaxUnfairStepsHitInFairTests);
+            Assert.Equal(exceeded && strictBounds ? ExplorationStatus.Incomplete : ExplorationStatus.Complete, verdict.Status);
+            Assert.Equal(exceeded && strictBounds, verdict.Reasons.Contains(IncompleteExplorationReason.ExceededUnfairStepsBound));
+            Assert.Equal(exceeded && !strictBounds, verdict.Warnings.Contains(ExplorationWarning.ExceededUnfairStepsBound));
+            using var json = JsonDocument.Parse(bounded.GetJsonReport());
+            Assert.Equal(exceeded ? 1 : 0, json.RootElement.GetProperty("exploration").GetProperty("fairPathsExceedingUnfairBound").GetInt32());
+        }
+
         private static void AssertConsistentBugCounts(JsonElement root)
         {
             int bugs = root.GetProperty("bugs").GetProperty("count").GetInt32();

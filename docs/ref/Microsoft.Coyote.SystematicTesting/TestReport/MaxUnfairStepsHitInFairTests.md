@@ -1,10 +1,14 @@
 # TestReport.MaxUnfairStepsHitInFairTests property
 
-Number of times the unfair max steps bound was hit in fair tests.
+Number of fair execution paths that exceeded the positive unfair max steps bound.
 
 ```csharp
 public int MaxUnfairStepsHitInFairTests { get; }
 ```
+
+## Remarks
+
+Paths that finish exactly at the bound are excluded. The property name is retained for compatibility. Reports created with the previous comparison also counted paths that finished exactly at the bound. Those counts are preserved when restored or merged, so totals that include them can be higher.
 
 ## See Also
 

@@ -134,6 +134,8 @@ summarizes these conditions as an _exploration verdict_ at the end of the test r
 `--strict` flag makes it exit with code `4` when the verdict is `Incomplete`. The `--strict-bounds`
 flag additionally treats fair execution paths that exceeded the unfair `--max-steps` bound as
 incomplete exploration, which is otherwise only reported as a warning.
+Fair paths that finish normally exactly at the unfair bound do not produce this warning
+or incomplete reason; only paths with more decisions than that positive bound are counted.
 
 An exploration that executes no paths is `Incomplete` with reason `NoExecutionPaths`, including
 when `--iterations 0` is used or test initialization exceeds the timeout. If the timeout expires

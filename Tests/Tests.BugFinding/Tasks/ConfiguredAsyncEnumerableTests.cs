@@ -535,6 +535,57 @@ namespace Microsoft.Coyote.BugFinding.Tests
             expression.Compile()();
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredPropertyExpression()
+        {
+            var source = new EmptyEnumerable();
+            var holder = new ConfiguredResourceHolder(((IAsyncDisposable)source).ConfigureAwait(false));
+            Expression<Func<ConfiguredResourceHolder, ConfiguredAsyncDisposable>> expression = value => value.Resource;
+            expression.Compile()(holder).DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredIndexerExpression()
+        {
+            var source = new EmptyEnumerable();
+            var configured = ((IAsyncDisposable)source).ConfigureAwait(false);
+            var holder = new ConfiguredResourceHolder(configured);
+            var indexer = Expression.MakeIndex(Expression.Constant(holder),
+                typeof(ConfiguredResourceHolder).GetProperty("Item"), new[] { Expression.Constant(configured) });
+            Expression.Lambda<Func<ConfiguredAsyncDisposable>>(indexer)
+                .Compile()().DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredEventMetadata()
+        {
+            var source = new EmptyEnumerable();
+            var holder = new ConfiguredResourceHolder(((IAsyncDisposable)source).ConfigureAwait(false));
+            Assert.Equal(typeof(Action<ConfiguredAsyncDisposable>),
+                typeof(ConfiguredResourceHolder).GetEvent(nameof(ConfiguredResourceHolder.Configured)).EventHandlerType);
+            holder.Configured += value => value.DisposeAsync().GetAwaiter().GetResult();
+            holder.Notify();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestGenericStaticMemberExpressionHandles()
+        {
+            Expression<Func<TaskFactory<int>>> expression = () => Task<int>.Factory;
+            Assert.Same(typeof(Task<int>).GetProperty(nameof(Task<int>.Factory)).GetValue(null), expression.Compile()());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredGenericStaticMemberExpressionHandles()
+        {
+            Expression<Func<TaskFactory<ConfiguredAsyncDisposable>>> expression =
+                () => Task<ConfiguredAsyncDisposable>.Factory;
+            Assert.Same(typeof(Task<ConfiguredAsyncDisposable>).GetProperty(nameof(Task<int>.Factory)).GetValue(null),
+                expression.Compile()());
+        }
+
         [Theory(Timeout = 5000)]
         [InlineData(false)]
         [InlineData(true)]
@@ -718,6 +769,29 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 this.Value = value;
             }
+        }
+
+        private sealed class ConfiguredResourceHolder
+        {
+            public ConfiguredAsyncDisposable Resource { get; }
+
+            public ConfiguredAsyncDisposable this[ConfiguredAsyncDisposable value]
+            {
+                get
+                {
+                    Assert.Equal(this.Resource, value);
+                    return this.Resource;
+                }
+            }
+
+            public event Action<ConfiguredAsyncDisposable> Configured;
+
+            internal ConfiguredResourceHolder(ConfiguredAsyncDisposable resource)
+            {
+                this.Resource = resource;
+            }
+
+            internal void Notify() => this.Configured?.Invoke(this.Resource);
         }
 
         private static class ConfiguredResourceSlot<T>

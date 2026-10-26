@@ -177,7 +177,8 @@ namespace Microsoft.Coyote.Rewriting
         {
             bool preserveBinding = instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn ||
                 instruction.OpCode == OpCodes.Ldtoken;
-            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, preserveBinding) &&
+            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, preserveBinding,
+                isMethodToken: instruction.OpCode == OpCodes.Ldtoken) &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod) &&
                 (!preserveBinding || method.HasThis == newMethod.HasThis))
             {
@@ -200,14 +201,14 @@ namespace Microsoft.Coyote.Rewriting
         /// Tries to rewrite the specified <see cref="MethodReference"/>.
         /// </summary>
         private bool TryRewriteMethodReference(MethodReference method, out MethodReference result,
-            bool preserveInstanceBinding = false) =>
-            this.TryRewriteMethodReference(method, null, out result, preserveInstanceBinding);
+            bool preserveInstanceBinding = false, bool isMethodToken = false) =>
+            this.TryRewriteMethodReference(method, null, out result, preserveInstanceBinding, isMethodToken);
 
         /// <summary>
         /// Tries to rewrite the specified <see cref="MethodReference"/>.
         /// </summary>
         private bool TryRewriteMethodReference(MethodReference method, string matchName, out MethodReference result,
-            bool preserveInstanceBinding = false)
+            bool preserveInstanceBinding = false, bool isMethodToken = false)
         {
             result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
@@ -287,7 +288,9 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             // Method handles, bound delegates and base-constructor calls must retain instance binding.
+            // Generic method tokens must also agree with their separately emitted type handles.
             Options declaringTypeOptions = (preserveInstanceBinding && method.HasThis) ||
+                (isMethodToken && method.DeclaringType.IsGenericInstance) ||
                 (resolvedMethod.IsConstructor && matchName is null) ?
                 Options.None : Options.AllowStaticRewrittenType;
             TypeReference newDeclaringType = this.RewriteType(method.DeclaringType,

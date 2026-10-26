@@ -44,6 +44,30 @@ namespace Microsoft.Coyote.Rewriting
                     this.LogWriter.LogDebug("............. [+] interface '{0}'", implementedInterface.InterfaceType);
                 }
             }
+
+            foreach (var property in type.Properties)
+            {
+                if (this.TryRewriteType(property.PropertyType, out TypeReference newPropertyType) &&
+                    this.TryResolve(newPropertyType, out TypeDefinition _))
+                {
+                    this.LogWriter.LogDebug("............. [-] property '{0}'", property);
+                    property.PropertyType = newPropertyType;
+                    this.LogWriter.LogDebug("............. [+] property '{0}'", property);
+                }
+
+                this.RewriteParameters(property.Parameters);
+            }
+
+            foreach (var eventDefinition in type.Events)
+            {
+                if (this.TryRewriteType(eventDefinition.EventType, out TypeReference newEventType) &&
+                    this.TryResolve(newEventType, out TypeDefinition _))
+                {
+                    this.LogWriter.LogDebug("............. [-] event '{0}'", eventDefinition);
+                    eventDefinition.EventType = newEventType;
+                    this.LogWriter.LogDebug("............. [+] event '{0}'", eventDefinition);
+                }
+            }
         }
 
         /// <inheritdoc/>
@@ -92,18 +116,22 @@ namespace Microsoft.Coyote.Rewriting
                 this.LogWriter.LogDebug("............. [+] return type '{0}'", method.ReturnType);
             }
 
-            if (method.HasParameters)
+            this.RewriteParameters(method.Parameters);
+        }
+
+        /// <summary>
+        /// Rewrites method or indexer parameter types.
+        /// </summary>
+        private void RewriteParameters(IEnumerable<ParameterDefinition> parameters)
+        {
+            foreach (var parameter in parameters)
             {
-                // Try to rewrite the parameter types.
-                foreach (var parameter in method.Parameters)
+                if (this.TryRewriteType(parameter.ParameterType, out TypeReference newParameterType) &&
+                    this.TryResolve(newParameterType, out TypeDefinition _))
                 {
-                    if (this.TryRewriteType(parameter.ParameterType, out TypeReference newParameterType) &&
-                        this.TryResolve(newParameterType, out TypeDefinition _))
-                    {
-                        this.LogWriter.LogDebug("............. [-] parameter '{0} {1}'", parameter.ParameterType, parameter.Name);
-                        parameter.ParameterType = newParameterType;
-                        this.LogWriter.LogDebug("............. [+] parameter '{0} {1}'", parameter.ParameterType, parameter.Name);
-                    }
+                    this.LogWriter.LogDebug("............. [-] parameter '{0} {1}'", parameter.ParameterType, parameter.Name);
+                    parameter.ParameterType = newParameterType;
+                    this.LogWriter.LogDebug("............. [+] parameter '{0} {1}'", parameter.ParameterType, parameter.Name);
                 }
             }
         }

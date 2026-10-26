@@ -215,6 +215,84 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
             }
         }
 
+        [Theory(Timeout = 10000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestReplayEarlyCompletionIsInternalError(bool takeSchedulingPoint)
+        {
+            using var recorded = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(1), () =>
+            {
+                SchedulingPoint.Interleave();
+                Microsoft.Coyote.Random.Generator.Create().NextBoolean();
+                Specification.Assert(false, "Replay fixture bug.");
+            });
+            recorded.Run();
+            Assert.Equal(ExplorationStatus.BugFound, recorded.TestReport.GetVerdict().Status);
+            Assert.False(string.IsNullOrEmpty(recorded.ReproducibleTrace));
+            this.TestOutput.WriteLine("RECORDED_TRACE\n" + recorded.ReproducibleTrace);
+
+            using var replay = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(1)
+                .WithReproducibleTrace(recorded.ReproducibleTrace), () =>
+                {
+                    if (takeSchedulingPoint)
+                    {
+                        SchedulingPoint.Interleave();
+                    }
+                });
+            replay.Run();
+            this.TestOutput.WriteLine("EARLY_REPORT\n" + replay.GetJsonReport());
+            Assert.Equal(0, replay.TestReport.NumOfFoundBugs);
+            Assert.NotEmpty(replay.TestReport.InternalErrors);
+            Assert.Equal(ExplorationStatus.InternalError, replay.TestReport.GetVerdict().Status);
+            Assert.Contains("execution completed before consuming", replay.Scheduler.GetLastError());
+            using var document = JsonDocument.Parse(replay.GetJsonReport());
+            Assert.Equal("InternalError", document.RootElement.GetProperty("verdict").GetProperty("status").GetString());
+            Assert.NotEmpty(document.RootElement.GetProperty("internalErrors").EnumerateArray());
+        }
+
+        [Theory(Timeout = 10000)]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        public void TestReplayCompletionValidationPreservesOtherOutcomes(int outcome)
+        {
+            using var recorded = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(1), () =>
+            {
+                SchedulingPoint.Interleave();
+                Microsoft.Coyote.Random.Generator.Create().NextBoolean();
+                Specification.Assert(false, "Replay fixture bug.");
+            });
+            recorded.Run();
+            Assert.Equal(ExplorationStatus.BugFound, recorded.TestReport.GetVerdict().Status);
+            var configuration = this.GetConfiguration().WithTestingIterations(1)
+                .WithReproducibleTrace(recorded.ReproducibleTrace);
+            if (outcome is 2)
+            {
+                var trace = JsonSerializer.Deserialize<TraceReport>(recorded.ReproducibleTrace);
+                trace.Settings.MaxFairSchedulingSteps = 1;
+                trace.Settings.MaxUnfairSchedulingSteps = 1;
+                configuration.WithReproducibleTrace(trace.ToJson());
+            }
+
+            using var replay = TestingEngine.Create(configuration, () =>
+            {
+                SchedulingPoint.Interleave();
+                if (outcome is 1)
+                {
+                    Specification.Assert(false, "Earlier replay bug.");
+                }
+
+                Microsoft.Coyote.Random.Generator.Create().NextBoolean();
+            });
+            replay.Run();
+            this.TestOutput.WriteLine("CONTROL_REPORT\n" + replay.GetJsonReport());
+            Assert.Empty(replay.TestReport.InternalErrors);
+            Assert.Equal(outcome is 1 ? ExplorationStatus.BugFound : outcome is 2 ?
+                ExplorationStatus.Incomplete : ExplorationStatus.Complete, replay.TestReport.GetVerdict().Status);
+            Assert.Equal(outcome is 1 ? 1 : 0, replay.TestReport.NumOfFoundBugs);
+            Assert.Equal(outcome is 2 ? 1 : 0, replay.TestReport.NumOfTruncatedPaths);
+        }
+
         [DataContract]
         private class DerivedConfiguration : Configuration
         {

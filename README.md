@@ -134,7 +134,7 @@ Paths that finish normally exactly at their step limit are not counted as trunca
 Fair paths that finish exactly at the unfair step bound are not counted as exceeding it.
 An ignored potential deadlock or an unexpected `TaskCanceledException` that ends exploration while
 the engine has not been canceled records `ExecutionInterrupted`.
-A replay scheduling mismatch records an internal error instead of a successful exploration.
+A replay scheduling mismatch or normal completion with unconsumed trace steps records an internal error.
 With `--json-report`, an internal setup failure also attempts to emit its diagnostic report before
 returning the original command error (`1`); report emission does not hide the original exception.
 

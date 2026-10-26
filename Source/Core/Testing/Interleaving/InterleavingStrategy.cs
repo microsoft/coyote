@@ -206,6 +206,19 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal virtual void Reset() => this.StepCount = 0;
 
         /// <summary>
+        /// Checks that a normally completed replay consumed the recorded trace.
+        /// </summary>
+        internal void CheckReplayCompletion()
+        {
+            if (this.StepCount < this.TracePrefix.Length && string.IsNullOrEmpty(this.ErrorText))
+            {
+                this.ErrorText = this.FormatReplayError(this.StepCount,
+                    $"execution completed before consuming all recorded steps ('{this.StepCount}' of '{this.TracePrefix.Length}' consumed)");
+                this.LogWriter.LogError(this.ErrorText);
+            }
+        }
+
+        /// <summary>
         /// Formats the error message.
         /// </summary>
         private string FormatReplayError(int step, string reason)

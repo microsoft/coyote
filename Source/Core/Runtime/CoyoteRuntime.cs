@@ -2664,6 +2664,7 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (status is ExecutionStatus.PathExplored)
                 {
+                    this.Scheduler.CheckReplayCompletion();
                     this.LogWriter.LogInfo("[coyote::test] Exploration finished in runtime '{0}' [reached the end of the test method].", this.Id);
                 }
                 else if (status is ExecutionStatus.BoundReached)

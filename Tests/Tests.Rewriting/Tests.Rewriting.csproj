@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Tests for rewriting.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Rewriting</AssemblyName>
@@ -6,7 +6,7 @@
     <OutputPath>.\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
     <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn),1591,xUnit1028,xUnit1031</NoWarn>
+    <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

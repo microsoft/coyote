@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Tests for actor APIs.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Actors</AssemblyName>
@@ -7,7 +7,7 @@
     <NetStandard2Supported>false</NetStandard2Supported>
     <Net6Supported>false</Net6Supported>
     <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn),1591,xUnit1031</NoWarn>
+    <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

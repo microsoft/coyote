@@ -70,6 +70,10 @@ namespace Microsoft.Coyote.Rewriting
             {
                 instruction = this.VisitTypeInstruction(instruction);
             }
+            else if (instruction.Operand is MethodReference arrayMethod && arrayMethod.DeclaringType is ArrayType)
+            {
+                instruction = this.VisitArrayMethodInstruction(instruction, arrayMethod);
+            }
             else if (instruction.OpCode == OpCodes.Newobj)
             {
                 instruction = this.VisitNewobjInstruction(instruction);
@@ -101,6 +105,38 @@ namespace Microsoft.Coyote.Rewriting
                 this.Replace(instruction, newInstruction);
                 this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
+                instruction = newInstruction;
+            }
+
+            return instruction;
+        }
+
+        /// <summary>
+        /// Rewrites synthetic array methods, which have no method definitions to resolve.
+        /// </summary>
+        /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
+        private Instruction VisitArrayMethodInstruction(Instruction instruction, MethodReference method)
+        {
+            if (this.TryRewriteType(method.DeclaringType, out TypeReference newDeclaringType))
+            {
+                var newMethod = new MethodReference(method.Name,
+                    this.RewriteType(method.ReturnType, Options.None), newDeclaringType)
+                {
+                    HasThis = method.HasThis,
+                    ExplicitThis = method.ExplicitThis,
+                    CallingConvention = method.CallingConvention
+                };
+                foreach (var parameter in method.Parameters)
+                {
+                    newMethod.Parameters.Add(new ParameterDefinition(parameter.Name, parameter.Attributes,
+                        this.RewriteType(parameter.ParameterType, Options.None)));
+                }
+
+                var newInstruction = Instruction.Create(instruction.OpCode, this.Module.ImportReference(newMethod));
+                newInstruction.Offset = instruction.Offset;
+                this.LogWriter.LogDebug("............. [-] {0}", instruction);
+                this.Replace(instruction, newInstruction);
+                this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
                 instruction = newInstruction;
             }
 
@@ -176,25 +212,51 @@ namespace Microsoft.Coyote.Rewriting
             if (!this.IsRewritableType(resolvedDeclaringType))
             {
                 // External concrete signatures stay native, but generic arguments belong to the caller.
+                bool areArgumentsRewritten = false;
+                TypeReference externalDeclaringType = this.RewriteType(method.DeclaringType,
+                    Options.None, ref areArgumentsRewritten);
+                MethodReference externalMethod = (method as GenericInstanceMethod)?.ElementMethod ?? method;
+                if (areArgumentsRewritten)
+                {
+                    var newExternalMethod = new MethodReference(externalMethod.Name,
+                        externalMethod.ReturnType, externalDeclaringType)
+                    {
+                        HasThis = externalMethod.HasThis,
+                        ExplicitThis = externalMethod.ExplicitThis,
+                        CallingConvention = externalMethod.CallingConvention
+                    };
+                    foreach (var parameter in externalMethod.GenericParameters)
+                    {
+                        newExternalMethod.GenericParameters.Add(new GenericParameter(parameter.Name, newExternalMethod));
+                    }
+
+                    foreach (var parameter in externalMethod.Parameters)
+                    {
+                        newExternalMethod.Parameters.Add(new ParameterDefinition(parameter.Name,
+                            parameter.Attributes, parameter.ParameterType));
+                    }
+
+                    externalMethod = newExternalMethod;
+                }
+
                 if (method is GenericInstanceMethod genericMethod)
                 {
-                    bool areArgumentsRewritten = false;
-                    var newGenericMethod = new GenericInstanceMethod(genericMethod.ElementMethod);
+                    var newGenericMethod = new GenericInstanceMethod(externalMethod);
                     foreach (var argument in genericMethod.GenericArguments)
                     {
                         newGenericMethod.GenericArguments.Add(
                             this.RewriteType(argument, Options.None, ref areArgumentsRewritten));
                     }
 
-                    if (areArgumentsRewritten)
-                    {
-                        result = this.Module.ImportReference(newGenericMethod);
-                    }
-
-                    return areArgumentsRewritten;
+                    externalMethod = newGenericMethod;
                 }
 
-                return false;
+                if (areArgumentsRewritten)
+                {
+                    result = this.Module.ImportReference(externalMethod);
+                }
+
+                return areArgumentsRewritten;
             }
 
             // Variable that is passed by reference to rewriting methods keeping

@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -456,6 +457,56 @@ namespace Microsoft.Coyote.BugFinding.Tests
             Assert.Throws<NullReferenceException>(() => configured.GetAsyncEnumerator());
         }
 
+#pragma warning disable CA1814 // Rectangular arrays are required to exercise their synthetic methods.
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredRectangularArrays()
+        {
+            using var cancellation = new CancellationTokenSource();
+            var source = new EmptyEnumerable();
+            var enumerables = new ConfiguredCancelableAsyncEnumerable<int>[1, 1];
+            enumerables[0, 0] = source.WithCancellation(cancellation.Token);
+            var enumerable = enumerables[0, 0];
+            var enumerators = new ConfiguredCancelableAsyncEnumerable<int>.Enumerator[1, 1];
+            enumerators[0, 0] = enumerable.GetAsyncEnumerator();
+            Assert.Equal(cancellation.Token, source.ObservedToken);
+            Assert.Equal(0, enumerators[0, 0].Current);
+            var enumerator = enumerators[0, 0];
+            enumerator.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+
+            var first = new EmptyEnumerable();
+            var second = new EmptyEnumerable();
+            var disposables = new ConfiguredAsyncDisposable[1, 2];
+            disposables[0, 0] = ((IAsyncDisposable)first).ConfigureAwait(false);
+            disposables[0, 1] = ((IAsyncDisposable)second).ConfigureAwait(false);
+            var disposable = disposables[0, 0];
+            disposable.DisposeAsync().GetAwaiter().GetResult();
+            disposables[0, 1].DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(first.IsDisposed);
+            Assert.True(second.IsDisposed);
+        }
+#pragma warning restore CA1814
+
+        [Fact(Timeout = 5000)]
+        public void TestExternalConfiguredGenericContainer()
+        {
+            var source = new EmptyEnumerable();
+            var box = new UncontrolledGenericBox<ConfiguredAsyncDisposable>(((IAsyncDisposable)source).ConfigureAwait(false));
+            var configured = box.Select(value => value);
+            Assert.Equal(box.Value, configured);
+            configured.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestExternalConfiguredGenericBase()
+        {
+            var source = new EmptyEnumerable();
+            var resource = new ExternalConfiguredResource(source);
+            resource.Value.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
         private static void DisposeConstrainedResources<T>(T resources)
             where T : IEnumerable<ConfiguredAsyncDisposable>
         {
@@ -580,6 +631,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
             }
 
             internal void Dispose() => DisposeConstrainedResources(this.Resources);
+        }
+
+        private sealed class ExternalConfiguredResource : UncontrolledGenericBox<ConfiguredAsyncDisposable>
+        {
+            internal ExternalConfiguredResource(IAsyncDisposable source)
+                : base(source.ConfigureAwait(false))
+            {
+            }
         }
 
         private sealed class Box<T>

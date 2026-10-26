@@ -217,6 +217,108 @@ namespace Microsoft.Coyote.BugFinding.Tests
             Assert.True(source.IsDisposed);
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestBoundConfiguredDisposableMethodGroup()
+        {
+            var source = new EmptyEnumerable();
+            var items = new List<ConfiguredAsyncDisposable>();
+            Action<ConfiguredAsyncDisposable> add = items.Add;
+            add(((IAsyncDisposable)source).ConfigureAwait(false));
+            Assert.Single(items);
+            items[0].DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestVirtualConfiguredDisposableMethodGroup()
+        {
+            var source = new EmptyEnumerable();
+            ICollection<ConfiguredAsyncDisposable> items = new List<ConfiguredAsyncDisposable>();
+            Action<ConfiguredAsyncDisposable> add = items.Add;
+            add(((IAsyncDisposable)source).ConfigureAwait(false));
+            Assert.Single(items);
+            foreach (var item in items)
+            {
+                item.DisposeAsync().GetAwaiter().GetResult();
+            }
+
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestBoundConfiguredStructMethodGroup()
+        {
+            var source = new EmptyEnumerable();
+            var configured = ((IAsyncDisposable)source).ConfigureAwait(false);
+            Func<ConfiguredValueTaskAwaitable> dispose = configured.DisposeAsync;
+            dispose().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestBoundMethodGroupPreservesInstanceBinding()
+        {
+            Action wait = Task.CompletedTask.Wait;
+            wait();
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestBoxedConfiguredEnumerable()
+        {
+            using var cancellation = new CancellationTokenSource();
+            var source = new EmptyEnumerable();
+            object boxed = source.WithCancellation(cancellation.Token);
+            Assert.IsType<ConfiguredCancelableAsyncEnumerable<int>>(boxed);
+            var value = (ConfiguredCancelableAsyncEnumerable<int>)boxed;
+            value.GetAsyncEnumerator();
+            Assert.Equal(cancellation.Token, source.ObservedToken);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestBoxedConfiguredEnumerator()
+        {
+            var source = new EmptyEnumerable();
+            object boxed = source.WithCancellation(default).GetAsyncEnumerator();
+            Assert.IsType<ConfiguredCancelableAsyncEnumerable<int>.Enumerator>(boxed);
+            var value = (ConfiguredCancelableAsyncEnumerable<int>.Enumerator)boxed;
+            Assert.Equal(0, value.Current);
+            value.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestBoxedConfiguredDisposable()
+        {
+            var source = new EmptyEnumerable();
+            object boxed = ((IAsyncDisposable)source).ConfigureAwait(false);
+            Assert.IsType<ConfiguredAsyncDisposable>(boxed);
+            var value = (ConfiguredAsyncDisposable)boxed;
+            value.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredValueArrays()
+        {
+            using var cancellation = new CancellationTokenSource();
+            var source = new EmptyEnumerable();
+            var enumerableItems = new[] { source.WithCancellation(default) };
+            enumerableItems[0] = source.WithCancellation(cancellation.Token);
+            var enumerable = enumerableItems[0];
+            var enumeratorItems = new[] { enumerable.GetAsyncEnumerator() };
+            var enumerator = enumeratorItems[0];
+            Assert.Equal(cancellation.Token, source.ObservedToken);
+            Assert.Equal(0, enumerator.Current);
+            enumeratorItems[0].DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+
+            var disposableSource = new EmptyEnumerable();
+            var disposableItems = new[] { ((IAsyncDisposable)disposableSource).ConfigureAwait(false) };
+            var disposable = disposableItems[0];
+            disposable.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(disposableSource.IsDisposed);
+        }
+
         private static async IAsyncEnumerable<int> EnumerateAsync(SharedEntry disposed, bool asynchronous,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {

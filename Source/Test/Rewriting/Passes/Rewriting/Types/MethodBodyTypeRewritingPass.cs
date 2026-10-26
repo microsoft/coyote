@@ -68,30 +68,29 @@ namespace Microsoft.Coyote.Rewriting
                     this.LogWriter.LogDebug("............. [+] {0}", instruction);
                 }
             }
-            else if (instruction.OpCode == OpCodes.Initobj)
+            else if (instruction.Operand is TypeReference)
             {
-                instruction = this.VisitInitobjInstruction(instruction);
+                instruction = this.VisitTypeInstruction(instruction);
             }
             else if (instruction.OpCode == OpCodes.Newobj)
             {
                 instruction = this.VisitNewobjInstruction(instruction);
             }
             else if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt ||
-                instruction.OpCode == OpCodes.Ldftn) &&
-                instruction.Operand is MethodReference methodReference &&
-                (instruction.OpCode != OpCodes.Ldftn || !methodReference.HasThis))
+                instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn) &&
+                instruction.Operand is MethodReference methodReference)
             {
-                instruction = this.VisitCallInstruction(instruction, methodReference);
+                instruction = this.VisitMethodInstruction(instruction, methodReference);
             }
 
             return instruction;
         }
 
         /// <summary>
-        /// Rewrites the specified <see cref="OpCodes.Initobj"/> instruction.
+        /// Rewrites a type operand while preserving its instruction opcode.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
-        private Instruction VisitInitobjInstruction(Instruction instruction)
+        private Instruction VisitTypeInstruction(Instruction instruction)
         {
             TypeReference type = instruction.Operand as TypeReference;
             if (this.TryRewriteType(type, out TypeReference newType) &&
@@ -136,17 +135,19 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites a call or a static <see cref="OpCodes.Ldftn"/> instruction.
+        /// Rewrites a call or function-pointer instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
-        private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
+        private Instruction VisitMethodInstruction(Instruction instruction, MethodReference method)
         {
-            if (this.TryRewriteMethodReference(method, out MethodReference newMethod) &&
-                this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
+            bool isFunctionPointer = instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn;
+            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, isFunctionPointer) &&
+                this.TryResolve(newMethod, out MethodDefinition resolvedMethod) &&
+                (!isFunctionPointer || method.HasThis == newMethod.HasThis))
             {
                 // Create and return the new instruction.
-                Instruction newInstruction = Instruction.Create(instruction.OpCode == OpCodes.Ldftn ?
-                    OpCodes.Ldftn : resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);
+                Instruction newInstruction = Instruction.Create(isFunctionPointer ?
+                    instruction.OpCode : resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);
 
                 newInstruction.Offset = instruction.Offset;
                 this.LogWriter.LogDebug("............. [-] {0}", instruction);
@@ -162,18 +163,39 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Tries to rewrite the specified <see cref="MethodReference"/>.
         /// </summary>
-        private bool TryRewriteMethodReference(MethodReference method, out MethodReference result) =>
-            this.TryRewriteMethodReference(method, null, out result);
+        private bool TryRewriteMethodReference(MethodReference method, out MethodReference result,
+            bool isFunctionPointer = false) =>
+            this.TryRewriteMethodReference(method, null, out result, isFunctionPointer);
 
         /// <summary>
         /// Tries to rewrite the specified <see cref="MethodReference"/>.
         /// </summary>
-        private bool TryRewriteMethodReference(MethodReference method, string matchName, out MethodReference result)
+        private bool TryRewriteMethodReference(MethodReference method, string matchName, out MethodReference result,
+            bool isFunctionPointer = false)
         {
             result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (!this.IsRewritableType(resolvedDeclaringType))
             {
+                // External concrete signatures stay native, but generic arguments belong to the caller.
+                if (method is GenericInstanceMethod genericMethod)
+                {
+                    bool areArgumentsRewritten = false;
+                    var newGenericMethod = new GenericInstanceMethod(genericMethod.ElementMethod);
+                    foreach (var argument in genericMethod.GenericArguments)
+                    {
+                        newGenericMethod.GenericArguments.Add(
+                            this.RewriteType(argument, Options.None, ref areArgumentsRewritten));
+                    }
+
+                    if (areArgumentsRewritten)
+                    {
+                        result = this.Module.ImportReference(newGenericMethod);
+                    }
+
+                    return areArgumentsRewritten;
+                }
+
                 return false;
             }
 
@@ -204,7 +226,7 @@ namespace Microsoft.Coyote.Rewriting
 
             // Try to rewrite the declaring type.
             TypeReference newDeclaringType = this.RewriteType(method.DeclaringType,
-                Options.AllowStaticRewrittenType, ref isRewritten);
+                isFunctionPointer && method.HasThis ? Options.None : Options.AllowStaticRewrittenType, ref isRewritten);
             if (!this.TryResolve(newDeclaringType, out TypeDefinition resolvedNewDeclaringType))
             {
                 // Unable to resolve the declaring type of the method.

@@ -24,12 +24,23 @@ namespace Microsoft.Coyote.Rewriting
         protected internal override void VisitType(TypeDefinition type)
         {
             base.VisitType(type);
-            if (type.BaseType?.FullName == typeof(System.MulticastDelegate).FullName)
+            if (type.BaseType != null &&
+                this.TryRewriteType(type.BaseType, out TypeReference newBaseType) &&
+                this.TryResolve(newBaseType, out TypeDefinition _))
             {
-                // Delegate methods have no IL body, so the normal method traversal skips their signatures.
-                foreach (var method in type.Methods)
+                this.LogWriter.LogDebug("............. [-] base type '{0}'", type.BaseType);
+                type.BaseType = newBaseType;
+                this.LogWriter.LogDebug("............. [+] base type '{0}'", type.BaseType);
+            }
+
+            foreach (var implementedInterface in type.Interfaces)
+            {
+                if (this.TryRewriteType(implementedInterface.InterfaceType, out TypeReference newInterfaceType) &&
+                    this.TryResolve(newInterfaceType, out TypeDefinition _))
                 {
-                    this.VisitMethod(method);
+                    this.LogWriter.LogDebug("............. [-] interface '{0}'", implementedInterface.InterfaceType);
+                    implementedInterface.InterfaceType = newInterfaceType;
+                    this.LogWriter.LogDebug("............. [+] interface '{0}'", implementedInterface.InterfaceType);
                 }
             }
         }

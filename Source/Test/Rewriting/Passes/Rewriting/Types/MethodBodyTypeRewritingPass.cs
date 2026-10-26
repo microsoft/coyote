@@ -224,9 +224,12 @@ namespace Microsoft.Coyote.Rewriting
                 isRewritten = true;
             }
 
-            // Try to rewrite the declaring type.
+            // Bound delegates and base-constructor calls must retain an instance target.
+            Options declaringTypeOptions = (isFunctionPointer && method.HasThis) ||
+                (resolvedMethod.IsConstructor && matchName is null) ?
+                Options.None : Options.AllowStaticRewrittenType;
             TypeReference newDeclaringType = this.RewriteType(method.DeclaringType,
-                isFunctionPointer && method.HasThis ? Options.None : Options.AllowStaticRewrittenType, ref isRewritten);
+                declaringTypeOptions, ref isRewritten);
             if (!this.TryResolve(newDeclaringType, out TypeDefinition resolvedNewDeclaringType))
             {
                 // Unable to resolve the declaring type of the method.

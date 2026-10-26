@@ -319,6 +319,40 @@ namespace Microsoft.Coyote.BugFinding.Tests
             Assert.True(disposableSource.IsDisposed);
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestDerivedConfiguredResourceCollection()
+        {
+            var source = new EmptyEnumerable();
+            var resources = new ConfiguredResources
+            {
+                ((IAsyncDisposable)source).ConfigureAwait(false)
+            };
+            IEnumerable<ConfiguredAsyncDisposable> items = resources;
+            foreach (var item in items)
+            {
+                item.DisposeAsync().GetAwaiter().GetResult();
+            }
+
+            Assert.True(source.IsDisposed);
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestConfiguredResourceSignatures(bool throughInterface)
+        {
+            var source = new EmptyEnumerable();
+            var resource = new ConfiguredResource(source);
+            var configured = throughInterface ?
+                ((IConfiguredResource)resource).Configure() :
+                ((ConfiguredResourceBase)resource).Configure();
+            configured = throughInterface ?
+                ((IConfiguredResource)resource).Echo(configured) :
+                ((ConfiguredResourceBase)resource).Echo(configured);
+            configured.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
         private static async IAsyncEnumerable<int> EnumerateAsync(SharedEntry disposed, bool asynchronous,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -364,6 +398,42 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
         private delegate ConfiguredCancelableAsyncEnumerable<int> ConfigureCallback(
             IAsyncEnumerable<int> source, CancellationToken cancellationToken);
+
+        private sealed class ConfiguredResources : List<ConfiguredAsyncDisposable>, IEnumerable<ConfiguredAsyncDisposable>
+        {
+        }
+
+        private interface IConfiguredResource
+        {
+            ConfiguredAsyncDisposable Configure();
+
+            ConfiguredAsyncDisposable Echo(ConfiguredAsyncDisposable value);
+        }
+
+        private abstract class ConfiguredResourceBase : IConfiguredResource
+        {
+            public abstract ConfiguredAsyncDisposable Configure();
+
+            public abstract ConfiguredAsyncDisposable Echo(ConfiguredAsyncDisposable value);
+        }
+
+        private sealed class ConfiguredResource : ConfiguredResourceBase, IConfiguredResource
+        {
+            private readonly IAsyncDisposable Disposable;
+
+            internal ConfiguredResource(IAsyncDisposable disposable)
+            {
+                this.Disposable = disposable;
+            }
+
+            public override ConfiguredAsyncDisposable Configure() => this.Disposable.ConfigureAwait(false);
+
+            public override ConfiguredAsyncDisposable Echo(ConfiguredAsyncDisposable value) => value;
+
+            ConfiguredAsyncDisposable IConfiguredResource.Configure() => this.Configure();
+
+            ConfiguredAsyncDisposable IConfiguredResource.Echo(ConfiguredAsyncDisposable value) => this.Echo(value);
+        }
 
         private sealed class Box<T>
         {

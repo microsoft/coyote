@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -507,6 +508,66 @@ namespace Microsoft.Coyote.BugFinding.Tests
             Assert.True(source.IsDisposed);
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredDisposalExpression()
+        {
+            var source = new EmptyEnumerable();
+            Expression<Func<ConfiguredAsyncDisposable>> expression = () => ((IAsyncDisposable)source).ConfigureAwait(false);
+            expression.Compile()().DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredGenericConstructorExpression()
+        {
+            var source = new EmptyEnumerable();
+            Expression<Func<Box<ConfiguredAsyncDisposable>>> expression =
+                () => new Box<ConfiguredAsyncDisposable>(((IAsyncDisposable)source).ConfigureAwait(false));
+            expression.Compile()().Value.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestInstanceMethodExpressionBinding()
+        {
+            Task task = Task.CompletedTask;
+            Expression<Action> expression = () => task.Wait();
+            expression.Compile()();
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestConfiguredBlockingEnumerable(bool cancel)
+        {
+            using var cancellation = new CancellationTokenSource();
+            if (cancel)
+            {
+                cancellation.Cancel();
+            }
+
+            var source = new EmptyEnumerable();
+            var items = EnumerateValue(((IAsyncDisposable)source).ConfigureAwait(false))
+                .ToBlockingEnumerable(cancellation.Token);
+            if (cancel)
+            {
+                var exception = Assert.Throws<OperationCanceledException>(() => Assert.Single(items));
+                Assert.Equal(cancellation.Token, exception.CancellationToken);
+            }
+            else
+            {
+                Assert.Single(items).DisposeAsync().GetAwaiter().GetResult();
+                Assert.True(source.IsDisposed);
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaiterBlockingEnumerable()
+        {
+            var awaiter = Assert.Single(EnumerateValue(Task.FromResult(3).GetAwaiter()).ToBlockingEnumerable());
+            Assert.Equal(3, awaiter.GetResult());
+        }
+
         private static void DisposeConstrainedResources<T>(T resources)
             where T : IEnumerable<ConfiguredAsyncDisposable>
         {
@@ -514,6 +575,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 resource.DisposeAsync().GetAwaiter().GetResult();
             }
+        }
+
+        private static async IAsyncEnumerable<T> EnumerateValue<T>(T value,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask;
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return value;
         }
 
         private static async IAsyncEnumerable<int> EnumerateAsync(SharedEntry disposed, bool asynchronous,

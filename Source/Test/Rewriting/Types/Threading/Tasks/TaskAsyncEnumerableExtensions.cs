@@ -35,6 +35,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         public static ConfiguredCancelableAsyncEnumerable<T> WithCancellation<T>(
             IAsyncEnumerable<T> source, CancellationToken cancellationToken) =>
             new ConfiguredCancelableAsyncEnumerable<T>(source, true, cancellationToken);
+
+#if NET7_0_OR_GREATER
+        /// <summary>
+        /// Converts an async enumerable into a blocking enumerable.
+        /// </summary>
+        public static IEnumerable<T> ToBlockingEnumerable<T>(
+            IAsyncEnumerable<T> source, CancellationToken cancellationToken = default) =>
+            System.Threading.Tasks.TaskAsyncEnumerableExtensions.ToBlockingEnumerable(source, cancellationToken);
+#endif
     }
 }
 #endif

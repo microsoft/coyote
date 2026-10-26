@@ -79,7 +79,8 @@ namespace Microsoft.Coyote.Rewriting
                 instruction = this.VisitNewobjInstruction(instruction);
             }
             else if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt ||
-                instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn) &&
+                instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn ||
+                instruction.OpCode == OpCodes.Ldtoken) &&
                 instruction.Operand is MethodReference methodReference)
             {
                 instruction = this.VisitMethodInstruction(instruction, methodReference);
@@ -169,18 +170,19 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites a call or function-pointer instruction.
+        /// Rewrites a call, function-pointer or method-token instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitMethodInstruction(Instruction instruction, MethodReference method)
         {
-            bool isFunctionPointer = instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn;
-            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, isFunctionPointer) &&
+            bool preserveBinding = instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn ||
+                instruction.OpCode == OpCodes.Ldtoken;
+            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, preserveBinding) &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod) &&
-                (!isFunctionPointer || method.HasThis == newMethod.HasThis))
+                (!preserveBinding || method.HasThis == newMethod.HasThis))
             {
                 // Create and return the new instruction.
-                Instruction newInstruction = Instruction.Create(isFunctionPointer || !resolvedMethod.IsStatic ?
+                Instruction newInstruction = Instruction.Create(preserveBinding || !resolvedMethod.IsStatic ?
                     instruction.OpCode : OpCodes.Call, newMethod);
 
                 newInstruction.Offset = instruction.Offset;
@@ -198,14 +200,14 @@ namespace Microsoft.Coyote.Rewriting
         /// Tries to rewrite the specified <see cref="MethodReference"/>.
         /// </summary>
         private bool TryRewriteMethodReference(MethodReference method, out MethodReference result,
-            bool isFunctionPointer = false) =>
-            this.TryRewriteMethodReference(method, null, out result, isFunctionPointer);
+            bool preserveInstanceBinding = false) =>
+            this.TryRewriteMethodReference(method, null, out result, preserveInstanceBinding);
 
         /// <summary>
         /// Tries to rewrite the specified <see cref="MethodReference"/>.
         /// </summary>
         private bool TryRewriteMethodReference(MethodReference method, string matchName, out MethodReference result,
-            bool isFunctionPointer = false)
+            bool preserveInstanceBinding = false)
         {
             result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
@@ -284,8 +286,8 @@ namespace Microsoft.Coyote.Rewriting
                 isRewritten = true;
             }
 
-            // Bound delegates and base-constructor calls must retain an instance target.
-            Options declaringTypeOptions = (isFunctionPointer && method.HasThis) ||
+            // Method handles, bound delegates and base-constructor calls must retain instance binding.
+            Options declaringTypeOptions = (preserveInstanceBinding && method.HasThis) ||
                 (resolvedMethod.IsConstructor && matchName is null) ?
                 Options.None : Options.AllowStaticRewrittenType;
             TypeReference newDeclaringType = this.RewriteType(method.DeclaringType,

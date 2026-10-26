@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -398,6 +399,63 @@ namespace Microsoft.Coyote.BugFinding.Tests
             Assert.True(source.IsDisposed);
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredTupleFields()
+        {
+            using var cancellation = new CancellationTokenSource();
+            var source = new EmptyEnumerable();
+            var disposable = new EmptyEnumerable();
+            var pair = (source.WithCancellation(default), ((IAsyncDisposable)disposable).ConfigureAwait(false));
+            pair.Item1 = source.WithCancellation(cancellation.Token);
+            var enumerable = pair.Item1;
+            enumerable.GetAsyncEnumerator();
+            Assert.Equal(cancellation.Token, source.ObservedToken);
+            pair.Item2.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(disposable.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredStaticGenericField()
+        {
+            var first = new EmptyEnumerable();
+            ConfiguredResourceSlot<ConfiguredAsyncDisposable>.Value = ((IAsyncDisposable)first).ConfigureAwait(false);
+            var configured = ConfiguredResourceSlot<ConfiguredAsyncDisposable>.Value;
+            configured.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(first.IsDisposed);
+
+            var second = new EmptyEnumerable();
+            ConfiguredResourceSlot<ConfiguredAsyncDisposable>.Value = ((IAsyncDisposable)second).ConfigureAwait(false);
+            ConfiguredResourceSlot<ConfiguredAsyncDisposable>.Value.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(second.IsDisposed);
+            ConfiguredResourceSlot<ConfiguredAsyncDisposable>.Value = default;
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        public void TestNullEnumerableConfiguration(bool withCancellation, bool continueOnCapturedContext)
+        {
+            IAsyncEnumerable<int> source = null;
+            // Reflect over CoreLib so the control invokes the framework API, not its rewritten replacement.
+            var nativeExtensions = typeof(object).Assembly.GetType("System.Threading.Tasks.TaskAsyncEnumerableExtensions", true);
+            string methodName = withCancellation ? "WithCancellation" : "ConfigureAwait";
+            var nativeMethod = Array.Find(nativeExtensions.GetMethods(),
+                method => method.Name == methodName && method.IsGenericMethodDefinition);
+            Assert.NotNull(nativeMethod);
+            var nativeConfigured = nativeMethod.MakeGenericMethod(typeof(int)).Invoke(null,
+                new object[] { source, withCancellation ? (object)default(CancellationToken) : continueOnCapturedContext });
+            Assert.NotNull(nativeConfigured);
+            var nativeException = Assert.Throws<TargetInvocationException>(() =>
+                nativeConfigured.GetType().GetMethod("GetAsyncEnumerator").Invoke(nativeConfigured, null));
+            Assert.IsType<NullReferenceException>(nativeException.InnerException);
+
+            var configured = withCancellation ?
+                source.WithCancellation(default) :
+                source.ConfigureAwait(continueOnCapturedContext);
+            Assert.Throws<NullReferenceException>(() => configured.GetAsyncEnumerator());
+        }
+
         private static void DisposeConstrainedResources<T>(T resources)
             where T : IEnumerable<ConfiguredAsyncDisposable>
         {
@@ -532,6 +590,11 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 this.Value = value;
             }
+        }
+
+        private static class ConfiguredResourceSlot<T>
+        {
+            internal static T Value;
         }
 
         private sealed class EmptyEnumerable : IAsyncEnumerable<int>, IAsyncEnumerator<int>

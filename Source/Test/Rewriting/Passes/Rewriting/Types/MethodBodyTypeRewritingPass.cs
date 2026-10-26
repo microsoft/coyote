@@ -46,24 +46,22 @@ namespace Microsoft.Coyote.Rewriting
 
             // Note that the C# compiler is not generating `OpCodes.Calli` instructions:
             // https://docs.microsoft.com/en-us/archive/blogs/shawnfa/calli-is-not-verifiable.
-            // TODO: what about ldsfld, for static fields?
-            if (instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldflda)
+            if (instruction.Operand is FieldReference field)
             {
-                if (instruction.Operand is FieldDefinition fd &&
-                    this.TryRewriteType(fd.FieldType, out TypeReference newFieldType) &&
+                if (this.TryRewriteType(field.FieldType, out TypeReference newFieldType) &&
                     this.TryResolve(newFieldType, out TypeDefinition _))
                 {
                     this.LogWriter.LogDebug("............. [-] {0}", instruction);
-                    fd.FieldType = newFieldType;
+                    field.FieldType = newFieldType;
                     this.IsMethodBodyModified = true;
                     this.LogWriter.LogDebug("............. [+] {0}", instruction);
                 }
-                else if (instruction.Operand is FieldReference fr &&
-                    this.TryRewriteType(fr.FieldType, out newFieldType) &&
-                    this.TryResolve(newFieldType, out TypeDefinition _))
+
+                if (this.TryRewriteType(field.DeclaringType, out TypeReference newDeclaringType) &&
+                    this.TryResolve(newDeclaringType, out TypeDefinition _))
                 {
                     this.LogWriter.LogDebug("............. [-] {0}", instruction);
-                    fr.FieldType = newFieldType;
+                    field.DeclaringType = newDeclaringType;
                     this.IsMethodBodyModified = true;
                     this.LogWriter.LogDebug("............. [+] {0}", instruction);
                 }

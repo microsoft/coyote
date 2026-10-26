@@ -24,6 +24,7 @@ namespace Microsoft.Coyote.Rewriting
         protected internal override void VisitType(TypeDefinition type)
         {
             base.VisitType(type);
+            this.RewriteGenericConstraints(type.GenericParameters);
             if (type.BaseType != null &&
                 this.TryRewriteType(type.BaseType, out TypeReference newBaseType) &&
                 this.TryResolve(newBaseType, out TypeDefinition _))
@@ -61,6 +62,27 @@ namespace Microsoft.Coyote.Rewriting
         protected internal override void VisitMethod(MethodDefinition method)
         {
             // TODO: guard against rewriting methods that have been inherited by non rewritten assemblies.
+            this.RewriteMethodSignature(method);
+            this.RewriteGenericConstraints(method.GenericParameters);
+            foreach (var methodOverride in method.Overrides)
+            {
+                if (this.TryRewriteType(methodOverride.DeclaringType, out TypeReference newDeclaringType) &&
+                    this.TryResolve(newDeclaringType, out TypeDefinition _))
+                {
+                    this.LogWriter.LogDebug("............. [-] override '{0}'", methodOverride);
+                    methodOverride.DeclaringType = newDeclaringType;
+                    this.LogWriter.LogDebug("............. [+] override '{0}'", methodOverride);
+                }
+
+                this.RewriteMethodSignature(methodOverride);
+            }
+        }
+
+        /// <summary>
+        /// Rewrites the return and parameter types of a method declaration.
+        /// </summary>
+        private void RewriteMethodSignature(MethodReference method)
+        {
             // Try to rewrite the return type.
             if (this.TryRewriteType(method.ReturnType, out TypeReference newReturnType) &&
                 this.TryResolve(newReturnType, out TypeDefinition _))
@@ -81,6 +103,26 @@ namespace Microsoft.Coyote.Rewriting
                         this.LogWriter.LogDebug("............. [-] parameter '{0} {1}'", parameter.ParameterType, parameter.Name);
                         parameter.ParameterType = newParameterType;
                         this.LogWriter.LogDebug("............. [+] parameter '{0} {1}'", parameter.ParameterType, parameter.Name);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Rewrites constraints on type or method generic parameters.
+        /// </summary>
+        private void RewriteGenericConstraints(IEnumerable<GenericParameter> parameters)
+        {
+            foreach (var parameter in parameters)
+            {
+                foreach (var constraint in parameter.Constraints)
+                {
+                    if (this.TryRewriteType(constraint.ConstraintType, out TypeReference newConstraintType) &&
+                        this.TryResolve(newConstraintType, out TypeDefinition _))
+                    {
+                        this.LogWriter.LogDebug("............. [-] constraint '{0}'", constraint.ConstraintType);
+                        constraint.ConstraintType = newConstraintType;
+                        this.LogWriter.LogDebug("............. [+] constraint '{0}'", constraint.ConstraintType);
                     }
                 }
             }

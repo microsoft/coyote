@@ -146,8 +146,8 @@ namespace Microsoft.Coyote.Rewriting
                 (!isFunctionPointer || method.HasThis == newMethod.HasThis))
             {
                 // Create and return the new instruction.
-                Instruction newInstruction = Instruction.Create(isFunctionPointer ?
-                    instruction.OpCode : resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);
+                Instruction newInstruction = Instruction.Create(isFunctionPointer || !resolvedMethod.IsStatic ?
+                    instruction.OpCode : OpCodes.Call, newMethod);
 
                 newInstruction.Offset = instruction.Offset;
                 this.LogWriter.LogDebug("............. [-] {0}", instruction);

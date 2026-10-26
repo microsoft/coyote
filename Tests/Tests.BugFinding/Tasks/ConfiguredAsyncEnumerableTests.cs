@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -353,6 +354,59 @@ namespace Microsoft.Coyote.BugFinding.Tests
             Assert.True(source.IsDisposed);
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestClosedGenericExplicitInterface()
+        {
+            var source = new EmptyEnumerable();
+            var configured = ((IAsyncDisposable)source).ConfigureAwait(false);
+            IComparer<ConfiguredAsyncDisposable> comparer = new ConfiguredResourceComparer();
+            Assert.Equal(0, comparer.Compare(configured, configured));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredCollectionVirtualBaseCall()
+        {
+            var source = new EmptyEnumerable();
+            var resources = new ConfiguredResourceCollection();
+            resources.Add(((IAsyncDisposable)source).ConfigureAwait(false));
+            Assert.Equal(1, resources.Insertions);
+            Assert.Single(resources).DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredMethodConstraint()
+        {
+            var source = new EmptyEnumerable();
+            var resources = new ConfiguredResources
+            {
+                ((IAsyncDisposable)source).ConfigureAwait(false)
+            };
+            DisposeConstrainedResources(resources);
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredTypeConstraint()
+        {
+            var source = new EmptyEnumerable();
+            var resources = new ConfiguredResources
+            {
+                ((IAsyncDisposable)source).ConfigureAwait(false)
+            };
+            new ConfiguredResourceConsumer<ConfiguredResources>(resources).Dispose();
+            Assert.True(source.IsDisposed);
+        }
+
+        private static void DisposeConstrainedResources<T>(T resources)
+            where T : IEnumerable<ConfiguredAsyncDisposable>
+        {
+            foreach (var resource in resources)
+            {
+                resource.DisposeAsync().GetAwaiter().GetResult();
+            }
+        }
+
         private static async IAsyncEnumerable<int> EnumerateAsync(SharedEntry disposed, bool asynchronous,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -433,6 +487,41 @@ namespace Microsoft.Coyote.BugFinding.Tests
             ConfiguredAsyncDisposable IConfiguredResource.Configure() => this.Configure();
 
             ConfiguredAsyncDisposable IConfiguredResource.Echo(ConfiguredAsyncDisposable value) => this.Echo(value);
+        }
+
+        private sealed class ConfiguredResourceComparer : IComparer<ConfiguredAsyncDisposable>
+        {
+            int IComparer<ConfiguredAsyncDisposable>.Compare(ConfiguredAsyncDisposable x, ConfiguredAsyncDisposable y) =>
+                x.Equals(y) ? 0 : 1;
+        }
+
+        private sealed class ConfiguredResourceCollection : Collection<ConfiguredAsyncDisposable>
+        {
+            internal int Insertions { get; private set; }
+
+            protected override void InsertItem(int index, ConfiguredAsyncDisposable item)
+            {
+                // Fail deterministically instead of overflowing the stack if the base call is made virtual.
+                if (++this.Insertions > 1)
+                {
+                    throw new InvalidOperationException("Base insertion dispatched back into the override.");
+                }
+
+                base.InsertItem(index, item);
+            }
+        }
+
+        private sealed class ConfiguredResourceConsumer<T>
+            where T : IEnumerable<ConfiguredAsyncDisposable>
+        {
+            private readonly T Resources;
+
+            internal ConfiguredResourceConsumer(T resources)
+            {
+                this.Resources = resources;
+            }
+
+            internal void Dispose() => DisposeConstrainedResources(this.Resources);
         }
 
         private sealed class Box<T>

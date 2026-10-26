@@ -23,6 +23,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         protected internal override void VisitType(TypeDefinition type)
         {
+            base.VisitType(type);
             if (type.BaseType?.FullName == typeof(System.MulticastDelegate).FullName)
             {
                 // Delegate methods have no IL body, so the normal method traversal skips their signatures.

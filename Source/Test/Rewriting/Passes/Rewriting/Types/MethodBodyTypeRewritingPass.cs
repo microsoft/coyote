@@ -76,8 +76,10 @@ namespace Microsoft.Coyote.Rewriting
             {
                 instruction = this.VisitNewobjInstruction(instruction);
             }
-            else if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
-                instruction.Operand is MethodReference methodReference)
+            else if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt ||
+                instruction.OpCode == OpCodes.Ldftn) &&
+                instruction.Operand is MethodReference methodReference &&
+                (instruction.OpCode != OpCodes.Ldftn || !methodReference.HasThis))
             {
                 instruction = this.VisitCallInstruction(instruction, methodReference);
             }
@@ -134,7 +136,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
+        /// Rewrites a call or a static <see cref="OpCodes.Ldftn"/> instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
@@ -143,8 +145,8 @@ namespace Microsoft.Coyote.Rewriting
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
                 // Create and return the new instruction.
-                Instruction newInstruction = Instruction.Create(resolvedMethod.IsVirtual ?
-                    OpCodes.Callvirt : OpCodes.Call, newMethod);
+                Instruction newInstruction = Instruction.Create(instruction.OpCode == OpCodes.Ldftn ?
+                    OpCodes.Ldftn : resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);
 
                 newInstruction.Offset = instruction.Offset;
                 this.LogWriter.LogDebug("............. [-] {0}", instruction);

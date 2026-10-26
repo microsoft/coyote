@@ -153,6 +153,70 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredEnumerableInGenericConstructor()
+        {
+            using var cancellation = new CancellationTokenSource();
+            var source = new EmptyEnumerable();
+            var box = new Box<ConfiguredCancelableAsyncEnumerable<int>>(source.WithCancellation(cancellation.Token));
+            Assert.NotNull(box);
+            box.Value.GetAsyncEnumerator();
+            Assert.Equal(cancellation.Token, source.ObservedToken);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredEnumeratorInGenericConstructor()
+        {
+            var source = new EmptyEnumerable();
+            var enumerator = source.WithCancellation(default).GetAsyncEnumerator();
+            var box = new Box<ConfiguredCancelableAsyncEnumerable<int>.Enumerator>(enumerator);
+            Assert.NotNull(box);
+            Assert.Equal(0, box.Value.Current);
+            box.Value.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfiguredDisposableInGenericConstructor()
+        {
+            var source = new EmptyEnumerable();
+            var box = new Box<ConfiguredAsyncDisposable>(((IAsyncDisposable)source).ConfigureAwait(false));
+            Assert.NotNull(box);
+            box.Value.DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConfigurationMethodGroup()
+        {
+            using var cancellation = new CancellationTokenSource();
+            var source = new EmptyEnumerable();
+            Func<IAsyncEnumerable<int>, CancellationToken, ConfiguredCancelableAsyncEnumerable<int>> configure =
+                TaskAsyncEnumerableExtensions.WithCancellation<int>;
+            configure(source, cancellation.Token).GetAsyncEnumerator();
+            Assert.Equal(cancellation.Token, source.ObservedToken);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestCustomConfigurationMethodGroup()
+        {
+            using var cancellation = new CancellationTokenSource();
+            var source = new EmptyEnumerable();
+            ConfigureCallback configure = TaskAsyncEnumerableExtensions.WithCancellation<int>;
+            configure(source, cancellation.Token).GetAsyncEnumerator();
+            Assert.Equal(cancellation.Token, source.ObservedToken);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestDisposalConfigurationMethodGroup()
+        {
+            var source = new EmptyEnumerable();
+            Func<IAsyncDisposable, bool, ConfiguredAsyncDisposable> configure =
+                TaskAsyncEnumerableExtensions.ConfigureAwait;
+            configure(source, false).DisposeAsync().GetAwaiter().GetResult();
+            Assert.True(source.IsDisposed);
+        }
+
         private static async IAsyncEnumerable<int> EnumerateAsync(SharedEntry disposed, bool asynchronous,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -193,6 +257,42 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 await Task.Delay(1);
                 this.Disposed.Value++;
+            }
+        }
+
+        private delegate ConfiguredCancelableAsyncEnumerable<int> ConfigureCallback(
+            IAsyncEnumerable<int> source, CancellationToken cancellationToken);
+
+        private sealed class Box<T>
+        {
+            internal T Value { get; }
+
+            internal Box(T value)
+            {
+                this.Value = value;
+            }
+        }
+
+        private sealed class EmptyEnumerable : IAsyncEnumerable<int>, IAsyncEnumerator<int>
+        {
+            public int Current => 0;
+
+            internal CancellationToken ObservedToken { get; private set; }
+
+            internal bool IsDisposed { get; private set; }
+
+            public IAsyncEnumerator<int> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            {
+                this.ObservedToken = cancellationToken;
+                return this;
+            }
+
+            public ValueTask<bool> MoveNextAsync() => new ValueTask<bool>(false);
+
+            public ValueTask DisposeAsync()
+            {
+                this.IsDisposed = true;
+                return default;
             }
         }
     }

@@ -21,6 +21,19 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
+        protected internal override void VisitType(TypeDefinition type)
+        {
+            if (type.BaseType?.FullName == typeof(System.MulticastDelegate).FullName)
+            {
+                // Delegate methods have no IL body, so the normal method traversal skips their signatures.
+                foreach (var method in type.Methods)
+                {
+                    this.VisitMethod(method);
+                }
+            }
+        }
+
+        /// <inheritdoc/>
         protected internal override void VisitField(FieldDefinition field)
         {
             if (this.TryRewriteType(field.FieldType, out TypeReference newFieldType) &&

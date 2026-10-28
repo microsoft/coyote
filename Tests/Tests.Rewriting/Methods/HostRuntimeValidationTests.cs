@@ -225,6 +225,80 @@ namespace Microsoft.Coyote.Rewriting.Tests
             }
         }
 
+        [Theory(Timeout = 10000)]
+        [InlineData(false, -1)]
+        [InlineData(false, 1)]
+        [InlineData(true, -1)]
+        [InlineData(true, 1)]
+        public void TestRewritingIncompatibleTransitiveDependencyPreservesFiles(bool replaceAssemblies,
+            int majorVersionOffset)
+        {
+            string directory = CreateScratchDirectory();
+            try
+            {
+                string inputDirectory = Directory.CreateDirectory(Path.Combine(directory, "input")).FullName;
+                string outputDirectory = replaceAssemblies ? inputDirectory :
+                    Directory.CreateDirectory(Path.Combine(directory, "output")).FullName;
+                string matchingFramework = $".NETCoreApp,Version=v{Environment.Version.Major}.0";
+                string incompatibleFramework =
+                    $".NETCoreApp,Version=v{Environment.Version.Major + majorVersionOffset}.0";
+                CreateDependencyTarget(inputDirectory, "Dependency", incompatibleFramework);
+                CreateDependencyTarget(inputDirectory, "Intermediate", matchingFramework, "Dependency");
+                string target = CreateDependencyTarget(inputDirectory, "Target", matchingFramework, "Intermediate");
+                File.WriteAllText(Path.Combine(outputDirectory, "Microsoft.Coyote.dll"), "preserve runtime");
+                string nestedDirectory = Directory.CreateDirectory(Path.Combine(outputDirectory, "nested")).FullName;
+                File.WriteAllText(Path.Combine(nestedDirectory, "keep.txt"), "preserve output");
+                var files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories)
+                    .ToDictionary(path => path, ComputeHash);
+                string[] directories = Directory.GetDirectories(directory, "*", SearchOption.AllDirectories)
+                    .OrderBy(path => path).ToArray();
+
+                var exception = Assert.Throws<InvalidOperationException>(() =>
+                    RunRewritingEngine(inputDirectory, target, outputDirectory, rewriteDependencies: true));
+
+                Assert.Equal(files.Keys.OrderBy(path => path),
+                    Directory.GetFiles(directory, "*", SearchOption.AllDirectories).OrderBy(path => path));
+                Assert.Equal(directories, Directory.GetDirectories(directory, "*", SearchOption.AllDirectories)
+                    .OrderBy(path => path).ToArray());
+                foreach (var file in files)
+                {
+                    Assert.Equal(file.Value, ComputeHash(file.Key));
+                }
+
+                Assert.Contains($"targets {incompatibleFramework}", exception.Message);
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact(Timeout = 10000)]
+        public void TestRewritingMatchingTransitiveDependenciesSucceeds()
+        {
+            string directory = CreateScratchDirectory();
+            try
+            {
+                string framework = $".NETCoreApp,Version=v{Environment.Version.Major}.0";
+                string dependency = CreateDependencyTarget(directory, "Dependency", framework);
+                string intermediate = CreateDependencyTarget(directory, "Intermediate", framework, "Dependency");
+                string target = CreateDependencyTarget(directory, "Target", framework, "Intermediate");
+
+                RunRewritingEngine(directory, target, rewriteDependencies: true);
+
+                foreach (string path in new[] { dependency, intermediate, target })
+                {
+                    using AssemblyDefinition definition = ReadAssembly(path);
+                    Assert.Contains(definition.CustomAttributes, attribute =>
+                        attribute.AttributeType.FullName == typeof(RewritingSignatureAttribute).FullName);
+                }
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
         /// <summary>
         /// Asserts that rewriting an assembly declaring the specified target framework is rejected
         /// before the assembly, or any other output, is written.
@@ -262,16 +336,34 @@ namespace Microsoft.Coyote.Rewriting.Tests
         /// <summary>
         /// Runs the rewriting engine over the specified assembly, replacing it in place.
         /// </summary>
-        private static void RunRewritingEngine(string directory, string assemblyPath)
+        private static void RunRewritingEngine(string directory, string assemblyPath,
+            string outputDirectory = null, bool rewriteDependencies = false)
         {
             var options = RewritingOptions.Create();
             options.AssembliesDirectory = directory;
-            options.OutputDirectory = directory;
+            options.OutputDirectory = outputDirectory ?? directory;
             options.AssemblyPaths.Add(assemblyPath);
+            options.IsRewritingDependencies = rewriteDependencies;
 
             var configuration = Microsoft.Coyote.Configuration.Create();
             using var logWriter = new LogWriter(configuration);
             RewritingEngine.Run(options, configuration, logWriter, new Profiler());
+        }
+
+        private static string CreateDependencyTarget(string directory, string name, string targetFramework,
+            params string[] dependencies)
+        {
+            using var definition = AssemblyDefinition.CreateAssembly(
+                new AssemblyNameDefinition(name, new Version(1, 0)), name, ModuleKind.Dll);
+            SetTargetFramework(definition, targetFramework);
+            foreach (string dependency in dependencies)
+            {
+                definition.MainModule.AssemblyReferences.Add(new AssemblyNameReference(dependency, new Version(1, 0)));
+            }
+
+            string path = Path.Combine(directory, name + ".dll");
+            definition.Write(path);
+            return path;
         }
 
         /// <summary>

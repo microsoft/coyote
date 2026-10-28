@@ -261,8 +261,10 @@ namespace Microsoft.Coyote.Rewriting.Tests
             expectedError: "Invoking 'Lock.TryEnter' with a finite timeout is not supported in systematic testing.");
         }
 
-        [Fact(Timeout = 5000)]
-        public void TestRewritingLockTryEnterWithLockAccessRaceChecking()
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestRewritingLockTryEnterRetries(bool checkLockAccessRaces)
         {
             this.Test(() =>
             {
@@ -272,7 +274,8 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 Task second = Task.Run(() => TryEnter(gate, ref entered));
                 Task.WaitAll(first, second);
             },
-            configuration: this.GetConfiguration().WithLockAccessRaceCheckingEnabled().WithTestingIterations(100));
+            configuration: this.GetConfiguration().WithRandomStrategy().WithRandomGeneratorSeed(0)
+                .WithLockAccessRaceCheckingEnabled(checkLockAccessRaces).WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
@@ -380,9 +383,10 @@ namespace Microsoft.Coyote.Rewriting.Tests
 
         private static void TryEnter(Lock gate, ref int entered)
         {
+            int attempts = 0;
             while (!gate.TryEnter())
             {
-                SchedulingPoint.Interleave();
+                Specification.Assert(++attempts < 100, "Lock retries did not schedule the owner.");
             }
 
             entered++;

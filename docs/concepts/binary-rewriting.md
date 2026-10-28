@@ -32,7 +32,9 @@ Coyote ships a host for each supported .NET version. Rewriting injects reference
 the host that performs it, so you must run the host that matches the .NET major version targeted by
 the assembly: use the `net8.0` Coyote host to rewrite a `net8.0` assembly and the `net10.0` host to
 rewrite a `net10.0` assembly. If the versions do not match, `coyote rewrite` reports an error naming
-both versions and leaves the assembly unmodified.
+both versions and leaves the assembly unmodified. All assemblies selected for rewriting, including
+dependencies when dependency rewriting is enabled, are validated before output files are copied or
+overwritten.
 
 ### Configuration
 
@@ -108,6 +110,10 @@ something else (resulting in lost coverage), Coyote will instead have a chance t
 uncontrolled call to complete (with some tunable time bound, which is a heuristic inside Coyote).
 This means that coverage wont regress in most cases.
 
+`Task.WhenEach` follows the same policy for pending input tasks, including tasks inside an
+`IEnumerable<Task>` returned by an unrewritten library. If partially-controlled exploration is
+disabled, waiting for such a task reports an uncontrolled-task diagnostic rather than a deadlock.
+
 Ideally, you want to mock important external dependencies (for example storage backends such as
 CosmosDB) with some in-memory mock implementation to make your test fast and efficient, but at least
 you can already get tests up and running without requiring to mock every single thing, making the
@@ -133,8 +139,13 @@ not treat that timeout as a source of nondeterminism during systematic testing:
   which is how it reports any other wait that cannot be satisfied.
 - Where the API can return without giving any other operation a chance to run first, a **zero**
   timeout keeps its production meaning: `Task.WaitAsync` throws a `TimeoutException`, and
-  `SemaphoreSlim.Wait`, `SemaphoreSlim.WaitAsync`, `WaitHandle.WaitOne` and `Lock.TryEnter` report
-  that they did not acquire the resource.
+  `SemaphoreSlim.Wait`, `SemaphoreSlim.WaitAsync`, `WaitHandle.WaitOne`, `Monitor.TryEnter` and
+  `Lock.TryEnter` report that they did not acquire the resource.
+
+`Monitor.TryEnter` preserves the native argument checks, including invalid timeouts and a
+`lockTaken` argument that is already `true`. Contended nonblocking attempts introduce a scheduling
+point so that retry loops give the lock owner a chance to release it, even when lock-access race
+checking is disabled.
 
 This policy does not change how cancellation is observed. Where the API takes a cancellation token
 that Coyote controls, such as `Task.WaitAsync`, a wait with a finite timeout still completes as

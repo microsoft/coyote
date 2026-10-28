@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -255,6 +256,64 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 await pending.Task;
             },
             configuration: this.GetConfiguration().WithTestingIterations(100));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestWhenEachDetectsUncontrolledTasksInEnumerable(bool isGeneric)
+        {
+            this.TestWithError(async () =>
+            {
+                IEnumerable<Task<int>> pending = AsyncProvider.GetPendingTasks();
+                IAsyncEnumerable<Task> tasks = isGeneric ?
+                    Task.WhenEach(pending) : Task.WhenEach((IEnumerable<Task>)pending);
+                await foreach (Task task in tasks)
+                {
+                }
+            },
+            configuration: this.GetConfiguration().WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false),
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith("Waiting task", e);
+                Assert.Contains("not intercepted and controlled", e);
+            },
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenEachResolvesPartiallyControlledEnumerable()
+        {
+            this.Test(async () =>
+            {
+                int count = 0;
+                await foreach (Task task in Task.WhenEach(AsyncProvider.GetDelayedTasks(100)))
+                {
+                    Assert.True(task.IsCompleted);
+                    count++;
+                }
+
+                Assert.Equal(1, count);
+            },
+            configuration: this.GetConfiguration().WithPartiallyControlledConcurrencyAllowed()
+                .WithTestingIterations(10));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenEachAcceptsCompletedUncontrolledEnumerable()
+        {
+            this.Test(async () =>
+            {
+                int count = 0;
+                await foreach (Task task in Task.WhenEach(AsyncProvider.GetDelayedTasks(0)))
+                {
+                    Assert.True(task.IsCompleted);
+                    count++;
+                }
+
+                Assert.Equal(1, count);
+            });
         }
 
         [Fact(Timeout = 5000)]

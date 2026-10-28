@@ -165,7 +165,8 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Task t2 = Task.Run(data.AcquireAndRelease);
                 await Task.WhenAll(t1, t2);
             },
-            this.GetConfiguration().WithLockAccessRaceCheckingEnabled().WithTestingIterations(100));
+            this.GetConfiguration().WithRandomStrategy().WithRandomGeneratorSeed(0)
+                .WithLockAccessRaceCheckingEnabled().WithTestingIterations(100));
         }
 
         [Theory(Timeout = 5000)]
@@ -276,6 +277,203 @@ namespace Microsoft.Coyote.BugFinding.Tests
             }
         }
 
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void TestMonitorTryEnterRejectsInvalidTimeoutBeforeAcquisition(int overload)
+        {
+            this.Test(() =>
+            {
+                object gate = new object();
+                bool lockTaken = false;
+                Assert.Throws<ArgumentOutOfRangeException>(() => TryEnterWithTimeout(gate, overload, -2, ref lockTaken));
+                Assert.False(lockTaken);
+                Assert.False(Monitor.IsEntered(gate));
+
+                Monitor.Enter(gate);
+                try
+                {
+                    Task worker = Task.Run(() =>
+                    {
+                        bool taken = false;
+                        Assert.Throws<ArgumentOutOfRangeException>(() => TryEnterWithTimeout(gate, overload, -2, ref taken));
+                        Assert.False(taken);
+                    });
+                    worker.Wait();
+                }
+                finally
+                {
+                    Monitor.Exit(gate);
+                }
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(20));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void TestMonitorTryEnterPreservesArgumentValidationOrder(int overload)
+        {
+            this.Test(() =>
+            {
+                bool lockTaken = false;
+                Assert.Throws<ArgumentNullException>(() => TryEnterWithTimeout(null, overload, 0, ref lockTaken));
+                if (overload < 2)
+                {
+                    Assert.Throws<ArgumentNullException>(() => TryEnterWithTimeout(null, overload, -2, ref lockTaken));
+                }
+                else
+                {
+                    var exception = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                        TryEnterWithTimeout(null, overload, -2, ref lockTaken));
+                    Assert.Equal("timeout", exception.ParamName);
+                }
+
+                if (overload is 1 || overload is 3)
+                {
+                    lockTaken = true;
+                    if (overload is 1)
+                    {
+                        var exception = Assert.Throws<ArgumentException>(() =>
+                            TryEnterWithTimeout(null, overload, -2, ref lockTaken));
+                        Assert.Equal("lockTaken", exception.ParamName);
+                    }
+                    else
+                    {
+                        var exception = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                            TryEnterWithTimeout(null, overload, -2, ref lockTaken));
+                        Assert.Equal("timeout", exception.ParamName);
+                    }
+
+                    Assert.True(lockTaken);
+                }
+            });
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void TestMonitorTryEnterAcceptsValidTimeouts(int overload)
+        {
+            this.Test(() =>
+            {
+                object gate = new object();
+                foreach (int timeout in new[] { -1, 0, 1, int.MaxValue })
+                {
+                    bool lockTaken = false;
+                    Assert.True(TryEnterWithTimeout(gate, overload, timeout, ref lockTaken));
+                    Monitor.Exit(gate);
+                }
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMonitorTryEnterRejectsInitiallyTakenFlag()
+        {
+            this.Test(() =>
+            {
+                object gate = new object();
+                bool lockTaken = true;
+                var exception = Assert.Throws<ArgumentException>(() => Monitor.TryEnter(gate, ref lockTaken));
+                Assert.Equal("lockTaken", exception.ParamName);
+                Assert.True(lockTaken);
+                Assert.False(Monitor.IsEntered(gate));
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMonitorTryEnterValidatesTimeSpanRange()
+        {
+            this.Test(() =>
+            {
+                object gate = new object();
+                bool lockTaken = false;
+                TimeSpan tooLarge = TimeSpan.FromMilliseconds((long)int.MaxValue + 1);
+                Assert.Throws<ArgumentOutOfRangeException>(() => Monitor.TryEnter(gate, tooLarge));
+                Assert.Throws<ArgumentOutOfRangeException>(() => Monitor.TryEnter(gate, tooLarge, ref lockTaken));
+                Assert.False(lockTaken);
+                Assert.False(Monitor.IsEntered(gate));
+
+                foreach (double milliseconds in new[] { -1.5, 0.5, int.MaxValue + 0.5 })
+                {
+                    Assert.True(Monitor.TryEnter(gate, TimeSpan.FromMilliseconds(milliseconds)));
+                    Monitor.Exit(gate);
+                }
+            });
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0, false)]
+        [InlineData(0, true)]
+        [InlineData(1, false)]
+        [InlineData(1, true)]
+        [InlineData(2, false)]
+        [InlineData(2, true)]
+        [InlineData(3, false)]
+        [InlineData(3, true)]
+        [InlineData(4, false)]
+        [InlineData(4, true)]
+        [InlineData(5, false)]
+        [InlineData(5, true)]
+        public void TestMonitorTryEnterRetriesAllowOwnerToRelease(int overload, bool checkLockAccessRaces)
+        {
+            this.Test(() =>
+            {
+                object gate = new object();
+                Monitor.Enter(gate);
+                Task contender;
+                try
+                {
+                    contender = Task.Run(() =>
+                    {
+                        int attempts = 0;
+                        while (!TryEnterWithoutWaiting(gate, overload))
+                        {
+                            Specification.Assert(++attempts < 100, "Lock retries did not schedule the owner.");
+                        }
+
+                        Monitor.Exit(gate);
+                    });
+                    SchedulingPoint.Interleave();
+                }
+                finally
+                {
+                    Monitor.Exit(gate);
+                }
+
+                contender.Wait();
+                Assert.False(Monitor.IsEntered(gate));
+            },
+            configuration: this.GetConfiguration().WithRandomStrategy().WithRandomGeneratorSeed(0).WithTestingIterations(50)
+                .WithLockAccessRaceCheckingEnabled(checkLockAccessRaces));
+        }
+
+        private static bool TryEnterWithTimeout(object syncObject, int overload, int millisecondsTimeout,
+            ref bool lockTaken)
+        {
+            switch (overload)
+            {
+                case 0:
+                    return Monitor.TryEnter(syncObject, millisecondsTimeout);
+                case 1:
+                    Monitor.TryEnter(syncObject, millisecondsTimeout, ref lockTaken);
+                    return lockTaken;
+                case 2:
+                    return Monitor.TryEnter(syncObject, TimeSpan.FromMilliseconds(millisecondsTimeout));
+                case 3:
+                    Monitor.TryEnter(syncObject, TimeSpan.FromMilliseconds(millisecondsTimeout), ref lockTaken);
+                    return lockTaken;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(overload));
+            }
+        }
+
         [Fact(Timeout = 5000)]
         public void TestComplexMonitor()
         {
@@ -329,9 +527,10 @@ namespace Microsoft.Coyote.BugFinding.Tests
 
             internal void AcquireAndRelease()
             {
+                int attempts = 0;
                 while (!SynchronizedBlock.TryLock(this.SyncObject))
                 {
-                    SchedulingPoint.Interleave();
+                    Specification.Assert(++attempts < 100, "Lock retries did not schedule the owner.");
                 }
 
                 this.EnteredCount++;

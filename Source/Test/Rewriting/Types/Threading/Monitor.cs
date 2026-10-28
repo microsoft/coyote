@@ -137,48 +137,14 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// Attempts, for the specified amount of time, to acquire an exclusive lock on the specified object,
         /// and atomically sets a value that indicates whether the lock was taken.
         /// </summary>
-        public static void TryEnter(object obj, TimeSpan timeout, ref bool lockTaken)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-            {
-                // TODO: support nonzero timeouts during testing.
-                lockTaken = (long)timeout.TotalMilliseconds is 0 ?
-                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
-            }
-            else
-            {
-                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
-                    runtime.TryGetExecutingOperation(out ControlledOperation current))
-                {
-                    runtime.DelayOperation(current);
-                }
-
-                SystemThreading.Monitor.TryEnter(obj, timeout, ref lockTaken);
-            }
-        }
+        public static void TryEnter(object obj, TimeSpan timeout, ref bool lockTaken) =>
+            TryEnter(obj, GetMillisecondsTimeout(timeout), ref lockTaken);
 
         /// <summary>
         /// Attempts, for the specified amount of time, to acquire an exclusive lock on the specified object,
         /// and atomically sets a value that indicates whether the lock was taken.
         /// </summary>
-        public static bool TryEnter(object obj, TimeSpan timeout)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-            {
-                // TODO: support nonzero timeouts during testing.
-                return (long)timeout.TotalMilliseconds is 0 ?
-                    SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
-            }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
-                runtime.TryGetExecutingOperation(out ControlledOperation current))
-            {
-                runtime.DelayOperation(current);
-            }
-
-            return SystemThreading.Monitor.TryEnter(obj, timeout);
-        }
+        public static bool TryEnter(object obj, TimeSpan timeout) => TryEnter(obj, GetMillisecondsTimeout(timeout));
 
         /// <summary>
         /// Attempts, for the specified number of milliseconds, to acquire an exclusive lock on the specified object.
@@ -188,6 +154,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
+                ValidateTryEnterArguments(obj, millisecondsTimeout);
                 // TODO: support nonzero timeouts during testing.
                 return millisecondsTimeout is 0 ?
                     SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
@@ -210,6 +177,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             var runtime = CoyoteRuntime.Current;
             if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
             {
+                ValidateTryEnterArguments(obj, millisecondsTimeout, lockTaken);
                 // TODO: support nonzero timeouts during testing.
                 lockTaken = millisecondsTimeout is 0 ?
                     SynchronizedBlock.TryLock(obj) : SynchronizedBlock.Lock(obj).IsLockTaken;
@@ -230,42 +198,40 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// Attempts to acquire an exclusive lock on the specified object, and atomically
         /// sets a value that indicates whether the lock was taken.
         /// </summary>
-        public static void TryEnter(object obj, ref bool lockTaken)
-        {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
-            {
-                lockTaken = SynchronizedBlock.TryLock(obj);
-            }
-            else
-            {
-                if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
-                    runtime.TryGetExecutingOperation(out ControlledOperation current))
-                {
-                    runtime.DelayOperation(current);
-                }
-
-                SystemThreading.Monitor.TryEnter(obj, ref lockTaken);
-            }
-        }
+        public static void TryEnter(object obj, ref bool lockTaken) => TryEnter(obj, 0, ref lockTaken);
 
         /// <summary>
         /// Attempts to acquire an exclusive lock on the specified object.
         /// </summary>
-        public static bool TryEnter(object obj)
+        public static bool TryEnter(object obj) => TryEnter(obj, 0);
+
+        private static int GetMillisecondsTimeout(TimeSpan timeout)
         {
-            var runtime = CoyoteRuntime.Current;
-            if (runtime.SchedulingPolicy is SchedulingPolicy.Interleaving)
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
             {
-                return SynchronizedBlock.TryLock(obj);
-            }
-            else if (runtime.SchedulingPolicy is SchedulingPolicy.Fuzzing &&
-                runtime.TryGetExecutingOperation(out ControlledOperation current))
-            {
-                runtime.DelayOperation(current);
+                throw new ArgumentOutOfRangeException(nameof(timeout));
             }
 
-            return SystemThreading.Monitor.TryEnter(obj);
+            return (int)totalMilliseconds;
+        }
+
+        private static void ValidateTryEnterArguments(object obj, int millisecondsTimeout, bool lockTaken = false)
+        {
+            if (lockTaken)
+            {
+                throw new ArgumentException("Argument must be initialized to false.", nameof(lockTaken));
+            }
+
+            if (obj is null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (millisecondsTimeout < -1)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
         }
 
         /// <summary>
@@ -549,25 +515,21 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             {
                 CoyoteRuntime runtime = this.GetRuntime();
                 var op = runtime.GetExecutingOperation();
-                if (this.Owner != null && this.Owner != op)
-                {
-                    return false;
-                }
-
                 // Reference count this access before reaching any scheduling point, else another operation
                 // can enter and exit this lock in the meantime, which would remove this instance from the
                 // cache and orphan the lock that this operation is about to acquire.
                 SystemInterlocked.Increment(ref this.UseCount);
-                if (runtime.Configuration.IsLockAccessRaceCheckingEnabled && this.Owner is null)
+                if ((this.Owner != null && this.Owner != op) ||
+                    (runtime.Configuration.IsLockAccessRaceCheckingEnabled && this.Owner is null))
                 {
-                    // If this operation is trying to acquire this lock while it is free, then inject a scheduling
-                    // point to give another enabled operation the chance to race and acquire this lock.
+                    // A contended retry must let the owner run, even when lock-access race checking is disabled.
                     runtime.ScheduleNextOperation(default, SchedulingPointType.Acquire);
-                    if (this.Owner != null && this.Owner != op)
-                    {
-                        this.ReleaseUse();
-                        return false;
-                    }
+                }
+
+                if (this.Owner != null && this.Owner != op)
+                {
+                    this.ReleaseUse();
+                    return false;
                 }
 
                 if (this.Owner == op)

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
@@ -101,13 +100,13 @@ namespace Microsoft.Coyote.Rewriting
 
             this.Profiler.StartMeasuringExecutionTime();
 
-            // Create the output directory and copy any necessary files.
-            string outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
-
+            IEnumerable<AssemblyInfo> assemblies = null;
+            string outputDirectory = null;
             try
             {
-                // Get the set of assemblies to rewrite.
-                var assemblies = AssemblyInfo.LoadAssembliesToRewrite(this.Options, this.OnResolveAssemblyFailure);
+                // Validate the complete rewrite set, including dependencies, before changing any output.
+                assemblies = AssemblyInfo.LoadAssembliesToRewrite(this.Options, this.OnResolveAssemblyFailure);
+                outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
                 this.InitializePasses(assemblies);
                 foreach (var assembly in assemblies)
                 {
@@ -115,13 +114,17 @@ namespace Microsoft.Coyote.Rewriting
                     this.RewriteAssembly(assembly, outputPath);
                 }
             }
-            catch (Exception ex)
-            {
-                ExceptionDispatchInfo.Capture(ex).Throw();
-            }
             finally
             {
-                if (this.Options.IsReplacingAssemblies())
+                if (assemblies != null)
+                {
+                    foreach (var assembly in assemblies)
+                    {
+                        assembly.Dispose();
+                    }
+                }
+
+                if (outputDirectory != null && this.Options.IsReplacingAssemblies())
                 {
                     // If we are replacing the original assemblies, then delete the temporary output directory.
                     Directory.Delete(outputDirectory, true);

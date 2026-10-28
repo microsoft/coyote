@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using SystemTask = System.Threading.Tasks.Task;
@@ -109,7 +110,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Checks if any of the specified tasks is uncontrolled.
         /// </summary>
-        private static bool IsAnyTaskUncontrolled(CoyoteRuntime runtime, SystemTask[] tasks)
+        internal static bool IsAnyTaskUncontrolled(CoyoteRuntime runtime, IEnumerable<SystemTask> tasks)
         {
             bool isAnyTaskUncontrolled = false;
             foreach (var task in tasks)

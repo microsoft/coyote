@@ -39,6 +39,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         private readonly object SyncObject;
 
         /// <summary>
+        /// The input tasks whose control status is checked before waiting.
+        /// </summary>
+        private readonly IReadOnlyCollection<SystemTask> Tasks;
+
+        /// <summary>
         /// The number of tasks that have not completed yet.
         /// </summary>
         private int PendingCount;
@@ -74,6 +79,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         {
             this.Runtime = runtime;
             this.SyncObject = new object();
+            this.Tasks = tasks;
             this.PendingCount = tasks.Count;
             this.Completed = new Queue<SystemTask>();
             this.Enumerated = 0;
@@ -164,9 +170,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
 
                 // Pause the current operation until the next task completes, or until cancellation is
                 // requested, so that the runtime remains in control of the asynchronous enumeration.
+                bool isConditionControlled = !TaskServices.IsAnyTaskUncontrolled(state.Runtime, state.Tasks);
                 await AsyncConditionAwaiterStateMachine.RunAsync(state.Runtime,
                     () => state.HasCompletedTask() || cancellationToken.IsCancellationRequested,
-                    debugMsg: "any of the enumerated tasks to complete");
+                    debugMsg: "any of the enumerated tasks to complete", isConditionControlled: isConditionControlled);
                 cancellationToken.ThrowIfCancellationRequested();
             }
         }

@@ -186,6 +186,19 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
+        public void TestRewritingNullLockReceiversThrowNullReferenceException()
+        {
+            this.Test(() =>
+            {
+                Lock gate = null;
+                Assert.Throws<NullReferenceException>(() => gate.Enter());
+                Assert.Throws<NullReferenceException>(() => gate.TryEnter());
+                Assert.Throws<NullReferenceException>(() => gate.Exit());
+                Assert.Throws<NullReferenceException>(() => _ = gate.IsHeldByCurrentThread);
+            });
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestRewritingDefaultAndCopiedLockScope()
         {
             this.Test(() =>

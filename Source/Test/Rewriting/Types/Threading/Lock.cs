@@ -175,8 +175,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
         }
 
-        private static object GetSyncObject(SystemLock instance) =>
-            SyncObjects.GetValue(instance, _ => new object());
+        private static object GetSyncObject(SystemLock instance)
+        {
+            if (instance is null)
+            {
+                throw new NullReferenceException();
+            }
+
+            return SyncObjects.GetValue(instance, _ => new object());
+        }
 
         private static void DelayOperation(CoyoteRuntime runtime)
         {

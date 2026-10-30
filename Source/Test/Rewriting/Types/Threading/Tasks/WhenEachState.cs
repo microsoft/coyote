@@ -41,7 +41,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// The input tasks whose control status is checked before waiting.
         /// </summary>
-        private readonly IReadOnlyCollection<SystemTask> Tasks;
+        private readonly List<SystemTask> Tasks;
+
+        /// <summary>
+        /// Schedules completion bookkeeping synchronously.
+        /// </summary>
+        private readonly CompletionTaskScheduler Scheduler;
 
         /// <summary>
         /// The number of tasks that have not completed yet.
@@ -75,20 +80,15 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="WhenEachState"/> class.
         /// </summary>
-        private WhenEachState(CoyoteRuntime runtime, IReadOnlyCollection<SystemTask> tasks)
+        private WhenEachState(CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
             this.SyncObject = new object();
-            this.Tasks = tasks;
-            this.PendingCount = tasks.Count;
+            this.Tasks = new List<SystemTask>();
+            this.PendingCount = 0;
             this.Completed = new Queue<SystemTask>();
             this.Enumerated = 0;
-            var scheduler = new CompletionTaskScheduler();
-            foreach (SystemTask task in tasks)
-            {
-                _ = task.ContinueWith(this.EnqueueCompletedTask, SystemCancellationToken.None,
-                    SystemTaskContinuationOptions.ExecuteSynchronously, scheduler);
-            }
+            this.Scheduler = new CompletionTaskScheduler();
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
                 return null;
             }
 
-            var pending = new List<SystemTask>(tasks.Length);
+            var state = new WhenEachState(runtime);
             foreach (TTask task in tasks)
             {
                 if (task is null)
@@ -110,10 +110,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
                     throw new ArgumentException("The tasks argument included a null value.", nameof(tasks));
                 }
 
-                pending.Add(task);
+                state.AddTask(task);
             }
 
-            return new WhenEachState(runtime, pending);
+            return state.Tasks.Count is 0 ? null : state;
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         {
             ArgumentNullException.ThrowIfNull(tasks);
 
-            var pending = new List<SystemTask>();
+            var state = new WhenEachState(runtime);
             foreach (TTask task in tasks)
             {
                 if (task is null)
@@ -132,10 +132,10 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
                     throw new ArgumentException("The tasks argument included a null value.", nameof(tasks));
                 }
 
-                pending.Add(task);
+                state.AddTask(task);
             }
 
-            return pending.Count is 0 ? null : new WhenEachState(runtime, pending);
+            return state.Tasks.Count is 0 ? null : state;
         }
 
         /// <summary>
@@ -182,6 +182,21 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading.Tasks
         /// Returns true if this state has not been enumerated before, else false.
         /// </summary>
         private bool TryStartEnumeration() => Interlocked.Exchange(ref this.Enumerated, 1) is 0;
+
+        /// <summary>
+        /// Adds a task and records its completion as soon as it is discovered.
+        /// </summary>
+        private void AddTask(SystemTask task)
+        {
+            lock (this.SyncObject)
+            {
+                this.Tasks.Add(task);
+                this.PendingCount++;
+            }
+
+            _ = task.ContinueWith(this.EnqueueCompletedTask, SystemCancellationToken.None,
+                SystemTaskContinuationOptions.ExecuteSynchronously, this.Scheduler);
+        }
 
         /// <summary>
         /// Tries to dequeue the next task that completed, but has not been yielded yet.

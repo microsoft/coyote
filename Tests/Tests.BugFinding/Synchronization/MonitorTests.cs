@@ -394,15 +394,20 @@ namespace Microsoft.Coyote.BugFinding.Tests
             {
                 object gate = new object();
                 bool lockTaken = false;
-                TimeSpan tooLarge = TimeSpan.FromMilliseconds((long)int.MaxValue + 1);
+                TimeSpan tooLarge = TimeSpan.FromTicks(((long)int.MaxValue + 1) * TimeSpan.TicksPerMillisecond);
                 Assert.Throws<ArgumentOutOfRangeException>(() => Monitor.TryEnter(gate, tooLarge));
                 Assert.Throws<ArgumentOutOfRangeException>(() => Monitor.TryEnter(gate, tooLarge, ref lockTaken));
                 Assert.False(lockTaken);
                 Assert.False(Monitor.IsEntered(gate));
 
-                foreach (double milliseconds in new[] { -1.5, 0.5, int.MaxValue + 0.5 })
+                foreach (TimeSpan timeout in new[]
                 {
-                    Assert.True(Monitor.TryEnter(gate, TimeSpan.FromMilliseconds(milliseconds)));
+                    TimeSpan.FromTicks(-15_000),
+                    TimeSpan.FromTicks(5_000),
+                    TimeSpan.FromTicks((long)(int.MaxValue * TimeSpan.TicksPerMillisecond) + 5_000)
+                })
+                {
+                    Assert.True(Monitor.TryEnter(gate, timeout));
                     Monitor.Exit(gate);
                 }
             });

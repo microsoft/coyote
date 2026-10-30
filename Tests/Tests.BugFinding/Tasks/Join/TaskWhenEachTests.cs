@@ -80,6 +80,29 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestWhenEachPreservesCompletionOrderDuringEnumerableEnumeration()
+        {
+            this.Test(async () =>
+            {
+                var first = new TaskCompletionSource<bool>();
+                var second = new TaskCompletionSource<bool>();
+                var yielded = new List<Task>();
+
+                await foreach (Task task in Task.WhenEach(
+                    GetTasksThatCompleteDuringEnumeration(first, second)))
+                {
+                    yielded.Add(task);
+                }
+
+                Specification.Assert(yielded.Count is 2, "Yielded {0} tasks instead of 2.", yielded.Count);
+                Specification.Assert(ReferenceEquals(yielded[0], second.Task),
+                    "Did not preserve the first completion during enumeration.");
+                Specification.Assert(ReferenceEquals(yielded[1], first.Task),
+                    "Did not preserve the second completion during enumeration.");
+            });
+        }
+
         [Theory(Timeout = 5000)]
         [InlineData(false, false)]
         [InlineData(false, true)]
@@ -335,6 +358,15 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
+        }
+
+        private static IEnumerable<Task> GetTasksThatCompleteDuringEnumeration(
+            TaskCompletionSource<bool> first, TaskCompletionSource<bool> second)
+        {
+            yield return first.Task;
+            yield return second.Task;
+            second.SetResult(true);
+            first.SetResult(true);
         }
     }
 }

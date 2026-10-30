@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Xunit;
@@ -15,6 +16,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelTask()
         {
@@ -31,6 +33,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelTaskFailure()
         {
@@ -49,6 +52,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelSynchronousTask()
         {
@@ -66,6 +70,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelSynchronousTaskFailure()
         {
@@ -85,6 +90,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelAsynchronousTask()
         {
@@ -102,6 +108,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelAsynchronousTaskFailure()
         {
@@ -121,6 +128,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunNestedParallelSynchronousTask()
         {
@@ -143,6 +151,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAwaitNestedParallelSynchronousTaskFailure()
         {
@@ -167,6 +176,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAwaitNestedParallelAsynchronousTask()
         {
@@ -189,6 +199,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAwaitNestedParallelAsynchronousTaskFailure()
         {
@@ -213,6 +224,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelTaskWithResult()
         {
@@ -230,6 +242,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelTaskWithResultFailure()
         {
@@ -249,6 +262,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelSynchronousTaskWithResult()
         {
@@ -267,6 +281,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelSynchronousTaskWithResultFailure()
         {
@@ -287,6 +302,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelAsynchronousTaskWithResult()
         {
@@ -305,6 +321,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunParallelAsynchronousTaskWithResultFailure()
         {
@@ -325,6 +342,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunNestedParallelSynchronousTaskWithResult()
         {
@@ -346,6 +364,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunNestedParallelSynchronousTaskWithResultFailure()
         {
@@ -369,6 +388,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunNestedParallelAsynchronousTaskWithResult()
         {
@@ -390,6 +410,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [SuppressMessage("Usage", "xUnit1030:Do not call ConfigureAwait(false) in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRunNestedParallelAsynchronousTaskWithResultFailure()
         {

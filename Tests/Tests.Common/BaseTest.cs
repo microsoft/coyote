@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             catch (Exception ex)
             {
-                Assert.False(true, ex.Message + "\n" + ex.StackTrace);
+                Assert.Fail(ex.Message + "\n" + ex.StackTrace);
             }
 
             return null;
@@ -321,7 +321,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             catch (Exception ex)
             {
-                Assert.False(true, ex.Message + "\n" + ex.StackTrace);
+                Assert.Fail(ex.Message + "\n" + ex.StackTrace);
             }
         }
 
@@ -415,7 +415,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             catch (Exception ex)
             {
-                Assert.False(true, ex.Message + "\n" + ex.StackTrace);
+                Assert.Fail(ex.Message + "\n" + ex.StackTrace);
             }
         }
 
@@ -437,7 +437,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             catch (Exception ex)
             {
-                Assert.False(true, ex.Message + "\n" + ex.StackTrace);
+                Assert.Fail(ex.Message + "\n" + ex.StackTrace);
             }
         }
 
@@ -473,13 +473,13 @@ namespace Microsoft.Coyote.Tests.Common
                     await await Task.WhenAny(test(runtime), errorTask.Task);
                     if (handleFailures && errorTask.Task.IsCompleted)
                     {
-                        Assert.False(true, errorTask.Task.Result.Message);
+                        Assert.Fail(errorTask.Task.Result.Message);
                     }
                 }
                 catch (Exception ex)
                 {
                     Exception e = Unwrap(ex);
-                    Assert.False(true, e.Message + "\n" + e.StackTrace);
+                    Assert.Fail(e.Message + "\n" + e.StackTrace);
                 }
             }
         }
@@ -556,7 +556,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             if (string.IsNullOrEmpty(errorMessage))
             {
-                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+                Assert.Fail(string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
 
             errorChecker(errorMessage);
@@ -597,7 +597,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             if (string.IsNullOrEmpty(errorMessage))
             {
-                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+                Assert.Fail(string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
 
             errorChecker(errorMessage);
@@ -641,7 +641,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             if (actualException is null)
             {
-                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+                Assert.Fail(string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
 
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
@@ -685,7 +685,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             if (actualException is null)
             {
-                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+                Assert.Fail(string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
 
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
@@ -731,7 +731,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             if (actualException is null)
             {
-                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+                Assert.Fail(string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
 
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
@@ -777,7 +777,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             if (actualException is null)
             {
-                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+                Assert.Fail(string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
 
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);

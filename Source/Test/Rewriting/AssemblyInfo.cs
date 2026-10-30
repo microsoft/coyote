@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Coyote.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -108,35 +109,47 @@ namespace Microsoft.Coyote.Rewriting
         internal static IEnumerable<AssemblyInfo> LoadAssembliesToRewrite(RewritingOptions options,
             AssemblyResolveEventHandler handler)
         {
-            // Add all explicitly requested assemblies.
             var assemblies = new HashSet<AssemblyInfo>();
-            foreach (string path in options.AssemblyPaths)
+            try
             {
-                if (!assemblies.Any(assembly => assembly.FilePath == path))
+                // Add all explicitly requested assemblies.
+                foreach (string path in options.AssemblyPaths)
                 {
-                    var name = Path.GetFileName(path);
-                    if (options.IsAssemblyIgnored(name))
+                    if (!assemblies.Any(assembly => assembly.FilePath == path))
                     {
-                        throw new InvalidOperationException($"Rewriting assembly '{name}' ({path}) that is in the ignore list.");
+                        var name = Path.GetFileName(path);
+                        if (options.IsAssemblyIgnored(name))
+                        {
+                            throw new InvalidOperationException($"Rewriting assembly '{name}' ({path}) that is in the ignore list.");
+                        }
+
+                        assemblies.Add(new AssemblyInfo(name, path, options, handler));
                     }
-
-                    assemblies.Add(new AssemblyInfo(name, path, options, handler));
                 }
-            }
 
-            // Find direct dependencies to each assembly and load them, if the corresponding option is enabled.
-            foreach (var assembly in assemblies)
+                // Loading dependencies can add assemblies to the set being validated.
+                foreach (var assembly in assemblies.ToArray())
+                {
+                    assembly.LoadDependencies(assemblies, handler);
+                }
+
+                // Validate that all assemblies are eligible for rewriting.
+                foreach (var assembly in assemblies)
+                {
+                    assembly.ValidateAssembly();
+                }
+
+                return SortAssemblies(assemblies);
+            }
+            catch
             {
-                assembly.LoadDependencies(assemblies, handler);
-            }
+                foreach (var assembly in assemblies)
+                {
+                    assembly.Dispose();
+                }
 
-            // Validate that all assemblies are eligible for rewriting.
-            foreach (var assembly in assemblies)
-            {
-                assembly.ValidateAssembly();
+                throw;
             }
-
-            return SortAssemblies(assemblies);
         }
 
         /// <summary>
@@ -280,6 +293,11 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void ValidateAssembly()
         {
+            // Rewriting resolves the replacement types of the running Coyote host, so the host and
+            // the assembly must target the same .NET major version. This also covers any dependency
+            // that was loaded transitively, as such a dependency is rewritten as well.
+            TargetRuntimeValidator.ValidateRewritingTarget(this.FilePath, this.Definition);
+
             if (this.IsAssemblyRewritten(out string version, out string signatureHash))
             {
                 // The assembly has been already rewritten so check if the signatures match.
@@ -337,7 +355,7 @@ namespace Microsoft.Coyote.Rewriting
 
                         if (dependency != null)
                         {
-                            this.Dependencies.Add(dependency);
+                            assembly.Dependencies.Add(dependency);
                         }
                     }
                 }

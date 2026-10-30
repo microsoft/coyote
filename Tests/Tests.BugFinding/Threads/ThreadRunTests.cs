@@ -30,8 +30,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 t.Join();
 
                 Specification.Assert(isDone, "The expected condition was not satisfied.");
-                Specification.Assert(t.ThreadState is ThreadState.Stopped, "State of thread '{0}' is {1} instead of Stopped.",
-                    t.ManagedThreadId, t.ThreadState);
+                ThreadState state = t.ThreadState;
+                Specification.Assert((state & ThreadState.Stopped) != 0, "State of thread '{0}' is {1} instead of Stopped.",
+                    t.ManagedThreadId, state);
             },
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
@@ -54,8 +55,9 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 t.Join();
 
                 Specification.Assert(isDone, "The expected condition was not satisfied.");
-                Specification.Assert(t.ThreadState is ThreadState.Stopped, "State of thread '{0}' is {1} instead of Stopped.",
-                    t.ManagedThreadId, t.ThreadState);
+                ThreadState state = t.ThreadState;
+                Specification.Assert((state & ThreadState.Stopped) != 0, "State of thread '{0}' is {1} instead of Stopped.",
+                    t.ManagedThreadId, state);
             },
             configuration: this.GetConfiguration().WithTestingIterations(10));
         }
@@ -90,7 +92,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 for (int i = 0; i < threads.Length; i++)
                 {
                     ThreadState state = threads[i].ThreadState;
-                    Specification.Assert(state is ThreadState.Stopped, "State of thread '{0}' is {1} instead of Stopped.",
+                    Specification.Assert((state & ThreadState.Stopped) != 0, "State of thread '{0}' is {1} instead of Stopped.",
                         threads[i].ManagedThreadId, state);
                 }
 

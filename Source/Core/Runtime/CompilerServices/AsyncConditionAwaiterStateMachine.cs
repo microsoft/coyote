@@ -22,6 +22,11 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         private readonly Func<bool> Condition;
 
         /// <summary>
+        /// True if the condition depends only on controlled operations.
+        /// </summary>
+        private readonly bool IsConditionControlled;
+
+        /// <summary>
         /// The debug message to print while waiting for the condition to get resolved.
         /// </summary>
         private readonly string DebugMsg;
@@ -30,11 +35,12 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// Initializes a new instance of the <see cref="AsyncConditionAwaiterStateMachine"/> class.
         /// </summary>
         private AsyncConditionAwaiterStateMachine(CoyoteRuntime runtime, Func<bool> condition,
-            bool runContinuationAsynchronously, string debugMsg)
+            bool runContinuationAsynchronously, string debugMsg, bool isConditionControlled)
             : base(runtime, runContinuationAsynchronously)
         {
             this.Condition = condition;
             this.DebugMsg = debugMsg;
+            this.IsConditionControlled = isConditionControlled;
         }
 
         /// <summary>
@@ -42,9 +48,10 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
         /// until the condition gets resolved and return the result.
         /// </summary>
         internal static SystemTasks.Task<bool> RunAsync(CoyoteRuntime runtime, Func<bool> condition,
-            bool runContinuationAsynchronously = true, string debugMsg = null)
+            bool runContinuationAsynchronously = true, string debugMsg = null, bool isConditionControlled = true)
         {
-            var stateMachine = new AsyncConditionAwaiterStateMachine(runtime, condition, runContinuationAsynchronously, debugMsg);
+            var stateMachine = new AsyncConditionAwaiterStateMachine(runtime, condition,
+                runContinuationAsynchronously, debugMsg, isConditionControlled);
             stateMachine.MoveNext();
             runtime.RegisterKnownControlledTask(stateMachine.CompletionSource.Task);
             return stateMachine.CompletionSource.Task;
@@ -78,7 +85,7 @@ namespace Microsoft.Coyote.Runtime.CompilerServices
                     }
 
                     // Wait for the condition to get resolved synchronously.
-                    this.Runtime.PauseOperationUntil(current, this.Condition, debugMsg: this.DebugMsg);
+                    this.Runtime.PauseOperationUntil(current, this.Condition, this.IsConditionControlled, this.DebugMsg);
 
                     // Complete the state machine with the result.
                     this.CurrentStatus = Status.Completed;

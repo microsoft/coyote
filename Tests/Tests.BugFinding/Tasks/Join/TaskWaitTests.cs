@@ -193,6 +193,116 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(200));
         }
 
+        [Theory(Timeout = 10000)]
+        [InlineData(0, false)]
+        [InlineData(0, true)]
+        [InlineData(1, false)]
+        [InlineData(1, true)]
+#if NET7_0_OR_GREATER
+        [InlineData(2, false)]
+        [InlineData(2, true)]
+#endif
+        public void TestWaitTaskObservesCancellation(int overload, bool isAlreadyCanceled)
+        {
+            this.Test(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                var pending = new TaskCompletionSource<int>();
+                bool isWaitStarted = false;
+                Task canceler = Task.CompletedTask;
+                if (isAlreadyCanceled)
+                {
+                    cancellation.Cancel();
+                }
+                else
+                {
+                    canceler = Task.Run(async () =>
+                    {
+                        while (!isWaitStarted)
+                        {
+                            await Task.Yield();
+                        }
+
+                        cancellation.Cancel();
+                    });
+                }
+
+                // No scheduling point separates this flag from entering the controlled wait.
+                isWaitStarted = true;
+                OperationCanceledException error = null;
+                try
+                {
+                    WaitWithCancellation(pending.Task, overload, cancellation.Token);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    error = ex;
+                }
+
+                Specification.Assert(error != null, "The wait was not canceled.");
+                Specification.Assert(error.CancellationToken == cancellation.Token,
+                    "The wait was canceled with an unexpected token.");
+                Specification.Assert(!pending.Task.IsCompleted, "Canceling the wait completed the task.");
+                canceler.Wait();
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(20)
+                .WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(1)]
+#if NET7_0_OR_GREATER
+        [InlineData(2)]
+#endif
+        public void TestWaitCompletedTaskWithCanceledWaitToken(int overload)
+        {
+            this.Test(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                cancellation.Cancel();
+                bool completed = WaitWithCancellation(Task.CompletedTask, overload, cancellation.Token);
+                Specification.Assert(completed, "The completed task did not complete the wait.");
+            });
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(1)]
+#if NET7_0_OR_GREATER
+        [InlineData(2)]
+#endif
+        public void TestWaitTaskWithNeverCanceledWaitTokenDeadlock(int overload)
+        {
+            this.TestWithError(() =>
+            {
+                using var cancellation = new CancellationTokenSource();
+                var pending = new TaskCompletionSource<int>();
+                WaitWithCancellation(pending.Task, overload, cancellation.Token);
+            },
+            errorChecker: error => Assert.StartsWith("Deadlock detected.", error),
+            replay: true);
+        }
+
+        private static bool WaitWithCancellation(Task task, int overload, CancellationToken cancellationToken)
+        {
+            switch (overload)
+            {
+                case 0:
+                    task.Wait(cancellationToken);
+                    return true;
+                case 1:
+                    return task.Wait(Timeout.Infinite, cancellationToken);
+#if NET7_0_OR_GREATER
+                case 2:
+                    return task.Wait(Timeout.InfiniteTimeSpan, cancellationToken);
+#endif
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(overload));
+            }
+        }
+
         [Fact(Timeout = 5000)]
         public void TestWaitTaskWithException()
         {

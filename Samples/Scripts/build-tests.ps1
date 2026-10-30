@@ -13,7 +13,7 @@ Write-Comment -prefix "." -text "Building the Coyote samples" -color "yellow"
 
 if ($local.IsPresent -and $nuget.IsPresent) {
     # Restore the local coyote tool.
-    &dotnet tool restore
+    &dotnet tool restore --tool-manifest "$PSScriptRoot/../.config/dotnet-tools.json"
 }
 
 # Check that the expected .NET SDK is installed.

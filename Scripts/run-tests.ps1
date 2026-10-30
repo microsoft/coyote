@@ -2,8 +2,8 @@
 # Licensed under the MIT License.
 
 param(
-    [ValidateSet("net8.0", "net6.0", "net462")]
-    [string]$framework = "net8.0",
+    [ValidateSet("net10.0", "net8.0", "net6.0", "net462")]
+    [string]$framework = "net10.0",
     [ValidateSet("all", "runtime", "rewriting", "testing", "actors", "actors-testing", "tools")]
     [string]$test = "all",
     [string]$filter = "",
@@ -30,17 +30,14 @@ $targets = [ordered]@{
 $dotnet = "dotnet"
 $dotnet_runtime_path = FindDotNetRuntimePath -dotnet $dotnet -runtime "NETCore"
 $aspnet_runtime_path = FindDotNetRuntimePath -dotnet $dotnet -runtime "AspNetCore"
-$runtime_version = FindDotNetRuntimeVersion -dotnet_runtime_path $dotnet_runtime_path
 
 # NOTE: we do some hacks to get around a known issue with dotnet tool
 # command being available after locally being restored.
 # Example: https://github.com/dotnet/sdk/issues/11820
 # Restore the local ilverify tool.
-&dotnet nuget locals all --clear
 &dotnet tool restore
-&dotnet tool install dotnet-ilverify --version 8.0.0
 &dotnet tool list
-$ilverify = "dotnet ilverify"
+$ilverify = "dotnet tool run ilverify"
 
 [System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT', '1')
 
@@ -59,14 +56,21 @@ foreach ($kvp in $targets.GetEnumerator()) {
         }
 
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
-        if ($f -eq "net8.0") {
+        if ($f -eq "net10.0" -or $f -eq "net8.0") {
+            $runtime_version = FindDotNetRuntimeVersion -dotnet_runtime_path $dotnet_runtime_path `
+                -version $f.Substring(3)
             $AssemblyName = GetAssemblyName($target)
-            $command = [IO.Path]::Combine($PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net8.0", "$AssemblyName.dll")
+            $command = [IO.Path]::Combine($PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", $f, "$AssemblyName.dll")
             $command = $command + ' -r "' + [IO.Path]::Combine( `
-                $PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", "net8.0", "*.dll") + '"'
-            $command = $command + ' -r "' + [IO.Path]::Combine($PSScriptRoot, "..", "bin", "net8.0", "*.dll") + '"'
+                $PSScriptRoot, "..", "Tests", $($kvp.Value), "bin", $f, "*.dll") + '"'
+            $command = $command + ' -r "' + [IO.Path]::Combine($PSScriptRoot, "..", "bin", $f, "*.dll") + '"'
             $command = $command + ' -r "' + [IO.Path]::Combine($dotnet_runtime_path, $runtime_version, "*.dll") + '"'
             $command = $command + ' -r "' + [IO.Path]::Combine($aspnet_runtime_path, $runtime_version, "*.dll") + '"'
+            if ($f -eq "net10.0") {
+                # ILVerify rejects the SDK-generated inline-array span helper even before rewriting.
+                $command = $command + ' -e ".*InlineArrayAsReadOnlySpan.*"'
+            }
+
             Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"
         }
 

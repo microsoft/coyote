@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/get-started/upgrade-from-psharp/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upgrade from psharp - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Upgrading from P# to Coyote", url: "#_top", children: [
+          ]},
+          {title: "General changes", url: "#general-changes", children: [
+          ]},
+          {title: "Namespace changes", url: "#namespace-changes", children: [
+          ]},
+          {title: "Type changes", url: "#type-changes", children: [
+          ]},
+          {title: "Runtime API changes", url: "#runtime-api-changes", children: [
+          ]},
+          {title: "Machine API changes", url: "#machine-api-changes", children: [
+          ]},
+          {title: "Event API changes", url: "#event-api-changes", children: [
+          ]},
+          {title: "Monitor API changes", url: "#monitor-api-changes", children: [
+          ]},
+          {title: "Test attribute changes", url: "#test-attribute-changes", children: [
+          ]},
+          {title: "Command line tool changes", url: "#command-line-tool-changes", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+      
+
+      <h2 id="upgrading-from-p-to-coyote">Upgrading from P# to Coyote</h2>
+<p>This document contains a list of changes from P# to Coyote. Please follow this guide in order to
+upgrade your applications and services. Contact us if you have any questions or face any issues.</p>
+<p><strong>Note:</strong> This page is not actively maintained, and changes from P# might have evolved further.</p>
+<h2 id="general-changes">General changes</h2>
+<ul>
+<li>Consume the <code>Microsoft.Coyote</code> NuGet package, instead of the <code>Microsoft.PSharp</code> NuGet package.</li>
+</ul>
+<h2 id="namespace-changes">Namespace changes</h2>
+<ul>
+<li>Rename each <code>using Microsoft.PSharp.*</code> to <code>Microsoft.Coyote.*</code>.</li>
+<li>State machines are now under the new <code>Microsoft.Coyote.Actors</code> namespace, to make it explicit that
+  state machines are implementations of the actor programming model.</li>
+<li>The <code>Monitor</code> type is now under the <code>Microsoft.Coyote.Specifications</code> namespace.</li>
+</ul>
+<h2 id="type-changes">Type changes</h2>
+<ul>
+<li><code>Machine</code> was renamed to <code>StateMachine</code> to make it explicit that its a state machine.</li>
+<li><code>MachineState</code> was renamed to <code>State</code>, as it is now a nested class inside <code>StateMachine</code>.</li>
+<li><code>MonitorState</code> was renamed to <code>State</code>, as it is now a nested class inside <code>Monitor</code>.</li>
+<li><code>MachineId</code> was renamed to <code>ActorId</code>, as state machines are implementations of the actor
+  programming model.</li>
+<li><code>Halt</code> was renamed to <code>HaltEvent</code> to make it explicit that its an event.</li>
+<li><code>Default</code> was renamed to <code>DefaultEvent</code> to make it explicit that its an event.</li>
+<li><code>IMachineRuntime</code> was renamed to <code>IActorRuntime</code>.</li>
+<li><code>IMachineRuntimeLog</code> was renamed to <code>IActorRuntimeLog</code>.</li>
+<li><code>RuntimeLogWriter</code> was renamed to <code>ActorRuntimeLogWriter</code>.</li>
+</ul>
+<h2 id="runtime-api-changes">Runtime API changes</h2>
+<ul>
+<li>The static runtime factory was renamed from <code>PSharpRuntime</code> to <code>RuntimeFactory</code>, so you can
+  now do <code>RuntimeFactory.Create()</code> to get an actor runtime instance (that can execute state
+  machines).</li>
+<li><code>IMachineRuntime.CreateMachine</code> was renamed to <code>IActorRuntime.CreateActor</code>.</li>
+<li>The previously deprecated method <code>IMachineRuntime.CreateMachineAndExecute</code> has been removed,
+  please use <code>IActorRuntime.CreateActorAndExecuteAsync</code> instead (same semantics, just different
+  method name).</li>
+<li>The previously deprecated method <code>IMachineRuntime.SendEventAndExecute</code> has been removed, please
+  use <code>IActorRuntime.SendEventAndExecuteAsync</code> instead (same semantics, just different method name).</li>
+</ul>
+<h2 id="machine-api-changes">Machine API changes</h2>
+<ul>
+<li><code>Machine.CreateMachine</code> was renamed <code>StateMachine.CreateActor</code>.</li>
+<li><code>Machine.Raise</code> was renamed <code>StateMachine.RaiseEvent</code> to become more descriptive.</li>
+<li><code>Machine.Goto</code> was renamed <code>StateMachine.RaiseGotoStateEvent</code> to become more descriptive.</li>
+<li><code>Machine.Push</code> was renamed <code>StateMachine.RaisePushStateEvent</code> to become more descriptive.</li>
+<li><code>Machine.Pop</code> was renamed <code>StateMachine.RaisePopStateEvent</code> to become more descriptive.</li>
+<li><code>Machine.Receive</code> was renamed <code>StateMachine.ReceiveEventAsync</code> to become more descriptive.</li>
+<li><code>Machine.Send</code> was renamed <code>StateMachine.SendEvent</code> to become more descriptive and match the
+  runtime API.</li>
+<li>The <code>ReceivedEvent</code> property has been removed. You can now declare event handlers that take a
+  single <code>Event</code> as an in-parameter, which is the <code>Event</code> that triggered the handler. A handler that
+  does not require access to this <code>Event</code> can be still declared without an in-parameter. Some of the
+  user callbacks (e.g. <code>OnException</code> and <code>OnHaltAsync</code>) now give access to the last dequeued event.</li>
+<li>Introduced new API <code>RaiseHaltEvent</code> for raising the HaltEvent on yourself (this is more efficient
+  than halting via a <code>RaiseEvent</code>).</li>
+</ul>
+<h2 id="event-api-changes">Event API changes</h2>
+<ul>
+<li><code>Halt</code> (now <code>HaltEvent</code>) can no longer be constructed, use <code>HaltEvent.Instance</code> instead to get
+  access to a singleton instance created once to reduce unnecessary allocations.</li>
+</ul>
+<h2 id="monitor-api-changes">Monitor API changes</h2>
+<ul>
+<li><code>Monitor.Raise</code> was renamed to <code>Monitor.RaiseEvent</code> to become more descriptive.</li>
+<li>Similar to the <code>Machine</code> type, <code>Goto</code> is <code>RaiseGotoStateEvent</code>.</li>
+</ul>
+<h2 id="test-attribute-changes">Test attribute changes</h2>
+<ul>
+<li><code>[Microsoft.PSharp.Test]</code> was renamed  to <code>[Microsoft.Coyote.SystematicTesting.Test]</code></li>
+</ul>
+<h2 id="command-line-tool-changes">Command line tool changes</h2>
+<ul>
+<li>The <code>PSharpTester</code> and <code>PSharpReplayer</code> executables have now been merged into the <code>coyote</code> command
+  line tool. To invoke the tester, you do <code>coyote test ...</code>. To invoke the replayer you do <code>coyote
+  replay ...</code>. The command line options remain pretty much the same, but the way they are declared
+  has changed from (for example) <code>-max-steps:100</code> to <code>--max-steps 100</code> (single character arguments
+  are used with a single <code>-</code>, e.g. <code>-i 100</code>). Read more details in the documentation on using the
+  <code>coyote</code> command line tool <a href="../using-coyote/">here</a>.</li>
+</ul>
+
+    <br>
+      
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

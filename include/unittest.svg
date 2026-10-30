@@ -1,0 +1,32 @@
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="357.81000000000006" height="243.60750000000007" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="357.81000000000006" height="243.60750000000007" fill="#FFFFFF" />
+  <g transform="translate(20,20)">
+    <g id="ConsoleApp14.Test+MyActor-&gt;ConsoleApp14.Test+MyTestActor">
+      <path d="M 133.619058382037,85.9599999999999 C 136.354194596442,93.61828969311 137.106233487294,101.27657938622 135.875175054592,108.93486907933" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 133.619058382037,117.6475 L 139.998135094063,108.969517498169 C 137.165935190988,109.269108586375 134.584414918197,108.600629572285 132.25357427569,106.964080455897 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="ConsoleApp14.Test+MyTestActor-&gt;ConsoleApp14.Test+MyActor">
+      <path d="M 80.7776082846298,117.6475 C 78.042472070225,109.98921030689 77.2904331793732,102.33092061378 78.5214916120743,94.6726309206701" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 80.7776082846299,85.96 L 74.3985315726036,94.637982501831 C 77.2307314756787,94.3383914136249 79.8122517484699,95.0068704277154 82.1430923909771,96.6434195441026 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="ConsoleApp14.Test+MyActor">
+      <rect x="10.276666666666635" rx="5" ry="5" width="193.84333333333333" height="85.960000000000036" fill="#57AC56" stroke="#A5A6A9" stroke-width="1" />
+      <text x="30.276666666666635" y="17.950000000000003" fill="#FFFFFF">ConsoleApp14.Test+MyActor</text>
+      <rect x="15.276666666666635" y="27.96" width="183.84333333333333" height="53.000000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="ConsoleApp14.Test+MyActor.MyActor">
+        <rect x="74.629999999999967" y="40" rx="3" ry="3" width="65.136666666666684" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="84.629999999999967" y="57.95" fill="#3D3D3D">MyActor</text>
+      </g>
+    </g>
+    <g id="ConsoleApp14.Test+MyTestActor">
+      <rect y="117.64750000000004" rx="5" ry="5" width="214.3966666666667" height="85.960000000000036" fill="#57AC56" stroke="#A5A6A9" stroke-width="1" />
+      <text x="20" y="135.59750000000003" fill="#FFFFFF">ConsoleApp14.Test+MyTestActor</text>
+      <rect x="5" y="145.60750000000004" width="204.3966666666667" height="53.000000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="ConsoleApp14.Test+MyTestActor.MyTestActor">
+        <rect x="64.353333333333339" y="157.64750000000004" rx="3" ry="3" width="85.690000000000012" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="74.353333333333339" y="175.59750000000003" fill="#3D3D3D">MyTestActor</text>
+      </g>
+    </g>
+  </g>
+</svg>

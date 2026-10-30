@@ -123,6 +123,68 @@ non-terminating executions (like an infinite series of ping pong events, for exa
 cases, if you do not provide `max-steps` then the tester can appear to can get stuck running one
 iteration forever. This is related to [liveness checking](../how-to/liveness-checking.md).
 
+### Machine-readable results
+
+By default, the `coyote` tester exits with code `0` when no bugs were found, `2` when a bug was
+found, and `3` on an internal error. Exit code `0` does not by itself mean that the exploration
+was exhaustive: the test might have invoked APIs that Coyote does not control (see [uncontrolled
+concurrency](../concepts/binary-rewriting.md)), some iterations might have been truncated by the
+`--max-steps` bound, or the test might not contain any scheduling decisions at all. The tester
+summarizes these conditions as an _exploration verdict_ at the end of the test report, and the
+`--strict` flag makes it exit with code `4` when the verdict is `Incomplete`. The `--strict-bounds`
+flag additionally treats fair execution paths that exceeded the unfair `--max-steps` bound as
+incomplete exploration, which is otherwise only reported as a warning.
+Fair paths that finish normally exactly at the unfair bound do not produce this warning
+or incomplete reason; only paths with more decisions than that positive bound are counted.
+
+An exploration that executes no paths is `Incomplete` with reason `NoExecutionPaths`, including
+when `--iterations 0` is used or test initialization exceeds the timeout. If the timeout expires
+before any paths were explored, `TestingTimedOut` is also an incomplete reason. After paths were
+explored, reaching the testing time budget is instead a `TestingTimedOut` warning. Such a run
+can be `Complete` if no other incomplete reasons were detected; uncontrolled invocations,
+truncated paths and other limitations still make it `Incomplete`. A call to `TestingEngine.Stop`
+is reported as reason `TestingCanceled` even if some paths were explored. With `--strict`,
+incomplete runs exit with code `4`; without it, the default exit codes above still apply.
+A detected bug or an internal error retains its verdict and exit-code priority.
+
+An ignored potential deadlock or an unexpected `TaskCanceledException` that ends exploration while
+the engine has not been canceled adds `ExecutionInterrupted`, even when some paths were explored.
+A replay scheduling mismatch records an internal error and its diagnostic. When an internal setup
+exception aborts the command, `--json-report` also attempts to emit the failure report; the command
+keeps its original error exit code (`1`), and a secondary report-writing failure does not replace
+the original exception.
+
+If the test entry assembly has no rewriting signature matching the current Coyote version,
+the engine records `TestAssemblyNotRewritten`. In the absence of a bug or internal error,
+the verdict is `Incomplete`, even when an explicit scheduling point produces nonzero step counts.
+This also applies to actor-only tests and tests run through an in-process delegate: the delegate's
+actual assembly is checked.
+Testing continues so bugs and reports are still available. A run with no bug or internal error
+exits with code `4` with `--strict`, or `0` without it. Automation should accept the new reason
+in the JSON report. A matching signature only identifies the test entry assembly; it does not
+prove that every dependency or native concurrent API was rewritten and controlled.
+
+The internal DFS strategy can report that no execution paths remain before the requested iteration
+budget is reached. The engine then omits `InsufficientExecutionPaths`; other incomplete reasons
+and warnings still apply. When reports are merged, exhaustion is retained only if every report
+with explored paths recorded it. Reports with no explored paths are neutral for exhaustion,
+but their recorded limitations still apply. Merged verdicts use the destination configuration
+and aggregate path counts, so they do not establish that each contributing run met its own budget.
+`Complete` means that no bug or reported exploration limitation was detected under the configured
+strategy and bounds; it does not prove that every possible program execution was explored.
+
+The timeout ends the wait for testing; it does not synchronously terminate arbitrary user
+initialization or an iteration still running in the background. Reports use the statistics
+available when they are read or generated; background iterations can still update them.
+
+Use the `--json-report` flag to also emit a `.report.json` file next to the other reports. The
+file contains the verdict with its reasons, the exploration statistics, the bug reports, the
+detected uncontrolled invocations, the settings used during testing, the identity of the tested
+assembly, and the paths of the other emitted reports (such as the reproducible `.trace` file).
+This is useful when the tester is driven by scripts or by automated agents that need to decide
+whether a passing run can be trusted. The same report is available in-process through the
+`TestingEngine.GetJsonReport` API, and the verdict through the `TestReport.GetVerdict` API.
+
 ### Portfolio testing
 
 The Coyote tester supports running a portfolio of different exploration strategies during testing.

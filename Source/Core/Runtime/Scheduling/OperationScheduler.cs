@@ -348,6 +348,17 @@ namespace Microsoft.Coyote.Runtime
             this.Strategy.GetDescription();
 
         /// <summary>
+        /// Checks that a normally completed replay consumed the recorded trace.
+        /// </summary>
+        internal void CheckReplayCompletion()
+        {
+            if (this.IsReplaying && this.Strategy is InterleavingStrategy strategy)
+            {
+                strategy.CheckReplayCompletion();
+            }
+        }
+
+        /// <summary>
         /// Returns the last scheduling error, or the empty string if there is none.
         /// </summary>
         internal string GetLastError() => this.Strategy.ErrorText;

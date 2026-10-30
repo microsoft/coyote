@@ -44,14 +44,45 @@ namespace Microsoft.Coyote
                 logWriter.LogImportant(". Testing {0}.", configuration.AssemblyToBeAnalyzed);
                 using TestingEngine engine = new TestingEngine(configuration, logWriter);
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-                engine.Run();
+                try
+                {
+                    engine.Run();
+                }
+                catch (Exception)
+                {
+                    if (configuration.IsJsonReportEnabled && engine.TestReport.InternalErrors.Count > 0)
+                    {
+                        try
+                        {
+                            var failureReport = engine.TestReport.Clone();
+                            string failureDirectory = OutputFileManager.CreateOutputDirectory(configuration);
+                            string failureFileName = OutputFileManager.GetResolvedFileName(
+                                configuration.AssemblyToBeAnalyzed, failureDirectory);
+                            engine.TryEmitReports(failureDirectory, failureFileName, failureReport, out var failurePaths);
+                            foreach (string path in failurePaths)
+                            {
+                                logWriter.LogImportant("..... Writing {0}", path);
+                            }
+                        }
+                        catch (Exception reportException)
+                        {
+                            logWriter.LogError("... Could not emit the failure report: {0}", reportException.Message);
+                        }
+                    }
+
+                    // Preserve the original failure even when diagnostic emission also fails.
+                    throw;
+                }
+
+                // Keep the emitted report, console summary and exit code on the same result snapshot.
+                var report = engine.TestReport.Clone();
 
                 string directory = OutputFileManager.CreateOutputDirectory(configuration);
                 string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
 
                 // Emit the test reports.
                 logWriter.LogImportant("... Emitting execution trace reports:");
-                if (engine.TryEmitReports(directory, fileName, out IEnumerable<string> reportPaths))
+                if (engine.TryEmitReports(directory, fileName, report, out IEnumerable<string> reportPaths))
                 {
                     foreach (var path in reportPaths)
                     {
@@ -77,9 +108,9 @@ namespace Microsoft.Coyote
                     logWriter.LogImportant("..... No coverage reports available.");
                 }
 
-                logWriter.LogImportant(engine.TestReport.GetText(configuration, "..."));
+                logWriter.LogImportant(report.GetText(configuration, "..."));
                 logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
-                return GetExitCodeFromTestReport(engine.TestReport);
+                return GetExitCodeFromTestReport(report, configuration);
             }
             catch (Exception ex)
             {
@@ -105,14 +136,16 @@ namespace Microsoft.Coyote
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
                 engine.Run();
 
+                var report = engine.TestReport.Clone();
+
                 // Emit the report.
-                if (engine.TestReport.NumOfFoundBugs > 0)
+                if (report.NumOfFoundBugs > 0)
                 {
-                    logWriter.LogImportant(engine.GetReport());
+                    logWriter.LogImportant(engine.GetReport(report));
                 }
 
                 logWriter.LogImportant("... Elapsed {0} sec.", engine.Profiler.Results());
-                return GetExitCodeFromTestReport(engine.TestReport);
+                return GetExitCodeFromTestReport(report, configuration);
             }
             catch (Exception ex)
             {
@@ -193,9 +226,11 @@ namespace Microsoft.Coyote
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs args) =>
             Environment.Exit((int)ExitCode.InternalError);
 
-        private static ExitCode GetExitCodeFromTestReport(TestReport report) =>
+        private static ExitCode GetExitCodeFromTestReport(TestReport report, Configuration configuration) =>
             report.InternalErrors.Count > 0 ? ExitCode.InternalError :
             report.NumOfFoundBugs > 0 ? ExitCode.BugFound :
+            configuration.IsStrictExplorationEnabled && report.GetVerdict().Status is ExplorationStatus.Incomplete ?
+                ExitCode.IncompleteExploration :
             ExitCode.Success;
     }
 }

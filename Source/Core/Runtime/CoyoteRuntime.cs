@@ -265,6 +265,11 @@ namespace Microsoft.Coyote.Runtime
         private bool IsUncontrolledConcurrencyDetected;
 
         /// <summary>
+        /// True if a scheduling decision was stopped by the configured step bound.
+        /// </summary>
+        private bool IsSchedulingStepsBoundReached;
+
+        /// <summary>
         /// Associated with the bug report is an optional unhandled exception.
         /// </summary>
         private Exception UnhandledException;
@@ -315,6 +320,7 @@ namespace Microsoft.Coyote.Runtime
             this.ScheduleSuppressionCount = 0;
             this.IsSpecificationInvoked = false;
             this.IsUncontrolledConcurrencyDetected = false;
+            this.IsSchedulingStepsBoundReached = false;
             this.LastPostponedSchedulingPoint = null;
             this.MaxConcurrencyDegree = 0;
 
@@ -2158,6 +2164,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Scheduler.IsMaxStepsReached)
             {
+                this.IsSchedulingStepsBoundReached = true;
                 string message = $"Scheduling steps bound of {this.Scheduler.StepCount} reached.";
                 if (this.Configuration.FailOnMaxStepsBound)
                 {
@@ -2246,10 +2253,10 @@ namespace Microsoft.Coyote.Runtime
                 {
                     string message = $"Executing thread '{Thread.CurrentThread.ManagedThreadId}' is not controlled and " +
                         $"is invoking the {methodName} synchronization method, which can cause deadlocks during testing.";
+                    this.IsUncontrolledConcurrencyDetected = true;
                     if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
                     {
                         this.LogWriter.LogWarning("[coyote::warning] {0}", message);
-                        this.IsUncontrolledConcurrencyDetected = true;
                         this.Detach(ExecutionStatus.ConcurrencyUncontrolled);
                     }
                     else
@@ -2405,6 +2412,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private bool TryHandleUncontrolledConcurrency(string message, string methodName = default)
         {
+            this.IsUncontrolledConcurrencyDetected = true;
             if (this.Configuration.IsPartiallyControlledConcurrencyAllowed ||
                 this.Configuration.IsSystematicFuzzingFallbackEnabled)
             {
@@ -2418,7 +2426,6 @@ namespace Microsoft.Coyote.Runtime
                     this.LogWriter.LogWarning("[coyote::warning] {0}", message);
                 }
 
-                this.IsUncontrolledConcurrencyDetected = true;
                 if (this.Configuration.IsPartiallyControlledConcurrencyAllowed)
                 {
                     return true;
@@ -2578,13 +2585,17 @@ namespace Microsoft.Coyote.Runtime
                 bool isBugFound = this.ExecutionStatus is ExecutionStatus.BugFound;
                 int groupingDegree = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
                 report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, (int)this.MaxConcurrencyDegree,
-                    groupingDegree, this.Scheduler.StepCount, this.Scheduler.IsMaxStepsReached, this.Scheduler.IsIterationFair);
+                    groupingDegree, this.Scheduler.StepCount, this.IsSchedulingStepsBoundReached,
+                    this.Scheduler.IsIterationFair);
                 if (isBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);
                 }
 
                 report.SetUncontrolledInvocations(this.UncontrolledInvocations);
+                report.SetUncontrolledConcurrencyDetected(this.IsUncontrolledConcurrencyDetected);
+                report.SetExecutionInterrupted(this.ExecutionStatus is ExecutionStatus.Deadlocked);
+                report.SetInternalError(this.Scheduler.GetLastError());
             }
         }
 
@@ -2653,6 +2664,7 @@ namespace Microsoft.Coyote.Runtime
             {
                 if (status is ExecutionStatus.PathExplored)
                 {
+                    this.Scheduler.CheckReplayCompletion();
                     this.LogWriter.LogInfo("[coyote::test] Exploration finished in runtime '{0}' [reached the end of the test method].", this.Id);
                 }
                 else if (status is ExecutionStatus.BoundReached)

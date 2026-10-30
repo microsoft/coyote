@@ -15,6 +15,7 @@ public sealed class TestingEngine : IDisposable
 | [ReproducibleTrace](TestingEngine/ReproducibleTrace.md) { get; } | The reproducible trace, if any. |
 | [TestReport](TestingEngine/TestReport.md) { get; set; } | Data structure containing information gathered during testing. |
 | [Dispose](TestingEngine/Dispose.md)() | Releases any held resources. |
+| [GetJsonReport](TestingEngine/GetJsonReport.md)() | Returns a machine-readable report of the test run in JSON format. The report includes the exploration verdict, statistics, bug reports and uncontrolled invocations. |
 | [GetReport](TestingEngine/GetReport.md)() | Returns a report with the testing results. |
 | [InvokeEndIterationCallBacks](TestingEngine/InvokeEndIterationCallBacks.md)(…) | Invokes any registered callbacks at the end of the specified iteration. |
 | [InvokeStartIterationCallBacks](TestingEngine/InvokeStartIterationCallBacks.md)(…) | Invokes any registered callbacks at the start of the specified iteration. |

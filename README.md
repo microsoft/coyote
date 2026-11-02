@@ -3,7 +3,6 @@
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
 [![Nuget](https://img.shields.io/nuget/dt/Microsoft.Coyote?color=informational)](https://www.nuget.org/packages/Microsoft.Coyote/)
 ![Build and Test CI](https://github.com/microsoft/coyote/actions/workflows/test-coyote.yml/badge.svg?branch=main)
-![CodeQL](https://github.com/microsoft/coyote/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)
 
 Coyote is a cross-platform library and tool for testing concurrent C# code and deterministically reproducing bugs.
 

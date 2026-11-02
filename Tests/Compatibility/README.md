@@ -6,6 +6,20 @@ SDK 8 is not required. Running the probes requires the .NET and ASP.NET Core
 runtimes for both .NET 8 and .NET 10. After installing SDK 10, run
 `./Scripts/install-dotnet8-runtimes.ps1` to add the .NET 8 runtimes.
 
+## Async builder lifetime
+
+The Task and ValueTask builders retain the runtime, awaiter, and native builder
+needed for task registration when a continuation can complete before await
+registration returns. The first await captures the native builder after .NET
+initializes its task; later awaits capture it before publishing the continuation.
+Task registration and the control-status check still occur after native await
+registration. This does not add scheduling points or delay continuations.
+
+`AsyncMethodBuilderLifetimeTests` checks the exact registered task identity,
+control-status timing, and completion, fault, and cancellation outcomes without
+sleeps or timing-based coordination. Run these regressions on .NET 8 and .NET 10
+in both Debug and Release builds.
+
 ## Testing package delivery
 
 After building the local NuGet packages on Windows with `.\Scripts\build.ps1 -ci -nuget`,

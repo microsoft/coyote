@@ -35,6 +35,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
 #pragma warning restore IDE0044 // Add readonly modifier
 
         /// <summary>
+        /// True if the native builder has already registered an await.
+        /// </summary>
+        private bool HasAwaited;
+
+        /// <summary>
         /// Gets the value task for this builder.
         /// </summary>
         public SystemValueTask Task => this.MethodBuilder.Task;
@@ -46,6 +51,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
+            this.HasAwaited = false;
         }
 
         /// <summary>
@@ -98,14 +104,25 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
             where TAwaiter : SystemCompiler.INotifyCompletion
             where TStateMachine : SystemCompiler.IAsyncStateMachine
         {
+            var runtime = this.Runtime;
+            var controllableAwaiter = runtime != null ? awaiter as IControllableAwaiter : null;
+            var methodBuilder = this.MethodBuilder;
+            bool isFirstAwait = !this.HasAwaited;
+            this.HasAwaited = true;
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
-            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
-                controllableAwaiter.IsControlled)
+            if (isFirstAwait)
             {
-                var builderTask = this.MethodBuilder.Task;
+                // The first await initializes the task in the originating state machine.
+                // Later awaits must retain it before the boxed state can be cleared.
+                methodBuilder = this.MethodBuilder;
+            }
+
+            if (runtime != null && controllableAwaiter != null && controllableAwaiter.IsControlled)
+            {
+                var builderTask = methodBuilder.Task;
                 if (ValueTaskAwaiter.TryGetTask(ref builderTask, out SystemTask innerTask))
                 {
-                    this.AssignStateMachineTask(innerTask);
+                    AssignStateMachineTask(runtime, innerTask);
                 }
             }
         }
@@ -118,14 +135,23 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
             where TAwaiter : SystemCompiler.ICriticalNotifyCompletion
             where TStateMachine : SystemCompiler.IAsyncStateMachine
         {
+            var runtime = this.Runtime;
+            var controllableAwaiter = runtime != null ? awaiter as IControllableAwaiter : null;
+            var methodBuilder = this.MethodBuilder;
+            bool isFirstAwait = !this.HasAwaited;
+            this.HasAwaited = true;
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
-            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
-                controllableAwaiter.IsControlled)
+            if (isFirstAwait)
             {
-                var builderTask = this.MethodBuilder.Task;
+                methodBuilder = this.MethodBuilder;
+            }
+
+            if (runtime != null && controllableAwaiter != null && controllableAwaiter.IsControlled)
+            {
+                var builderTask = methodBuilder.Task;
                 if (ValueTaskAwaiter.TryGetTask(ref builderTask, out SystemTask innerTask))
                 {
-                    this.AssignStateMachineTask(innerTask);
+                    AssignStateMachineTask(runtime, innerTask);
                 }
             }
         }
@@ -133,11 +159,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
         /// <summary>
         /// Assigns the state machine task with the runtime.
         /// </summary>
-        private void AssignStateMachineTask(SystemTask builderTask)
+        private static void AssignStateMachineTask(CoyoteRuntime runtime, SystemTask builderTask)
         {
-            this.Runtime.LogWriter.LogDebug("[coyote::debug] Assigned state machine value task '{0}' from thread '{1}'.",
+            runtime.LogWriter.LogDebug("[coyote::debug] Assigned state machine value task '{0}' from thread '{1}'.",
                 builderTask.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.RegisterKnownControlledTask(builderTask);
+            runtime.RegisterKnownControlledTask(builderTask);
         }
     }
 
@@ -162,6 +188,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
 #pragma warning restore IDE0044 // Add readonly modifier
 
         /// <summary>
+        /// True if the native builder has already registered an await.
+        /// </summary>
+        private bool HasAwaited;
+
+        /// <summary>
         /// Gets the value task for this builder.
         /// </summary>
         public SystemTasks.ValueTask<TResult> Task => this.MethodBuilder.Task;
@@ -173,6 +204,7 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
+            this.HasAwaited = false;
         }
 
         /// <summary>
@@ -228,14 +260,24 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
                 where TAwaiter : SystemCompiler.INotifyCompletion
                 where TStateMachine : SystemCompiler.IAsyncStateMachine
         {
+            var runtime = this.Runtime;
+            var controllableAwaiter = runtime != null ? awaiter as IControllableAwaiter : null;
+            var methodBuilder = this.MethodBuilder;
+            bool isFirstAwait = !this.HasAwaited;
+            this.HasAwaited = true;
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
-            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
-                controllableAwaiter.IsControlled)
+            if (isFirstAwait)
             {
-                var builderTask = this.MethodBuilder.Task;
+                // Only the first registration can read the original builder after publication.
+                methodBuilder = this.MethodBuilder;
+            }
+
+            if (runtime != null && controllableAwaiter != null && controllableAwaiter.IsControlled)
+            {
+                var builderTask = methodBuilder.Task;
                 if (ValueTaskAwaiter.TryGetTask<TResult>(ref builderTask, out SystemTasks.Task<TResult> innerTask))
                 {
-                    this.AssignStateMachineTask(innerTask);
+                    AssignStateMachineTask(runtime, innerTask);
                 }
             }
         }
@@ -248,14 +290,23 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
             where TAwaiter : SystemCompiler.ICriticalNotifyCompletion
             where TStateMachine : SystemCompiler.IAsyncStateMachine
         {
+            var runtime = this.Runtime;
+            var controllableAwaiter = runtime != null ? awaiter as IControllableAwaiter : null;
+            var methodBuilder = this.MethodBuilder;
+            bool isFirstAwait = !this.HasAwaited;
+            this.HasAwaited = true;
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
-            if (this.Runtime != null && awaiter is IControllableAwaiter controllableAwaiter &&
-                controllableAwaiter.IsControlled)
+            if (isFirstAwait)
             {
-                var builderTask = this.MethodBuilder.Task;
+                methodBuilder = this.MethodBuilder;
+            }
+
+            if (runtime != null && controllableAwaiter != null && controllableAwaiter.IsControlled)
+            {
+                var builderTask = methodBuilder.Task;
                 if (ValueTaskAwaiter.TryGetTask<TResult>(ref builderTask, out SystemTasks.Task<TResult> innerTask))
                 {
-                    this.AssignStateMachineTask(innerTask);
+                    AssignStateMachineTask(runtime, innerTask);
                 }
             }
         }
@@ -263,11 +314,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Runtime.CompilerServices
         /// <summary>
         /// Assigns the state machine task with the runtime.
         /// </summary>
-        private void AssignStateMachineTask(SystemTasks.Task<TResult> builderTask)
+        private static void AssignStateMachineTask(CoyoteRuntime runtime, SystemTasks.Task<TResult> builderTask)
         {
-            this.Runtime.LogWriter.LogDebug("[coyote::debug] Assigned state machine value task '{0}' from thread '{1}'.",
+            runtime.LogWriter.LogDebug("[coyote::debug] Assigned state machine value task '{0}' from thread '{1}'.",
                 builderTask.Id, SystemThreading.Thread.CurrentThread.ManagedThreadId);
-            this.Runtime.RegisterKnownControlledTask(builderTask);
+            runtime.RegisterKnownControlledTask(builderTask);
         }
     }
 }

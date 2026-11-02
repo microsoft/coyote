@@ -6,6 +6,8 @@
     <Copyright>Copyright © Microsoft Corporation.</Copyright>
     <LangVersion>10.0</LangVersion>
     <TargetFrameworks>net8.0</TargetFrameworks>
+    <CoyoteSampleToolPath>$(MSBuildThisFileDirectory)..\bin\coyote\net8.0\coyote</CoyoteSampleToolPath>
+    <CoyoteSampleToolPath Condition="'$(OS)'=='Windows_NT'">$(CoyoteSampleToolPath).exe</CoyoteSampleToolPath>
     <UseLocalCoyote>False</UseLocalCoyote>
     <UseLocalNugetPackages>False</UseLocalNugetPackages>
     <UseNugetPackages>True</UseNugetPackages>

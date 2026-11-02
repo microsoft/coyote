@@ -106,6 +106,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static bool TryEnter(SystemLock instance, int millisecondsTimeout)
         {
+            if (instance is null)
+            {
+                throw new NullReferenceException();
+            }
+
             if (millisecondsTimeout < -1)
             {
                 throw new ArgumentOutOfRangeException(nameof(millisecondsTimeout));
@@ -144,6 +149,11 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         /// </summary>
         public static bool TryEnter(SystemLock instance, TimeSpan timeout)
         {
+            if (instance is null)
+            {
+                throw new NullReferenceException();
+            }
+
             long totalMilliseconds = (long)timeout.TotalMilliseconds;
             if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
             {

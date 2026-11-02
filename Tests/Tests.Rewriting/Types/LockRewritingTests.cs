@@ -193,6 +193,11 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 Lock gate = null;
                 Assert.Throws<NullReferenceException>(() => gate.Enter());
                 Assert.Throws<NullReferenceException>(() => gate.TryEnter());
+                Assert.Throws<NullReferenceException>(() => gate.TryEnter(0));
+                Assert.Throws<NullReferenceException>(() => gate.TryEnter(-2));
+                Assert.Throws<NullReferenceException>(() => gate.TryEnter(TimeSpan.Zero));
+                Assert.Throws<NullReferenceException>(() => gate.TryEnter(TimeSpan.FromTicks(-20_000)));
+                Assert.Throws<NullReferenceException>(() => gate.TryEnter(TimeSpan.MaxValue));
                 Assert.Throws<NullReferenceException>(() => gate.Exit());
                 Assert.Throws<NullReferenceException>(() => _ = gate.IsHeldByCurrentThread);
             });

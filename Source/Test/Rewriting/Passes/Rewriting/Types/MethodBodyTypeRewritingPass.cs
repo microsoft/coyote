@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -151,6 +153,9 @@ namespace Microsoft.Coyote.Rewriting
         private Instruction VisitNewobjInstruction(Instruction instruction)
         {
             MethodReference constructor = instruction.Operand as MethodReference;
+#if NET10_0_OR_GREATER
+            this.ValidateExternalLockScopeInstruction(instruction, constructor);
+#endif
             if (this.TryRewriteMethodReference(constructor, "Create", out MethodReference newMethod) &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
@@ -176,9 +181,10 @@ namespace Microsoft.Coyote.Rewriting
         private Instruction VisitMethodInstruction(Instruction instruction, MethodReference method)
         {
 #if NET10_0_OR_GREATER
+            this.ValidateExternalLockScopeInstruction(instruction, method);
             if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
                 method.ReturnType.FullName == Types.NameCache.LockScope &&
-                !this.IsRewritableType(method.DeclaringType.Resolve()))
+                this.IsExternalLockScopeContract(method.DeclaringType.Resolve()))
             {
                 return this.VisitExternalLockScopeInstruction(instruction, method);
             }
@@ -228,6 +234,45 @@ namespace Microsoft.Coyote.Rewriting
         }
 
 #if NET10_0_OR_GREATER
+        /// <summary>
+        /// Rejects native scope boundaries for which there is no ownership-safe adapter.
+        /// </summary>
+        private void ValidateExternalLockScopeInstruction(Instruction instruction, MethodReference method)
+        {
+            if (instruction.OpCode == OpCodes.Ldtoken)
+            {
+                return;
+            }
+
+            bool hasScopeParameter = method.Parameters.Any(parameter => ContainsLockScope(parameter.ParameterType));
+            bool hasScopeReturn = ContainsLockScope(method.ReturnType);
+            if (!hasScopeParameter && !hasScopeReturn)
+            {
+                return;
+            }
+
+            TypeDefinition declaringType = method.DeclaringType.Resolve();
+            if (!this.IsExternalLockScopeContract(declaringType))
+            {
+                return;
+            }
+
+            bool isScopeDelegate = (instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn) &&
+                (hasScopeParameter || hasScopeReturn);
+            bool hasUnsupportedReturn = hasScopeReturn &&
+                method.ReturnType.FullName != Types.NameCache.LockScope;
+            if (hasScopeParameter || isScopeDelegate || hasUnsupportedReturn)
+            {
+                string boundary = isScopeDelegate ? "delegate binding" :
+                    hasScopeParameter ? "parameter boundary" : "return boundary";
+                throw new InvalidOperationException(
+                    $"Cannot rewrite method '{this.Method.FullName}' because its {boundary} with " +
+                    $"unrewritten method '{method.FullName}' would change the Lock.Scope signature. " +
+                    $"Include assembly '{declaringType.Module.Assembly.Name.Name}' in rewriting, and ensure the " +
+                    "declaring type is not marked with SkipRewriting.");
+            }
+        }
+
         /// <summary>
         /// Guards native lock acquisition and adapts its scope to the rewritten caller.
         /// </summary>

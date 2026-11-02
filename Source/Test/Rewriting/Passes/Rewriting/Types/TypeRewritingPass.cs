@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting.Types;
 using Mono.Cecil;
@@ -248,6 +249,24 @@ namespace Microsoft.Coyote.Rewriting
         /// Checks if the specified type is a supported type.
         /// </summary>
         protected virtual bool IsSupportedType(TypeDefinition type) => false;
+
+#if NET10_0_OR_GREATER
+        /// <summary>
+        /// Checks for a native lock scope, including by-reference and generic wrappers.
+        /// </summary>
+        protected static bool ContainsLockScope(TypeReference type) =>
+            type.FullName == NameCache.LockScope ||
+            (type is GenericInstanceType genericType && genericType.GenericArguments.Any(ContainsLockScope)) ||
+            (type is TypeSpecification specification && ContainsLockScope(specification.ElementType));
+
+        /// <summary>
+        /// Checks if a lock scope contract stays native across rewriting.
+        /// </summary>
+        protected bool IsExternalLockScopeContract(TypeDefinition type) =>
+            type != null && !IsRuntimeType(type) && !this.KnownTypes.ContainsKey(type.FullName) &&
+            (!this.IsVisitedType(type) || type.CustomAttributes.Any(
+                attribute => attribute.AttributeType.FullName == typeof(SkipRewritingAttribute).FullName));
+#endif
 
         /// <summary>
         /// Options for rewriting a type.

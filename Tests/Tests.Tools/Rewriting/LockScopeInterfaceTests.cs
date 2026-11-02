@@ -17,6 +17,15 @@ namespace Microsoft.Coyote.Tools.Tests
 {
     public class LockScopeInterfaceTests : BaseToolsTest
     {
+        public enum ScopeSignature
+        {
+            Return,
+            Value,
+            Ref,
+            Out,
+            RefReturn
+        }
+
         public LockScopeInterfaceTests(ITestOutputHelper output)
             : base(output)
         {
@@ -91,12 +100,53 @@ namespace Microsoft.Coyote.Tools.Tests
             }
         }
 
+        [Theory(Timeout = 10000)]
+        [InlineData(ScopeSignature.Value, false)]
+        [InlineData(ScopeSignature.Ref, false)]
+        [InlineData(ScopeSignature.Out, false)]
+        [InlineData(ScopeSignature.RefReturn, false)]
+        [InlineData(ScopeSignature.Value, true)]
+        [InlineData(ScopeSignature.Ref, true)]
+        [InlineData(ScopeSignature.Out, true)]
+        [InlineData(ScopeSignature.RefReturn, true)]
+        public void TestScopeInterfaceSignatures(ScopeSignature signature, bool rewriteContract)
+        {
+            foreach (bool explicitImplementation in new[] { false, true })
+            {
+                string directory = CreateScratchDirectory();
+                try
+                {
+                    string target = CreateTarget(directory, explicitImplementation,
+                        inheritedInterface: true, isValueType: false, signature);
+                    AssertInterfaceContractLoads(directory);
+                    byte[] original = File.ReadAllBytes(target);
+                    if (rewriteContract)
+                    {
+                        Rewrite(directory, target, rewriteContract: true);
+                        AssertInterfaceContractLoads(directory);
+                    }
+                    else
+                    {
+                        var exception = Assert.Throws<InvalidOperationException>(() =>
+                            Rewrite(directory, target, rewriteContract: false));
+                        Assert.Contains("would change the interface contract", exception.Message);
+                        Assert.Contains("Include assembly 'ScopeContract' in rewriting", exception.Message);
+                        Assert.Equal(original, File.ReadAllBytes(target));
+                    }
+                }
+                finally
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
         private static string CreateScratchDirectory() => Directory.CreateDirectory(Path.Combine(
             Path.GetDirectoryName(typeof(LockScopeInterfaceTests).Assembly.Location),
             nameof(LockScopeInterfaceTests), Guid.NewGuid().ToString("N"))).FullName;
 
         private static string CreateTarget(string directory, bool explicitImplementation,
-            bool inheritedInterface, bool isValueType)
+            bool inheritedInterface, bool isValueType, ScopeSignature signature = ScopeSignature.Return)
         {
             using var contract = AssemblyDefinition.CreateAssembly(
                 new AssemblyNameDefinition("ScopeContract", new Version(1, 0)), "ScopeContract", ModuleKind.Dll);
@@ -104,11 +154,13 @@ namespace Microsoft.Coyote.Tools.Tests
             var provider = new TypeDefinition("Regression", "IProvider",
                 TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract);
             contractModule.Types.Add(provider);
-            var declaration = new MethodDefinition("EnterScope",
+            var declaration = new MethodDefinition(signature is ScopeSignature.Return or ScopeSignature.RefReturn ?
+                "EnterScope" : "Consume",
                 MethodAttributes.Public | MethodAttributes.Abstract | MethodAttributes.Virtual |
                 MethodAttributes.NewSlot | MethodAttributes.HideBySig,
-                contractModule.ImportReference(typeof(System.Threading.Lock.Scope)));
+                contractModule.TypeSystem.Void);
             provider.Methods.Add(declaration);
+            SetScopeSignature(declaration, signature);
             TypeDefinition implementedInterface = provider;
             if (inheritedInterface)
             {
@@ -128,10 +180,12 @@ namespace Microsoft.Coyote.Tools.Tests
                 isValueType ? module.ImportReference(typeof(ValueType)) : module.TypeSystem.Object);
             implementation.Interfaces.Add(new InterfaceImplementation(module.ImportReference(implementedInterface)));
             module.Types.Add(implementation);
-            var method = new MethodDefinition(explicitImplementation ? "Regression.IProvider.EnterScope" : "EnterScope",
+            var method = new MethodDefinition(explicitImplementation ? $"Regression.IProvider.{declaration.Name}" : declaration.Name,
                 (explicitImplementation ? MethodAttributes.Private : MethodAttributes.Public) |
                 MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.NewSlot | MethodAttributes.HideBySig,
-                module.ImportReference(typeof(System.Threading.Lock.Scope)));
+                module.TypeSystem.Void);
+            implementation.Methods.Add(method);
+            SetScopeSignature(method, signature);
             if (explicitImplementation)
             {
                 method.Overrides.Add(module.ImportReference(declaration));
@@ -139,10 +193,24 @@ namespace Microsoft.Coyote.Tools.Tests
 
             method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldnull));
             method.Body.Instructions.Add(Instruction.Create(OpCodes.Throw));
-            implementation.Methods.Add(method);
             string path = Path.Combine(directory, "ScopeImplementation.dll");
             target.Write(path);
             return path;
+        }
+
+        private static void SetScopeSignature(MethodDefinition method, ScopeSignature signature)
+        {
+            TypeReference scope = method.Module.ImportReference(typeof(System.Threading.Lock.Scope));
+            if (signature is ScopeSignature.Return or ScopeSignature.RefReturn)
+            {
+                method.ReturnType = signature is ScopeSignature.RefReturn ? new ByReferenceType(scope) : scope;
+            }
+            else
+            {
+                method.Parameters.Add(new ParameterDefinition("scope",
+                    signature is ScopeSignature.Out ? ParameterAttributes.Out : ParameterAttributes.None,
+                    signature is ScopeSignature.Value ? scope : new ByReferenceType(scope)));
+            }
         }
 
         private static void Rewrite(string directory, string target, bool rewriteContract)
@@ -172,7 +240,11 @@ namespace Microsoft.Coyote.Tools.Tests
                 var target = context.LoadFromStream(targetStream);
                 var implementation = target.GetType("Regression.Provider", throwOnError: true);
                 var map = implementation.GetInterfaceMap(contract.GetType("Regression.IProvider", throwOnError: true));
-                Assert.Equal(Assert.Single(map.InterfaceMethods).ReturnType, Assert.Single(map.TargetMethods).ReturnType);
+                var declaration = Assert.Single(map.InterfaceMethods);
+                var method = Assert.Single(map.TargetMethods);
+                Assert.Equal(declaration.ReturnType, method.ReturnType);
+                Assert.Equal(declaration.GetParameters().Select(parameter => parameter.ParameterType),
+                    method.GetParameters().Select(parameter => parameter.ParameterType));
             }
             finally
             {

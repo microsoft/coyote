@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 
@@ -27,6 +28,7 @@ namespace Microsoft.Coyote.Rewriting
             base.VisitType(type);
 #if NET10_0_OR_GREATER
             this.ValidateLockScopeInterfaces(type, new HashSet<TypeDefinition>());
+            this.ValidateLockScopeBaseMethods(type);
 #endif
             this.RewriteGenericConstraints(type.GenericParameters);
             if (type.BaseType != null &&
@@ -120,23 +122,126 @@ namespace Microsoft.Coyote.Rewriting
             foreach (var implementedInterface in type.Interfaces)
             {
                 TypeDefinition contract = implementedInterface.InterfaceType.Resolve();
-                if (!this.IsVisitedType(contract))
+                if (this.IsExternalLockScopeContract(contract))
                 {
                     foreach (var method in contract.Methods)
                     {
-                        if (method.ReturnType.GetElementType().FullName == Types.NameCache.LockScope)
+                        if (ContainsLockScope(method.ReturnType) ||
+                            method.Parameters.Any(parameter => ContainsLockScope(parameter.ParameterType)))
                         {
                             throw new InvalidOperationException(
                                 $"Cannot rewrite type '{this.TypeDef.FullName}' because it implements " +
                                 $"'{method.FullName}' from an unrewritten interface. Rewriting Lock.Scope " +
                                 "would change the interface contract. Include assembly " +
-                                $"'{contract.Module.Assembly.Name.Name}' in rewriting.");
+                                $"'{contract.Module.Assembly.Name.Name}' in rewriting, and ensure the " +
+                                "contract type is not marked with SkipRewriting.");
                         }
                     }
                 }
 
                 this.ValidateLockScopeInterfaces(contract, visited);
             }
+        }
+
+        /// <summary>
+        /// Rejects overrides whose native base signature cannot follow the rewritten signature.
+        /// </summary>
+        private void ValidateLockScopeBaseMethods(TypeDefinition type)
+        {
+            foreach (var method in type.Methods)
+            {
+                if (!ContainsLockScope(method.ReturnType) &&
+                    !method.Parameters.Any(parameter => ContainsLockScope(parameter.ParameterType)))
+                {
+                    continue;
+                }
+
+                foreach (var methodOverride in method.Overrides)
+                {
+                    this.ValidateLockScopeBaseMethod(methodOverride);
+                }
+
+                if (!method.IsVirtual || method.IsNewSlot)
+                {
+                    continue;
+                }
+
+                var arguments = new Dictionary<GenericParameter, TypeReference>();
+                TypeReference baseType = type.BaseType;
+                while (baseType != null)
+                {
+                    TypeDefinition contract = baseType.Resolve();
+                    if (baseType is GenericInstanceType instance)
+                    {
+                        for (int i = 0; i < instance.GenericArguments.Count; i++)
+                        {
+                            arguments[contract.GenericParameters[i]] = instance.GenericArguments[i];
+                        }
+                    }
+
+                    var match = contract.Methods.FirstOrDefault(candidate =>
+                        candidate.IsVirtual && !candidate.IsPrivate && candidate.Name == method.Name &&
+                        candidate.GenericParameters.Count == method.GenericParameters.Count &&
+                        candidate.Parameters.Count == method.Parameters.Count &&
+                        this.GetContractTypeName(candidate.ReturnType, arguments) ==
+                            this.GetContractTypeName(method.ReturnType, arguments) &&
+                        candidate.Parameters.Select(parameter => this.GetContractTypeName(parameter.ParameterType, arguments))
+                            .SequenceEqual(method.Parameters.Select(parameter =>
+                                this.GetContractTypeName(parameter.ParameterType, arguments))));
+                    if (match != null)
+                    {
+                        this.ValidateLockScopeBaseMethod(match);
+                        if (match.IsNewSlot)
+                        {
+                            break;
+                        }
+                    }
+
+                    baseType = contract.BaseType;
+                }
+            }
+        }
+
+        private void ValidateLockScopeBaseMethod(MethodReference method)
+        {
+            TypeDefinition declaringType = method.DeclaringType.Resolve();
+            if (this.IsExternalLockScopeContract(declaringType) &&
+                (ContainsLockScope(method.ReturnType) ||
+                method.Parameters.Any(parameter => ContainsLockScope(parameter.ParameterType))))
+            {
+                throw new InvalidOperationException(
+                    $"Cannot rewrite type '{this.TypeDef.FullName}' because it overrides " +
+                    $"'{method.FullName}' from an unrewritten base type. Rewriting Lock.Scope " +
+                    "would change the base method contract. Include assembly " +
+                    $"'{declaringType.Module.Assembly.Name.Name}' in rewriting, and ensure the " +
+                    "contract type is not marked with SkipRewriting.");
+            }
+        }
+
+        /// <summary>
+        /// Compares inherited signatures using their instantiated type arguments and rewritten scopes.
+        /// </summary>
+        private string GetContractTypeName(TypeReference type, Dictionary<GenericParameter, TypeReference> arguments)
+        {
+            if (type is GenericParameter parameter)
+            {
+                return arguments.TryGetValue(parameter, out TypeReference argument) ?
+                    this.GetContractTypeName(argument, arguments) : $"{parameter.Type}:{parameter.Position}";
+            }
+
+            if (type is GenericInstanceType instance)
+            {
+                return instance.ElementType.FullName + "<" + string.Join(",",
+                    instance.GenericArguments.Select(argument => this.GetContractTypeName(argument, arguments))) + ">";
+            }
+
+            if (type is TypeSpecification specification)
+            {
+                return specification.FullName.Replace(specification.ElementType.FullName,
+                    this.GetContractTypeName(specification.ElementType, arguments));
+            }
+
+            return this.RewriteType(type, Options.None).FullName;
         }
 #endif
 

@@ -68,11 +68,20 @@ To keep systematic control, include the library in rewriting.
 This also applies to constrained calls through external interfaces on generic structs;
 rewriting preserves the call prefixes so the output remains valid IL.
 
-Implementing an unrewritten interface that returns `Lock.Scope` is not supported.
-Rewriting rejects this contract with a diagnostic naming the interface and its
-assembly, rather than producing a class that the CLR cannot load. Include the
-interface's assembly in rewriting together with its implementations. This applies
-to implicit and explicit implementations, including inherited interface contracts.
+Rewriting rejects incompatible `Lock.Scope` signatures across unrewritten boundaries:
+
+- Implementing an external interface or overriding an external base method with a
+  scope return or parameter, including `ref` and `out`.
+- Passing a scope to an external method or constructor, or receiving a scope by reference.
+- Binding a delegate to an external method with a scope return or parameter.
+
+The rewrite-time diagnostic names the affected type or method and the external
+assembly. Include that assembly in rewriting with its callers and implementations,
+and remove `SkipRewriting` from the contract type if present. This applies to
+implicit and explicit implementations, inherited contracts, and generic base types.
+Rewriting these types together remains supported. The direct by-value native return
+adapter and the built-in `System.Threading.Lock` delegate support described above
+are unchanged.
 
 ## Running the matrix
 

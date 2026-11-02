@@ -1,9 +1,10 @@
 # Runtime compatibility probes
 
 `Net8Probe` and `Net10Probe` exercise the native .NET 8 and .NET 10 Coyote
-hosts. Each probe has its own `global.json`, so SDK sensitive commands must run
-from the probe directory, and both the .NET 8 and the .NET 10 SDK must be
-installed.
+hosts. Both probes use the .NET 10 SDK pinned by the repository's `global.json`.
+SDK 8 is not required. Running the probes requires the .NET and ASP.NET Core
+runtimes for both .NET 8 and .NET 10. After installing SDK 10, run
+`./Scripts/install-dotnet8-runtimes.ps1` to add the .NET 8 runtimes.
 
 ## Testing package delivery
 
@@ -62,9 +63,8 @@ or if a supported case does not execute the probe under Coyote control. Pass
 | net8.0 | net10.0 probe | `rewrite` and `test` are rejected |
 | net10.0 | net8.0 probe | `rewrite` is rejected |
 
-The .NET 8 probe is built twice, once with the SDK pinned by its own
-`global.json` and once with the SDK pinned by the `global.json` of the
-repository root, and the matrix covers both builds.
+Each probe is built once with SDK 10. The matrix tests runtime compatibility,
+not compatibility with the older SDK 8 compiler.
 
 Never rewrite a probe inside its build directory. Coyote skips an assembly that
 is already rewritten with a matching signature, so a second host invoked on that
@@ -77,14 +77,11 @@ before each host invocation, exactly like the script does.
 Every case below starts from a fresh copy of a probe build. On Linux and macOS
 there is no `coyote.exe`, so invoke each host as `dotnet ./bin/net8.0/coyote.dll`
 and `dotnet ./bin/net10.0/coyote.dll`, which is what the script does there too.
-Build the probes first, from their own directory so that the pinned SDK is used:
+Build both probes from the repository root with its pinned SDK:
 
 ```powershell
-Set-Location .\Tests\Compatibility\Net8Probe
-dotnet build -c Release
-Set-Location ..\Net10Probe
-dotnet build -c Release
-Set-Location ..\..\..
+dotnet build .\Tests\Compatibility\Net8Probe -c Release --no-incremental
+dotnet build .\Tests\Compatibility\Net10Probe -c Release --no-incremental
 ```
 
 The .NET 8 host rewrites and tests the .NET 8 probe:

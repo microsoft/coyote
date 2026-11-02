@@ -27,27 +27,17 @@ $root_path = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath 
 $matrix_path = Join-Path -Path $PSScriptRoot -ChildPath "bin" -AdditionalChildPath @("matrix")
 $iterations = 10
 
-# The probes that the matrix rewrites and tests. The 'sdk' of a probe selects the SDK that builds
-# it: 'probe' builds from the probe directory, which pins the SDK through the 'global.json' of the
-# probe, and 'root' builds from the repository root, which pins the SDK of the root 'global.json'.
+# Both target frameworks are built with the SDK pinned by the repository root.
 $probes = [ordered]@{
     "net8" = @{
         project = "Net8Probe"
         assembly = "Net8Probe.dll"
         output = "net8.0"
-        sdk = "probe"
-    }
-    "net8-sdk10" = @{
-        project = "Net8Probe"
-        assembly = "Net8Probe.dll"
-        output = "net8.0-sdk10"
-        sdk = "root"
     }
     "net10" = @{
         project = "Net10Probe"
         assembly = "Net10Probe.dll"
         output = "net10.0"
-        sdk = "probe"
     }
 }
 
@@ -77,21 +67,6 @@ $cases = @(
         probe = "net8"
         setup_framework = "net8.0"
         host_framework = "net10.0"
-        command = "test"
-        supported = $true
-    },
-    @{
-        name = "net8-host-rewrites-net8-probe-built-with-sdk10"
-        probe = "net8-sdk10"
-        host_framework = "net8.0"
-        command = "rewrite"
-        supported = $true
-    },
-    @{
-        name = "net8-host-tests-net8-probe-built-with-sdk10"
-        probe = "net8-sdk10"
-        setup_framework = "net8.0"
-        host_framework = "net8.0"
         command = "test"
         supported = $true
     },
@@ -137,19 +112,6 @@ $cases = @(
         )
     },
     @{
-        name = "net10-host-rewrites-net8-probe-built-with-sdk10"
-        probe = "net8-sdk10"
-        host_framework = "net10.0"
-        command = "rewrite"
-        supported = $false
-        diagnostics = @(
-            "The Coyote host is running on .NET 10.0"
-            "targets .NETCoreApp,Version=v8.0"
-            "would inject .NET 10.0 runtime references"
-            "Run the net8.0 Coyote host to rewrite this assembly"
-        )
-    },
-    @{
         name = "net8-host-tests-net10-probe"
         probe = "net10"
         setup_framework = "net10.0"
@@ -165,30 +127,17 @@ $cases = @(
 )
 
 # Builds the specified probe from scratch, so that the matrix never consumes a stale assembly.
-# NOTE: a probe that pins its own SDK clears the whole build directory of its project, so it must
-# be built before any probe of the same project that is built with the SDK of the repository root.
 function Build-Probe($probe) {
     $project_path = Join-Path -Path $PSScriptRoot -ChildPath $probe.project
     $output_path = Join-Path -Path $project_path -ChildPath "bin" -AdditionalChildPath @($config, $probe.output)
     Write-Comment -prefix "..." -text "Building the '$($probe.project)' probe into '$($probe.output)'"
-    if ($probe.sdk -eq "probe") {
-        Remove-Item -Path (Join-Path -Path $project_path -ChildPath "bin") -Recurse -Force -ErrorAction SilentlyContinue
-        Remove-Item -Path (Join-Path -Path $project_path -ChildPath "obj") -Recurse -Force -ErrorAction SilentlyContinue
-
-        # Build from the probe directory so that the SDK pinned by its 'global.json' is used.
-        Push-Location $project_path
-        Invoke-ToolCommand -tool "dotnet" -cmd "build -c $config" `
-            -error_msg "Failed to build the '$($probe.project)' probe"
-        Pop-Location
-    } else {
-        Remove-Item -Path $output_path -Recurse -Force -ErrorAction SilentlyContinue
-
-        # Build from the repository root so that the SDK pinned by the root 'global.json' is used.
-        # The build is not incremental, else it can reuse the assembly compiled by the other SDK.
-        $project_file = Join-Path -Path $project_path -ChildPath "$($probe.project).csproj"
-        Push-Location $root_path
+    Remove-Item -Path $output_path -Recurse -Force -ErrorAction SilentlyContinue
+    $project_file = Join-Path -Path $project_path -ChildPath "$($probe.project).csproj"
+    Push-Location $root_path
+    try {
         Invoke-ToolCommand -tool "dotnet" -cmd "build $project_file -c $config -o $output_path --no-incremental" `
             -error_msg "Failed to build the '$($probe.project)' probe with the SDK of the repository root"
+    } finally {
         Pop-Location
     }
 }

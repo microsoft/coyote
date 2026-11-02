@@ -47,9 +47,10 @@ $toolPath = Join-Path $workspace "tool"
 $cache = Join-Path $workspace "packages"
 New-Item -ItemType Directory -Path $consumer -Force | Out-Null
 $probeName = if ($framework -eq "net10.0") { "Net10Probe" } else { "Net8Probe" }
-foreach ($file in @("$probeName.csproj", "CompatibilityProbe.cs", "global.json")) {
+foreach ($file in @("$probeName.csproj", "CompatibilityProbe.cs")) {
     Copy-Item (Join-Path $PSScriptRoot "$probeName/$file") $consumer
 }
+Copy-Item (Join-Path $root "global.json") $consumer
 
 $config = Join-Path $workspace "NuGet.config"
 $escapedSource = [System.Security.SecurityElement]::Escape($packageSource)

@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.Rewriting
 
                     foreach (var method in type.Methods.ToArray())
                     {
-                        if (method.Body is null)
+                        if (method.Body is null && !(pass is MemberTypeRewritingPass))
                         {
                             continue;
                         }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Tests for actor APIs.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Actors</AssemblyName>

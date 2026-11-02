@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -119,6 +120,7 @@ namespace Microsoft.Coyote.Actors.Tests
             Assert.InRange(count, 0, 1);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 10000)]
         public void TestNoMemoryLeakAfterHalt()
         {

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Common test helpers.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Common</AssemblyName>

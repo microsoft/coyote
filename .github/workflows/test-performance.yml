@@ -18,13 +18,13 @@ jobs:
       AZURE_STORAGE_PRIMARY_KEY: ${{ secrets.AZURE_STORAGE_PRIMARY_KEY }}
       LocalBenchmarks: ${{ secrets.LocalBenchmarks }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
       - name: Setup NuGet.exe
-        uses: NuGet/setup-nuget@v1
+        uses: NuGet/setup-nuget@296fd3ccf8528660c91106efefe2364482f86d6f # v1.2.0
         with:
           nuget-version: '6.x'
       - name: Setup .NET 8.0 SDK
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
         with:
           dotnet-version: '8.0.x'
       - name: Setup Powershell

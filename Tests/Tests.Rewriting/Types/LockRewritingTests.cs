@@ -18,9 +18,158 @@ namespace Microsoft.Coyote.Rewriting.Tests
 {
     public class LockRewritingTests : BaseRewritingTest
     {
+        private delegate Lock.Scope EnterScopeDelegate();
+
         public LockRewritingTests(ITestOutputHelper output)
             : base(output)
         {
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestRewritingLockDelegatesShareOwnershipWithDirectCalls(bool isControlled)
+        {
+            Action test = () =>
+            {
+                var gate = new Lock();
+                Action enter = gate.Enter;
+                Action exit = gate.Exit;
+                Func<bool> tryEnter = gate.TryEnter;
+                Func<int, bool> tryEnterMilliseconds = gate.TryEnter;
+                Func<TimeSpan, bool> tryEnterTimeSpan = gate.TryEnter;
+                EnterScopeDelegate enterScope = gate.EnterScope;
+
+                gate.Enter();
+                exit();
+                Assert.False(gate.IsHeldByCurrentThread);
+                enter();
+                Assert.True(gate.IsHeldByCurrentThread);
+                gate.Exit();
+                Assert.True(tryEnter());
+                gate.Exit();
+                Assert.True(tryEnterMilliseconds(0));
+                gate.Exit();
+                Assert.True(tryEnterTimeSpan(TimeSpan.Zero));
+                gate.Exit();
+                using (enterScope())
+                {
+                    Assert.True(gate.IsHeldByCurrentThread);
+                }
+
+                Assert.False(gate.IsHeldByCurrentThread);
+                gate.Enter();
+                Task.Run(() =>
+                {
+                    Assert.False(tryEnter());
+                    Assert.False(tryEnterMilliseconds(0));
+                    Assert.False(tryEnterTimeSpan(TimeSpan.Zero));
+                }).GetAwaiter().GetResult();
+                gate.Exit();
+                Assert.Throws<SynchronizationLockException>(exit);
+                Assert.Throws<ArgumentOutOfRangeException>(() => tryEnterMilliseconds(-2));
+                Assert.Throws<ArgumentOutOfRangeException>(() => tryEnterTimeSpan(TimeSpan.FromMilliseconds(-2)));
+                Assert.Equal<Action>(gate.Enter, enter);
+                Assert.Equal<Action>(gate.Exit, exit);
+                var otherGate = new Lock();
+                Assert.NotEqual<Action>(otherGate.Enter, enter);
+            };
+
+            if (isControlled)
+            {
+                this.Test(test);
+            }
+            else
+            {
+                test();
+            }
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestRewritingLockDelegatesContendWithDirectCalls(bool useTryEnter)
+        {
+            var winners = new HashSet<int>();
+            this.Test(() =>
+            {
+                var gate = new Lock();
+                Action enter = gate.Enter;
+                Action exit = gate.Exit;
+                Func<int, bool> tryEnter = gate.TryEnter;
+                int winner = 0;
+                int entered = 0;
+                Task first = Task.Run(() =>
+                {
+                    if (useTryEnter)
+                    {
+                        Assert.True(tryEnter(Timeout.Infinite));
+                    }
+                    else
+                    {
+                        enter();
+                    }
+
+                    Assert.True(gate.IsHeldByCurrentThread);
+                    Assert.Equal(0, entered++);
+                    if (winner is 0)
+                    {
+                        winner = 1;
+                    }
+
+                    SchedulingPoint.Interleave();
+                    Assert.Equal(1, entered--);
+                    gate.Exit();
+                });
+                Task second = Task.Run(() =>
+                {
+                    gate.Enter();
+                    Assert.Equal(0, entered++);
+                    if (winner is 0)
+                    {
+                        winner = 2;
+                    }
+
+                    SchedulingPoint.Interleave();
+                    Assert.Equal(1, entered--);
+                    exit();
+                });
+                Task.WaitAll(first, second);
+                winners.Add(winner);
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(100));
+
+            Assert.Contains(1, winners);
+            Assert.Contains(2, winners);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRewritingNullLockDelegateCreationThrowsArgumentException()
+        {
+            this.Test(() =>
+            {
+                Lock gate = null;
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    Action enter = gate.Enter;
+                    GC.KeepAlive(enter);
+                });
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    Action exit = gate.Exit;
+                    GC.KeepAlive(exit);
+                });
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    Func<bool> tryEnter = gate.TryEnter;
+                    GC.KeepAlive(tryEnter);
+                });
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    EnterScopeDelegate enterScope = gate.EnterScope;
+                    GC.KeepAlive(enterScope);
+                });
+            });
         }
 
         [Fact(Timeout = 5000)]

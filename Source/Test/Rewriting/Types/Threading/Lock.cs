@@ -185,6 +185,19 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             }
         }
 
+        /// <summary>
+        /// Checks the receiver before binding a controlled lock delegate.
+        /// </summary>
+        public static SystemLock CheckDelegateTarget(SystemLock instance)
+        {
+            if (instance is null)
+            {
+                throw new ArgumentException("Delegate to an instance method cannot have null 'this'.");
+            }
+
+            return instance;
+        }
+
         private static object GetSyncObject(SystemLock instance)
         {
             if (instance is null)

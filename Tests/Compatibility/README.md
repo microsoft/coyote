@@ -37,6 +37,13 @@ rewrite targets invoke that tool directly, independently of local-tool manifest
 resolution under the .NET 10 SDK. The library still supports .NET 8, which is
 covered separately by the .NET 8 compatibility probes and package smoke tests.
 
+## Lock delegates
+
+On .NET 10, saved `System.Threading.Lock` methods use the same controlled lock
+ownership as direct calls. For example, `Action release = gate.Exit` can release
+a lock acquired by `gate.Enter()` during systematic testing. Rewriting binds
+the original lock to the corresponding controlled forwarding method.
+
 ## Running the matrix
 
 Build Coyote and then run the matrix from the repository root:

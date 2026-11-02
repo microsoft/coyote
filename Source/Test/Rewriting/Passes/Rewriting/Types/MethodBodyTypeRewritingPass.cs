@@ -177,10 +177,17 @@ namespace Microsoft.Coyote.Rewriting
         {
             bool preserveBinding = instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn ||
                 instruction.OpCode == OpCodes.Ldtoken;
-            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, preserveBinding,
+            bool isClosedLockDelegate = false;
+#if NET10_0_OR_GREATER
+            // A closed static delegate binds the original lock to the forwarding method's
+            // first parameter, so it shares ownership with rewritten direct calls.
+            isClosedLockDelegate = instruction.OpCode == OpCodes.Ldftn &&
+                method.DeclaringType.FullName == Types.NameCache.Lock && method.HasThis;
+#endif
+            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, preserveBinding && !isClosedLockDelegate,
                 isMethodToken: instruction.OpCode == OpCodes.Ldtoken) &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod) &&
-                (!preserveBinding || method.HasThis == newMethod.HasThis))
+                (!preserveBinding || isClosedLockDelegate || method.HasThis == newMethod.HasThis))
             {
                 // Create and return the new instruction.
                 Instruction newInstruction = Instruction.Create(preserveBinding || !resolvedMethod.IsStatic ?
@@ -188,7 +195,21 @@ namespace Microsoft.Coyote.Rewriting
 
                 newInstruction.Offset = instruction.Offset;
                 this.LogWriter.LogDebug("............. [-] {0}", instruction);
-                this.Replace(instruction, newInstruction);
+#if NET10_0_OR_GREATER
+                if (isClosedLockDelegate && resolvedMethod.IsStatic)
+                {
+                    // Closed static delegates accept null targets, unlike the original instance delegates.
+                    var checkTarget = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                        typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.CheckDelegateTarget))));
+                    this.Replace(instruction, checkTarget);
+                    this.Processor.InsertAfter(checkTarget, newInstruction);
+                }
+                else
+#endif
+                {
+                    this.Replace(instruction, newInstruction);
+                }
+
                 this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                 instruction = newInstruction;

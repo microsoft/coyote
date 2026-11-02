@@ -175,6 +175,15 @@ namespace Microsoft.Coyote.Rewriting
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitMethodInstruction(Instruction instruction, MethodReference method)
         {
+#if NET10_0_OR_GREATER
+            if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
+                method.ReturnType.FullName == Types.NameCache.LockScope &&
+                !this.IsRewritableType(method.DeclaringType.Resolve()))
+            {
+                return this.VisitExternalLockScopeInstruction(instruction, method);
+            }
+#endif
+
             bool preserveBinding = instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn ||
                 instruction.OpCode == OpCodes.Ldtoken;
             bool isClosedLockDelegate = false;
@@ -217,6 +226,29 @@ namespace Microsoft.Coyote.Rewriting
 
             return instruction;
         }
+
+#if NET10_0_OR_GREATER
+        /// <summary>
+        /// Guards native lock acquisition and adapts its scope to the rewritten caller.
+        /// </summary>
+        private Instruction VisitExternalLockScopeInstruction(Instruction instruction, MethodReference method)
+        {
+            var loadName = Instruction.Create(OpCodes.Ldstr, GetFullyQualifiedMethodName(method));
+            var check = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.CheckUncontrolledScopeInvocation))));
+            var call = Instruction.Create(instruction.OpCode, method);
+            var wrap = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.Wrap))));
+
+            // Replace the call entry so branches and exception regions cannot bypass the guard.
+            this.Replace(instruction, loadName);
+            this.Processor.InsertAfter(loadName, check);
+            this.Processor.InsertAfter(check, call);
+            this.Processor.InsertAfter(call, wrap);
+            this.LogWriter.LogDebug("............. [+] uncontrolled lock scope guard and adapter for '{0}'", method);
+            return wrap;
+        }
+#endif
 
         /// <summary>
         /// Tries to rewrite the specified <see cref="MethodReference"/>.

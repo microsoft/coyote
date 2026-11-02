@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tests.Common.Threading;
 using Xunit;
 using Xunit.Abstractions;
 using Monitor = System.Threading.Monitor;
@@ -23,6 +24,112 @@ namespace Microsoft.Coyote.Rewriting.Tests
         public LockRewritingTests(ITestOutputHelper output)
             : base(output)
         {
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void TestRewritingExternalLockScopeIsRejectedBeforeInvocation(bool allowPartialControl, bool isInstanceCall)
+        {
+            bool invoked = false;
+            this.TestWithError(() =>
+            {
+                var gate = new Lock();
+                using var scope = isInstanceCall ?
+                    new LockScopeProvider().EnterInstance(gate, () => invoked = true) :
+                    LockScopeProvider.Enter(gate, () => invoked = true);
+            },
+            configuration: this.GetConfiguration()
+                .WithPartiallyControlledConcurrencyAllowed(allowPartialControl)
+                .WithSystematicFuzzingFallbackEnabled(false),
+            errorChecker: (e) =>
+            {
+                Assert.Contains("LockScopeProvider.Enter", e);
+                Assert.Contains("uncontrolled lock scope", e);
+            });
+            Assert.False(invoked);
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestRewritingExternalLockScopeFallsBackToFuzzing(bool allowPartialControl)
+        {
+            int completed = 0;
+            this.Test(() =>
+            {
+                var gate = new Lock();
+                using (LockScopeProvider.Enter(gate, () =>
+                {
+                    Assert.Equal(SchedulingPolicy.Fuzzing, CoyoteRuntime.Current.SchedulingPolicy);
+                }))
+                {
+                    Assert.True(gate.IsHeldByCurrentThread);
+                    gate.Enter();
+                    gate.Exit();
+                }
+
+                Assert.False(gate.IsHeldByCurrentThread);
+                completed++;
+            },
+            configuration: this.GetConfiguration().WithPartiallyControlledConcurrencyAllowed(allowPartialControl)
+                .WithSystematicFuzzingFallbackEnabled()
+                .WithTestingIterations(3));
+            Assert.True(completed > 0);
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestRewritingExternalLockScopePreservesNativeDisposal(bool isInstanceCall)
+        {
+            var gate = new Lock();
+            bool invoked = false;
+            Lock.Scope scope = isInstanceCall ?
+                new LockScopeProvider().EnterInstance(gate, () => invoked = true) :
+                LockScopeProvider.Enter(gate, () => invoked = true);
+            Lock.Scope copy = scope;
+            Assert.True(invoked);
+            Assert.True(gate.IsHeldByCurrentThread);
+            scope.Dispose();
+            scope.Dispose();
+            Assert.False(gate.IsHeldByCurrentThread);
+            try
+            {
+                copy.Dispose();
+                Assert.Fail("Disposing a copied native scope should fail after the original scope exits.");
+            }
+            catch (SynchronizationLockException)
+            {
+            }
+
+            Action throwInsideScope = () =>
+            {
+                using var anotherScope = LockScopeProvider.Enter(gate, () => { });
+                Assert.True(gate.IsHeldByCurrentThread);
+                throw new InvalidOperationException();
+            };
+            Assert.Throws<InvalidOperationException>(throwInsideScope);
+            Assert.False(gate.IsHeldByCurrentThread);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRewritingExternalLockScopeOnUnusedPathDoesNotFail()
+        {
+            bool useExternal = false;
+            this.Test(() =>
+            {
+                var gate = new Lock();
+                using (useExternal ? LockScopeProvider.Enter(gate, () => Assert.Fail()) : gate.EnterScope())
+                {
+                    Assert.True(gate.IsHeldByCurrentThread);
+                    Assert.False(Monitor.IsEntered(gate));
+                }
+
+                Assert.False(gate.IsHeldByCurrentThread);
+            });
         }
 
         [Theory(Timeout = 5000)]

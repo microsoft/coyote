@@ -44,6 +44,14 @@ ownership as direct calls. For example, `Action release = gate.Exit` can release
 a lock acquired by `gate.Enter()` during systematic testing. Rewriting binds
 the original lock to the corresponding controlled forwarding method.
 
+When unrewritten code returns a native `Lock.Scope`, the caller preserves its
+native disposal through an adapter. Before invoking that code, systematic testing
+reports unsupported synchronization, even when partial control is allowed.
+With `WithSystematicFuzzingFallbackEnabled()`, the controlled iteration stops before
+the call and subsequent iterations use fuzzing, where both sides use native locks.
+Without fallback, the executed path reports an error; unused paths do not fail.
+To keep systematic control, include the library in rewriting.
+
 ## Running the matrix
 
 Build Coyote and then run the matrix from the repository root:

@@ -30,9 +30,19 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
         {
             private SystemLock Instance;
 
+            private SystemLock.Scope NativeScope;
+
+            private bool IsNative;
+
             internal Scope(SystemLock instance)
             {
                 this.Instance = instance;
+            }
+
+            internal Scope(SystemLock.Scope scope)
+            {
+                this.NativeScope = scope;
+                this.IsNative = true;
             }
 
             /// <summary>
@@ -40,6 +50,12 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             /// </summary>
             public void Dispose()
             {
+                if (this.IsNative)
+                {
+                    this.NativeScope.Dispose();
+                    return;
+                }
+
                 SystemLock instance = this.Instance;
                 if (instance != null)
                 {
@@ -95,6 +111,21 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
             Enter(instance);
             return new Scope(instance);
         }
+
+        /// <summary>
+        /// Reports an external lock scope before its native acquisition can run.
+        /// </summary>
+        public static void CheckUncontrolledScopeInvocation(string methodName)
+        {
+            CoyoteRuntime.Current.NotifyUncontrolledSynchronizationInvocation(methodName,
+                $"Invoking '{methodName}' returns an uncontrolled lock scope, which is not supported in systematic testing. " +
+                "Include the library in rewriting or use systematic fuzzing.");
+        }
+
+        /// <summary>
+        /// Preserves native disposal for a scope returned by unrewritten code.
+        /// </summary>
+        public static Scope Wrap(SystemLock.Scope scope) => new Scope(scope);
 
         /// <summary>
         /// Tries to acquire the lock without blocking.

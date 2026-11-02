@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.Logging;
 using Mono.Cecil;
@@ -24,6 +25,9 @@ namespace Microsoft.Coyote.Rewriting
         protected internal override void VisitType(TypeDefinition type)
         {
             base.VisitType(type);
+#if NET10_0_OR_GREATER
+            this.ValidateLockScopeInterfaces(type, new HashSet<TypeDefinition>());
+#endif
             this.RewriteGenericConstraints(type.GenericParameters);
             if (type.BaseType != null &&
                 this.TryRewriteType(type.BaseType, out TypeReference newBaseType) &&
@@ -101,6 +105,40 @@ namespace Microsoft.Coyote.Rewriting
                 this.RewriteMethodSignature(methodOverride);
             }
         }
+
+#if NET10_0_OR_GREATER
+        /// <summary>
+        /// Rejects native scope contracts that cannot follow the rewritten implementation signature.
+        /// </summary>
+        private void ValidateLockScopeInterfaces(TypeDefinition type, HashSet<TypeDefinition> visited)
+        {
+            if (!visited.Add(type))
+            {
+                return;
+            }
+
+            foreach (var implementedInterface in type.Interfaces)
+            {
+                TypeDefinition contract = implementedInterface.InterfaceType.Resolve();
+                if (!this.IsVisitedType(contract))
+                {
+                    foreach (var method in contract.Methods)
+                    {
+                        if (method.ReturnType.GetElementType().FullName == Types.NameCache.LockScope)
+                        {
+                            throw new InvalidOperationException(
+                                $"Cannot rewrite type '{this.TypeDef.FullName}' because it implements " +
+                                $"'{method.FullName}' from an unrewritten interface. Rewriting Lock.Scope " +
+                                "would change the interface contract. Include assembly " +
+                                $"'{contract.Module.Assembly.Name.Name}' in rewriting.");
+                        }
+                    }
+                }
+
+                this.ValidateLockScopeInterfaces(contract, visited);
+            }
+        }
+#endif
 
         /// <summary>
         /// Rewrites the return and parameter types of a method declaration.

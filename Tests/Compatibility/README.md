@@ -54,6 +54,12 @@ To keep systematic control, include the library in rewriting.
 This also applies to constrained calls through external interfaces on generic structs;
 rewriting preserves the call prefixes so the output remains valid IL.
 
+Implementing an unrewritten interface that returns `Lock.Scope` is not supported.
+Rewriting rejects this contract with a diagnostic naming the interface and its
+assembly, rather than producing a class that the CLR cannot load. Include the
+interface's assembly in rewriting together with its implementations. This applies
+to implicit and explicit implementations, including inherited interface contracts.
+
 ## Running the matrix
 
 Build Coyote and then run the matrix from the repository root:

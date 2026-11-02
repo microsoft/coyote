@@ -644,9 +644,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
             var newReference = new object();
             string[] expected =
             {
-                InterlockedProvider.GetExchangeOutcome<object>(oldReference, newReference),
-                InterlockedProvider.GetCompareExchangeOutcome<object>(oldReference, newReference, new object()),
-                InterlockedProvider.GetCompareExchangeOutcome<object>(oldReference, newReference, oldReference),
                 InterlockedProvider.GetExchangeOutcome<int>(42, -1),
                 InterlockedProvider.GetCompareExchangeOutcome<int>(42, -1, 41),
                 InterlockedProvider.GetCompareExchangeOutcome<int>(42, -1, 42),
@@ -663,6 +660,14 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 object reference = oldReference;
                 object comparedReference = oldReference;
                 object matchedReference = oldReference;
+                Assert.Same(oldReference, Interlocked.Exchange<object>(ref reference, newReference));
+                Assert.Same(newReference, reference);
+                Assert.Same(oldReference, Interlocked.CompareExchange<object>(
+                    ref comparedReference, newReference, new object()));
+                Assert.Same(oldReference, comparedReference);
+                Assert.Same(oldReference, Interlocked.CompareExchange<object>(
+                    ref matchedReference, newReference, oldReference));
+                Assert.Same(newReference, matchedReference);
                 int primitive = 42;
                 int comparedPrimitive = 42;
                 int matchedPrimitive = 42;
@@ -674,14 +679,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 LongEnum matchedLongEnum = LongEnum.First;
                 string[] actual =
                 {
-                    InterlockedProvider.GetOutcome(
-                        () => Interlocked.Exchange<object>(ref reference, newReference), () => reference),
-                    InterlockedProvider.GetOutcome(
-                        () => Interlocked.CompareExchange<object>(ref comparedReference, newReference, new object()),
-                        () => comparedReference),
-                    InterlockedProvider.GetOutcome(
-                        () => Interlocked.CompareExchange<object>(ref matchedReference, newReference, oldReference),
-                        () => matchedReference),
                     InterlockedProvider.GetOutcome(
                         () => Interlocked.Exchange<int>(ref primitive, -1), () => primitive),
                     InterlockedProvider.GetOutcome(

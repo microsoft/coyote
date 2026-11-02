@@ -310,14 +310,15 @@ namespace Microsoft.Coyote.BugFinding.Tests
         {
             this.Test(async () =>
             {
-                int count = 0;
-                await foreach (Task task in Task.WhenEach(AsyncProvider.GetDelayedTasks(100)))
-                {
-                    Assert.True(task.IsCompleted);
-                    count++;
-                }
+                IEnumerable<Task<int>> pending = AsyncProvider.GetPendingTasks(out Action complete);
+                await using IAsyncEnumerator<Task<int>> enumerator = Task.WhenEach(pending).GetAsyncEnumerator();
+                ValueTask<bool> next = enumerator.MoveNextAsync();
+                Assert.False(next.IsCompleted);
 
-                Assert.Equal(1, count);
+                complete();
+                Assert.True(await next);
+                Assert.True(enumerator.Current.IsCompleted);
+                Assert.False(await enumerator.MoveNextAsync());
             },
             configuration: this.GetConfiguration().WithPartiallyControlledConcurrencyAllowed()
                 .WithTestingIterations(10));

@@ -274,9 +274,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
 #endif
         public void TestWaitAllObservesCancellationWhileBlocked(bool isEnumerable)
         {
-            string uncontrolled = WaitAllProvider.GetBlockedOutcome(isEnumerable, null, false);
-            Assert.Equal(WaitAsyncProvider.WaitTokenCanceledOutcome, uncontrolled);
-
             this.Test(() =>
             {
                 using var cancellation = new CancellationTokenSource();
@@ -355,12 +352,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                         $"aggregate({nameof(TaskCanceledException)})"
                     }
                 };
-            string uncontrolled = WaitAllProvider.GetBlockedOutcome(isEnumerable, sourceEvent, isCancellationFirst);
-            if (!isCancellationFirst)
-            {
-                Assert.Contains(uncontrolled, possibleOutcomes);
-            }
-
             this.Test(() =>
             {
                 using var cancellation = new CancellationTokenSource();

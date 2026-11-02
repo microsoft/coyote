@@ -38,10 +38,6 @@ jobs:
         uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
         with:
           dotnet-version: '8.0.x'
-      - name: Setup .NET 6.0 SDK
-        uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
-        with:
-          dotnet-version: '6.0.x'
       - name: Setup debugging tools
         if: ${{ matrix.platform == 'windows-latest' }}
         run: |

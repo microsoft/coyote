@@ -51,6 +51,8 @@ With `WithSystematicFuzzingFallbackEnabled()`, the controlled iteration stops be
 the call and subsequent iterations use fuzzing, where both sides use native locks.
 Without fallback, the executed path reports an error; unused paths do not fail.
 To keep systematic control, include the library in rewriting.
+This also applies to constrained calls through external interfaces on generic structs;
+rewriting preserves the call prefixes so the output remains valid IL.
 
 ## Running the matrix
 

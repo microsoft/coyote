@@ -132,6 +132,70 @@ namespace Microsoft.Coyote.Rewriting.Tests
             });
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestRewritingConstrainedExternalLockScopePreservesNativeDisposal()
+        {
+            var gate = new Lock();
+            LockScopeProvider.ValueProvider provider = default;
+            bool invoked = false;
+            UseExternalLockScope(ref provider, gate, () =>
+            {
+                invoked = true;
+                Assert.True(gate.IsHeldByCurrentThread);
+            });
+            Assert.True(invoked);
+            Assert.False(gate.IsHeldByCurrentThread);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRewritingConstrainedExternalLockScopeIsRejectedBeforeInvocation()
+        {
+            bool invoked = false;
+            this.TestWithError(() =>
+            {
+                var gate = new Lock();
+                LockScopeProvider.ValueProvider provider = default;
+                UseExternalLockScope(ref provider, gate, () => invoked = true);
+            },
+            configuration: this.GetConfiguration().WithSystematicFuzzingFallbackEnabled(false),
+            errorChecker: (e) =>
+            {
+                Assert.Contains("IProvider.EnterScope", e);
+                Assert.Contains("uncontrolled lock scope", e);
+            });
+            Assert.False(invoked);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRewritingConstrainedExternalLockScopeFallsBackToFuzzing()
+        {
+            int completed = 0;
+            this.Test(() =>
+            {
+                var gate = new Lock();
+                LockScopeProvider.ValueProvider provider = default;
+                UseExternalLockScope(ref provider, gate, () =>
+                {
+                    Assert.Equal(SchedulingPolicy.Fuzzing, CoyoteRuntime.Current.SchedulingPolicy);
+                    Assert.True(gate.IsHeldByCurrentThread);
+                });
+                Assert.False(gate.IsHeldByCurrentThread);
+                completed++;
+            },
+            configuration: this.GetConfiguration().WithSystematicFuzzingFallbackEnabled()
+                .WithTestingIterations(3));
+            Assert.True(completed > 0);
+        }
+
+        private static void UseExternalLockScope<T>(ref T provider, Lock gate, Action onAcquired)
+            where T : struct, LockScopeProvider.IProvider
+        {
+            using (provider.EnterScope(gate, () => { }))
+            {
+                onAcquired();
+            }
+        }
+
         [Theory(Timeout = 5000)]
         [InlineData(false)]
         [InlineData(true)]

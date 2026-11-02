@@ -18,6 +18,13 @@ steps:
     version: 2.1.x
 
 - task: PowerShell@2
+  displayName: 'Install .NET 8.0 runtimes'
+  inputs:
+    targetType: filePath
+    filePath: '.\Scripts\install-dotnet8-runtimes.ps1'
+    pwsh: true
+
+- task: PowerShell@2
   displayName: 'Build Coyote projects'
   inputs:
     targetType: filePath

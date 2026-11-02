@@ -29,6 +29,9 @@ jobs:
           dotnet-version: '10.0.401'
       - name: Setup Powershell
         run: ./Scripts/install-pwsh.cmd
+      - name: Setup .NET 8.0 runtimes
+        run: ./Scripts/install-dotnet8-runtimes.ps1
+        shell: pwsh
       - name: Build Coyote projects
         run: ./Scripts/build.ps1 -ci
         shell: pwsh

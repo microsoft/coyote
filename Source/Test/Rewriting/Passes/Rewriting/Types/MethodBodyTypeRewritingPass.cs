@@ -236,15 +236,21 @@ namespace Microsoft.Coyote.Rewriting
             var loadName = Instruction.Create(OpCodes.Ldstr, GetFullyQualifiedMethodName(method));
             var check = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
                 typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.CheckUncontrolledScopeInvocation))));
-            var call = Instruction.Create(instruction.OpCode, method);
             var wrap = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
                 typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.Wrap))));
 
-            // Replace the call entry so branches and exception regions cannot bypass the guard.
-            this.Replace(instruction, loadName);
+            Instruction entry = instruction;
+            while (entry.Previous != null && entry.Previous.OpCode.OpCodeType == OpCodeType.Prefix)
+            {
+                entry = entry.Previous;
+            }
+
+            // Redirect branches and exception regions to the guard, then restore the complete
+            // prefix chain immediately before its original call.
+            this.Replace(entry, loadName);
             this.Processor.InsertAfter(loadName, check);
-            this.Processor.InsertAfter(check, call);
-            this.Processor.InsertAfter(call, wrap);
+            this.Processor.InsertAfter(check, entry);
+            this.Processor.InsertAfter(instruction, wrap);
             this.LogWriter.LogDebug("............. [+] uncontrolled lock scope guard and adapter for '{0}'", method);
             return wrap;
         }

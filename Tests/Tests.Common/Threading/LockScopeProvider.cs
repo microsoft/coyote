@@ -9,6 +9,16 @@ namespace Microsoft.Coyote.Tests.Common.Threading
 {
     public sealed class LockScopeProvider
     {
+        public interface IProvider
+        {
+            Lock.Scope EnterScope(Lock gate, Action onEnter);
+        }
+
+        public struct ValueProvider : IProvider
+        {
+            public Lock.Scope EnterScope(Lock gate, Action onEnter) => Enter(gate, onEnter);
+        }
+
         public static Lock.Scope Enter(Lock gate, Action onEnter)
         {
             onEnter();

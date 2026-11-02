@@ -21,7 +21,12 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task<int> TestRewritingGenericAsyncMethod()
+        public async Task TestRewritingGenericAsyncMethod()
+        {
+            Assert.Equal(1, await GetValueAsync());
+        }
+
+        private static async Task<int> GetValueAsync()
         {
             return await Task.FromResult(1);
         }

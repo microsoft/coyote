@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
@@ -230,13 +231,42 @@ namespace Microsoft.Coyote.Rewriting.Tests
 
                 Assert.False(gate.IsHeldByCurrentThread);
                 gate.Enter();
-                Task.Run(() =>
+                Action checkContention = () =>
                 {
                     Assert.False(tryEnter());
                     Assert.False(tryEnterMilliseconds(0));
                     Assert.False(tryEnterTimeSpan(TimeSpan.Zero));
-                }).GetAwaiter().GetResult();
-                gate.Exit();
+                };
+                try
+                {
+                    if (isControlled)
+                    {
+                        Task.Run(checkContention).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        ExceptionDispatchInfo failure = null;
+                        var thread = new Thread(() =>
+                        {
+                            try
+                            {
+                                checkContention();
+                            }
+                            catch (Exception ex)
+                            {
+                                failure = ExceptionDispatchInfo.Capture(ex);
+                            }
+                        });
+                        thread.Start();
+                        thread.Join();
+                        failure?.Throw();
+                    }
+                }
+                finally
+                {
+                    gate.Exit();
+                }
+
                 Assert.Throws<SynchronizationLockException>(exit);
                 Assert.Throws<ArgumentOutOfRangeException>(() => tryEnterMilliseconds(-2));
                 Assert.Throws<ArgumentOutOfRangeException>(() => tryEnterTimeSpan(TimeSpan.FromMilliseconds(-2)));

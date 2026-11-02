@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
@@ -230,41 +229,22 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 }
 
                 Assert.False(gate.IsHeldByCurrentThread);
-                gate.Enter();
-                Action checkContention = () =>
+                if (isControlled)
                 {
-                    Assert.False(tryEnter());
-                    Assert.False(tryEnterMilliseconds(0));
-                    Assert.False(tryEnterTimeSpan(TimeSpan.Zero));
-                };
-                try
-                {
-                    if (isControlled)
+                    gate.Enter();
+                    try
                     {
-                        Task.Run(checkContention).GetAwaiter().GetResult();
-                    }
-                    else
-                    {
-                        ExceptionDispatchInfo failure = null;
-                        var thread = new Thread(() =>
+                        Task.Run(() =>
                         {
-                            try
-                            {
-                                checkContention();
-                            }
-                            catch (Exception ex)
-                            {
-                                failure = ExceptionDispatchInfo.Capture(ex);
-                            }
-                        });
-                        thread.Start();
-                        thread.Join();
-                        failure?.Throw();
+                            Assert.False(tryEnter());
+                            Assert.False(tryEnterMilliseconds(0));
+                            Assert.False(tryEnterTimeSpan(TimeSpan.Zero));
+                        }).GetAwaiter().GetResult();
                     }
-                }
-                finally
-                {
-                    gate.Exit();
+                    finally
+                    {
+                        gate.Exit();
+                    }
                 }
 
                 Assert.Throws<SynchronizationLockException>(exit);

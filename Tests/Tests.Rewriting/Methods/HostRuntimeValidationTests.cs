@@ -36,40 +36,13 @@ namespace Microsoft.Coyote.Rewriting.Tests
             TargetRuntimeValidator.ValidateRewritingTarget(assemblyPath);
         }
 
-        [Fact(Timeout = 5000)]
-        public void TestMissingTargetFrameworkMetadataIsAccepted()
+        [Theory(Timeout = 5000)]
+        [InlineData(null)]
+        [InlineData("not-a-framework")]
+        [InlineData(".NETStandard,Version=v2.0")]
+        public void TestUnrestrictedTargetFrameworkMetadataIsAccepted(string targetFramework)
         {
-            string assemblyPath = CreateAssemblyWithTargetFramework(null);
-            try
-            {
-                TargetRuntimeValidator.ValidateTestingTarget(assemblyPath);
-                TargetRuntimeValidator.ValidateRewritingTarget(assemblyPath);
-            }
-            finally
-            {
-                File.Delete(assemblyPath);
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMalformedTargetFrameworkMetadataIsAccepted()
-        {
-            string assemblyPath = CreateAssemblyWithTargetFramework("not-a-framework");
-            try
-            {
-                TargetRuntimeValidator.ValidateTestingTarget(assemblyPath);
-                TargetRuntimeValidator.ValidateRewritingTarget(assemblyPath);
-            }
-            finally
-            {
-                File.Delete(assemblyPath);
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestNonCoreTargetFrameworkMetadataIsAccepted()
-        {
-            string assemblyPath = CreateAssemblyWithTargetFramework(".NETStandard,Version=v2.0");
+            string assemblyPath = CreateAssemblyWithTargetFramework(targetFramework);
             try
             {
                 TargetRuntimeValidator.ValidateTestingTarget(assemblyPath);

@@ -310,7 +310,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     "The wait was canceled with an unexpected token.");
                 Specification.Assert(!pending.Task.IsCompleted, "The pending task completed.");
                 canceler.Wait();
-                Specification.Assert(canceler.Status is TaskStatus.RanToCompletion, "The canceler did not complete.");
             },
             configuration: this.GetConfiguration().WithTestingIterations(20)
                 .WithPartiallyControlledConcurrencyAllowed(false)

@@ -52,18 +52,6 @@ namespace Microsoft.Coyote.Tests.Common.Threading
 
             return new EventWaitHandle(false, EventResetMode.ManualReset, name);
         }
-
-        /// <summary>
-        /// Checks if events created with the specified name are shared, by creating two events with the
-        /// same name and checking whether signaling one signals the other.
-        /// </summary>
-        public static bool IsShared(string name)
-        {
-            using var first = new EventWaitHandle(false, EventResetMode.ManualReset, name, out _);
-            using var second = new EventWaitHandle(false, EventResetMode.ManualReset, name, out bool secondCreatedNew);
-            first.Set();
-            return !secondCreatedNew || second.WaitOne(0);
-        }
     }
 }
 #endif

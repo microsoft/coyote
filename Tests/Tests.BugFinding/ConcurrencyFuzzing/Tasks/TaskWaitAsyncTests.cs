@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.SystematicFuzzing
             {
                 var tcs = new TaskCompletionSource<bool>();
                 Task producer = Task.Run(() => tcs.SetResult(true));
-                await tcs.Task.WaitAsync(TimeSpan.FromMinutes(10));
+                await ((Task)tcs.Task).WaitAsync(TimeSpan.FromMinutes(10));
                 await producer;
 
                 var resultTcs = new TaskCompletionSource<int>();
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.BugFinding.Tests.SystematicFuzzing
             this.Test(async () =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                await Assert.ThrowsAsync<TimeoutException>(() => tcs.Task.WaitAsync(TimeSpan.Zero));
+                await Assert.ThrowsAsync<TimeoutException>(() => ((Task)tcs.Task).WaitAsync(TimeSpan.Zero));
 
                 var resultTcs = new TaskCompletionSource<int>();
                 await Assert.ThrowsAsync<TimeoutException>(() => resultTcs.Task.WaitAsync(TimeSpan.Zero));

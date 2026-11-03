@@ -14,7 +14,7 @@ using Xunit.Abstractions;
 namespace Microsoft.Coyote.Rewriting.Tests
 {
     /// <summary>
-    /// Tests the overloads that the runtime API gate discovered without a controlled replacement.
+    /// Tests timeout overloads that previously had no controlled replacement.
     /// </summary>
     public class TimeoutOverloadRewritingTests : BaseRewritingTest
     {

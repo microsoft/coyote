@@ -661,10 +661,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
                 });
 
                 Task.WaitAll(first, second);
-                lock (winners)
-                {
-                    winners.Add(winner);
-                }
+                winners.Add(winner);
             },
             configuration: this.GetConfiguration().WithTestingIterations(100));
 

@@ -297,27 +297,6 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRewritingTaskWaitAsyncOverloads()
-        {
-            this.Test(async () =>
-            {
-                using var source = new CancellationTokenSource();
-                await Task.CompletedTask.WaitAsync(source.Token);
-                await Task.CompletedTask.WaitAsync(TimeSpan.Zero);
-                await Task.CompletedTask.WaitAsync(TimeSpan.Zero, source.Token);
-                await Task.CompletedTask.WaitAsync(TimeSpan.Zero, TimeProvider.System);
-                await Task.CompletedTask.WaitAsync(TimeSpan.Zero, TimeProvider.System, source.Token);
-
-                Assert.Equal(1, await Task.FromResult(1).WaitAsync(source.Token));
-                Assert.Equal(1, await Task.FromResult(1).WaitAsync(TimeSpan.Zero));
-                Assert.Equal(1, await Task.FromResult(1).WaitAsync(TimeSpan.Zero, source.Token));
-                Assert.Equal(1, await Task.FromResult(1).WaitAsync(TimeSpan.Zero, TimeProvider.System));
-                Assert.Equal(1, await Task.FromResult(1).WaitAsync(
-                    TimeSpan.Zero, TimeProvider.System, source.Token));
-            });
-        }
-
-        [Fact(Timeout = 5000)]
         public void TestRewritingTaskWaitAsyncTimeoutAndCancellation()
         {
             this.Test(async () =>

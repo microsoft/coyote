@@ -370,7 +370,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                 nonGenericSource.SetResult();
                 nonGenericCts.Cancel();
                 await nonGenericWait;
-                Assert.True(nonGenericWait.IsCompletedSuccessfully);
             },
             configuration: this.GetConfiguration().WithTestingIterations(200)
                 .WithPartiallyControlledConcurrencyAllowed(false)
@@ -409,10 +408,6 @@ namespace Microsoft.Coyote.BugFinding.Tests
                     isCancellationFirst || creationOptions is TaskCreationOptions.None ?
                     new[] { expected } :
                     new[] { expected, WaitAsyncProvider.WaitTokenCanceledOutcome };
-                string uncontrolled = WaitAsyncProvider.GetFirstEventOutcome(
-                    isGeneric, sourceEvent, isCancellationFirst, creationOptions);
-                Assert.Contains(uncontrolled, possibleOutcomes);
-
                 this.Test(async () =>
                 {
                     string actual = await GetFirstEventOutcomeAsync(

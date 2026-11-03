@@ -8,7 +8,14 @@ the github repo</a>
 
 ### Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet), using the version in `global.json`.
+
+SDK 10 builds both the .NET 10 and .NET 8 targets. SDK 8 is not required.
+To run the .NET 8 tests, also install the .NET 8 and ASP.NET Core 8 runtimes:
+
+```powershell
+pwsh -f Scripts/install-dotnet8-runtimes.ps1
+```
 
 **Optional:**
 

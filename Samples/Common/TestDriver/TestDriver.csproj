@@ -22,7 +22,7 @@
     <Exec Command="coyote rewrite rewrite.coyote.json" />
   </Target>
   <Target Name="CoyoteRewriteLocalNuget" Condition="'$(UseLocalNugetPackages)'=='true'" AfterTargets="AfterBuild" >
-    <Exec Command="dotnet coyote rewrite rewrite.coyote.json" />
+    <Exec Command="&quot;$(CoyoteSampleToolPath)&quot; rewrite rewrite.coyote.json" />
   </Target>
   <Target Name="CoyoteRewriteLocal" Condition="'$(UseLocalCoyote)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="dotnet ../../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json" />

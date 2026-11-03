@@ -1,9 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+param(
+    [ValidateSet("net10.0", "net8.0")]
+    [string]$framework = "net10.0"
+)
+
 Import-Module $PSScriptRoot/../Scripts/common.psm1 -Force
 
-$framework = "net8.0"
 $targets = [ordered]@{
     "rewriting" = "Tests.Rewriting"
     "rewriting-helpers" = "Tests.Rewriting.Helpers"
@@ -13,11 +17,16 @@ $targets = [ordered]@{
 }
 
 $expected_hashes = [ordered]@{
-    "rewriting" = "4D0800A3031A9504068C829B91160C4CE532517A593A446371793FC65D74E732"
-    "rewriting-helpers" = "DF8CF299C162ECA5392793BF5E3E6D7C8B61A75E029501ED6F41C1DD1AD3183B"
-    "testing" = "6312A437E63E3A731DDEC0A9096D2C0BBE1A61A8E3ADA25A33860EB22064B56F"
-    "actors" = "11AAFFA693116B24EB3EA152EE96757D8E9F7C57FFD3213ED02CDF1E9180D3D7"
-    "actors-testing" = "492B76D5ADE4E6EEA94A4AD1A37AD9DF911C81660600609FA1E9DF5D1B7AD860"
+    "net10.0|rewriting" = "77D2225B6F44124E02AB14F8FF02C0141C90B13ED50F428732D4432DEA62230A"
+    "net10.0|rewriting-helpers" = "DF8CF299C162ECA5392793BF5E3E6D7C8B61A75E029501ED6F41C1DD1AD3183B"
+    "net10.0|testing" = "EFB55B99B28009818274B2AF981EEFB9ECA0A4C1425DDD27605C4E32F11AE8CE"
+    "net10.0|actors" = "4532F902A1C0A9D8F499D5D7512CEBF2E0D1AE83502B3BD2180E4897DC663963"
+    "net10.0|actors-testing" = "D11AFDFE4EA1D604423B07E650F5BC4495B04D70E48EA644D38387D3B2775716"
+    "net8.0|rewriting" = "5E95A0E611F1273F9BF2EE2250B3AB88ADD5033D854532706C78B71F5B8C4F42"
+    "net8.0|rewriting-helpers" = "DF8CF299C162ECA5392793BF5E3E6D7C8B61A75E029501ED6F41C1DD1AD3183B"
+    "net8.0|testing" = "A5D600F8B135A22970ACF80F387CD688FB849D8D5D4165B90AE4949ED10A00F1"
+    "net8.0|actors" = "7E219081D30C11F60AC0689EA86E7F809795FFB07C07CA86B378DB6FBAF54349"
+    "net8.0|actors-testing" = "29D71EE8298B402FF3477D5EE89639C22B5295027B3C09EE366373DAE37A5D59"
 }
 
 Write-Comment -prefix "." -text "Comparing the test rewriting diff logs" -color "yellow"
@@ -35,7 +44,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
     $new = "$PSScriptRoot/$project/bin/$framework/Microsoft.Coyote.$($kvp.Value).diff.json"
     $new_hash = $(Get-FileHash $new).Hash
     Write-Comment -prefix "..." -text "Computed IL diff hash '$new_hash' for '$($kvp.Value)' project"
-    $expected_hash = $expected_hashes[$($kvp.Key)]
+    $expected_hash = $expected_hashes["$framework|$($kvp.Key)"]
     if ($new_hash -ne $expected_hash) {
         Write-Error "The '$($kvp.Value)' project's IL diff hash '$new_hash' is not the expected '$expected_hash'."
         $succeeded = $false

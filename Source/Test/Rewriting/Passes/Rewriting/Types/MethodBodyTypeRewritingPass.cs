@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -48,6 +50,18 @@ namespace Microsoft.Coyote.Rewriting
             // https://docs.microsoft.com/en-us/archive/blogs/shawnfa/calli-is-not-verifiable.
             if (instruction.Operand is FieldReference field)
             {
+#if NET10_0_OR_GREATER
+                if (ContainsLockScope(field.FieldType) &&
+                    field.DeclaringType.Resolve() is TypeDefinition declaringType &&
+                    this.IsExternalLockScopeContract(declaringType))
+                {
+                    throw new InvalidOperationException(
+                        $"Cannot rewrite method '{this.Method.FullName}' because its reference to unrewritten " +
+                        $"field '{field.FullName}' would change the Lock.Scope signature. " +
+                        $"Include assembly '{declaringType.Module.Assembly.Name.Name}' in rewriting, " +
+                        "and ensure the declaring type is not marked with SkipRewriting.");
+                }
+#endif
                 if (this.TryRewriteType(field.FieldType, out TypeReference newFieldType) &&
                     this.TryResolve(newFieldType, out TypeDefinition _))
                 {
@@ -151,6 +165,9 @@ namespace Microsoft.Coyote.Rewriting
         private Instruction VisitNewobjInstruction(Instruction instruction)
         {
             MethodReference constructor = instruction.Operand as MethodReference;
+#if NET10_0_OR_GREATER
+            this.ValidateExternalLockScopeInstruction(instruction, constructor);
+#endif
             if (this.TryRewriteMethodReference(constructor, "Create", out MethodReference newMethod) &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
@@ -175,12 +192,29 @@ namespace Microsoft.Coyote.Rewriting
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitMethodInstruction(Instruction instruction, MethodReference method)
         {
+#if NET10_0_OR_GREATER
+            this.ValidateExternalLockScopeInstruction(instruction, method);
+            if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
+                method.ReturnType.FullName == Types.NameCache.LockScope &&
+                this.IsExternalLockScopeContract(method.DeclaringType.Resolve()))
+            {
+                return this.VisitExternalLockScopeInstruction(instruction, method);
+            }
+#endif
+
             bool preserveBinding = instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn ||
                 instruction.OpCode == OpCodes.Ldtoken;
-            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, preserveBinding,
+            bool isClosedLockDelegate = false;
+#if NET10_0_OR_GREATER
+            // A closed static delegate binds the original lock to the forwarding method's
+            // first parameter, so it shares ownership with rewritten direct calls.
+            isClosedLockDelegate = instruction.OpCode == OpCodes.Ldftn &&
+                method.DeclaringType.FullName == Types.NameCache.Lock && method.HasThis;
+#endif
+            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, preserveBinding && !isClosedLockDelegate,
                 isMethodToken: instruction.OpCode == OpCodes.Ldtoken) &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod) &&
-                (!preserveBinding || method.HasThis == newMethod.HasThis))
+                (!preserveBinding || isClosedLockDelegate || method.HasThis == newMethod.HasThis))
             {
                 // Create and return the new instruction.
                 Instruction newInstruction = Instruction.Create(preserveBinding || !resolvedMethod.IsStatic ?
@@ -188,7 +222,21 @@ namespace Microsoft.Coyote.Rewriting
 
                 newInstruction.Offset = instruction.Offset;
                 this.LogWriter.LogDebug("............. [-] {0}", instruction);
-                this.Replace(instruction, newInstruction);
+#if NET10_0_OR_GREATER
+                if (isClosedLockDelegate && resolvedMethod.IsStatic)
+                {
+                    // Closed static delegates accept null targets, unlike the original instance delegates.
+                    var checkTarget = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                        typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.CheckDelegateTarget))));
+                    this.Replace(instruction, checkTarget);
+                    this.Processor.InsertAfter(checkTarget, newInstruction);
+                }
+                else
+#endif
+                {
+                    this.Replace(instruction, newInstruction);
+                }
+
                 this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                 instruction = newInstruction;
@@ -196,6 +244,74 @@ namespace Microsoft.Coyote.Rewriting
 
             return instruction;
         }
+
+#if NET10_0_OR_GREATER
+        /// <summary>
+        /// Rejects native scope boundaries for which there is no ownership-safe adapter.
+        /// </summary>
+        private void ValidateExternalLockScopeInstruction(Instruction instruction, MethodReference method)
+        {
+            if (instruction.OpCode == OpCodes.Ldtoken)
+            {
+                return;
+            }
+
+            bool hasScopeParameter = method.Parameters.Any(parameter => ContainsLockScope(parameter.ParameterType));
+            bool hasScopeReturn = ContainsLockScope(method.ReturnType);
+            if (!hasScopeParameter && !hasScopeReturn)
+            {
+                return;
+            }
+
+            TypeDefinition declaringType = method.DeclaringType.Resolve();
+            if (!this.IsExternalLockScopeContract(declaringType))
+            {
+                return;
+            }
+
+            bool isScopeDelegate = (instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn) &&
+                (hasScopeParameter || hasScopeReturn);
+            bool hasUnsupportedReturn = hasScopeReturn &&
+                method.ReturnType.FullName != Types.NameCache.LockScope;
+            if (hasScopeParameter || isScopeDelegate || hasUnsupportedReturn)
+            {
+                string boundary = isScopeDelegate ? "delegate binding" :
+                    hasScopeParameter ? "parameter boundary" : "return boundary";
+                throw new InvalidOperationException(
+                    $"Cannot rewrite method '{this.Method.FullName}' because its {boundary} with " +
+                    $"unrewritten method '{method.FullName}' would change the Lock.Scope signature. " +
+                    $"Include assembly '{declaringType.Module.Assembly.Name.Name}' in rewriting, and ensure the " +
+                    "declaring type is not marked with SkipRewriting.");
+            }
+        }
+
+        /// <summary>
+        /// Guards native lock acquisition and adapts its scope to the rewritten caller.
+        /// </summary>
+        private Instruction VisitExternalLockScopeInstruction(Instruction instruction, MethodReference method)
+        {
+            var loadName = Instruction.Create(OpCodes.Ldstr, GetFullyQualifiedMethodName(method));
+            var check = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.CheckUncontrolledScopeInvocation))));
+            var wrap = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.Wrap))));
+
+            Instruction entry = instruction;
+            while (entry.Previous != null && entry.Previous.OpCode.OpCodeType == OpCodeType.Prefix)
+            {
+                entry = entry.Previous;
+            }
+
+            // Redirect branches and exception regions to the guard, then restore the complete
+            // prefix chain immediately before its original call.
+            this.Replace(entry, loadName);
+            this.Processor.InsertAfter(loadName, check);
+            this.Processor.InsertAfter(check, entry);
+            this.Processor.InsertAfter(instruction, wrap);
+            this.LogWriter.LogDebug("............. [+] uncontrolled lock scope guard and adapter for '{0}'", method);
+            return wrap;
+        }
+#endif
 
         /// <summary>
         /// Tries to rewrite the specified <see cref="MethodReference"/>.

@@ -12,8 +12,10 @@ CheckPSVersion
 Write-Comment -prefix "." -text "Building the Coyote samples" -color "yellow"
 
 if ($local.IsPresent -and $nuget.IsPresent) {
-    # Restore the local coyote tool.
-    &dotnet tool restore
+    & "$PSScriptRoot/restore-tool.ps1" -dotnet $dotnet
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
 }
 
 # Check that the expected .NET SDK is installed.

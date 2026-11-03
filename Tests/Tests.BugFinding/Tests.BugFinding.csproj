@@ -5,9 +5,8 @@
     <RootNamespace>Microsoft.Coyote.BugFinding.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
     <NetStandard2Supported>false</NetStandard2Supported>
-    <Net6Supported>false</Net6Supported>
     <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn),1591</NoWarn>
+    <NoWarn>$(NoWarn),1591,xUnit2020,xUnit1030,xUnit1031</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

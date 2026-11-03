@@ -10,8 +10,8 @@
     <ProjectReference Include="..\PetImages\PetImages.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
@@ -25,7 +25,7 @@
     <Exec Command="coyote rewrite rewrite.coyote.json" />
   </Target>
   <Target Name="CoyoteRewriteLocalNuget" Condition="'$(UseLocalNugetPackages)'=='true'" AfterTargets="AfterBuild" >
-    <Exec Command="dotnet coyote rewrite rewrite.coyote.json" />
+    <Exec Command="&quot;$(CoyoteSampleToolPath)&quot; rewrite rewrite.coyote.json" />
   </Target>
   <Target Name="CoyoteRewriteLocal" Condition="'$(UseLocalCoyote)'=='true'" AfterTargets="AfterBuild" >
     <Exec Command="dotnet ../../../../bin/$(TargetFramework)/coyote.dll rewrite rewrite.coyote.json" />

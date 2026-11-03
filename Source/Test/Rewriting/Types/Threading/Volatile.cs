@@ -10,7 +10,17 @@ namespace Microsoft.Coyote.Rewriting.Types.Threading
     /// <summary>
     /// Provides methods for performing volatile memory operations.
     /// </summary>
-    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    /// <remarks>
+    /// This type is intended for compiler use rather than use directly in code.
+    ///
+    /// The volatile reads and writes are scheduling points, because they access shared memory that
+    /// another operation can access in between. The memory barriers that do not access memory, such as
+    /// the .NET 10 <c>Volatile.ReadBarrier</c> and <c>Volatile.WriteBarrier</c>, intentionally have no
+    /// replacement, so calls to them invoke the runtime directly without a scheduling point, like calls
+    /// to <c>Thread.MemoryBarrier</c> and <c>Interlocked.MemoryBarrier</c>. A barrier never blocks, so it
+    /// cannot hide synchronization from the scheduler, and systematic testing executes one operation at
+    /// a time, so it does not explore the memory reorderings that a barrier prevents.
+    /// </remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class Volatile
     {

@@ -23,12 +23,15 @@ jobs:
         uses: NuGet/setup-nuget@296fd3ccf8528660c91106efefe2364482f86d6f # v1.2.0
         with:
           nuget-version: '6.x'
-      - name: Setup .NET 8.0 SDK
+      - name: Setup .NET 10.0 SDK
         uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.401'
       - name: Setup Powershell
         run: ./Scripts/install-pwsh.cmd
+      - name: Setup .NET 8.0 runtimes
+        run: ./Scripts/install-dotnet8-runtimes.ps1
+        shell: pwsh
       - name: Build Coyote projects
         run: ./Scripts/build.ps1 -ci
         shell: pwsh

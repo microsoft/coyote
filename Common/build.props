@@ -16,10 +16,13 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageOutputPath>$(MSBuildThisFileDirectory)/../bin/nuget</PackageOutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <LangVersion>14.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net8.0' and '$(TargetFramework)' != 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net10.0' and '$(TargetFramework)' != 'net8.0'">
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
@@ -31,22 +34,12 @@
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
-    <GlobalJson>$([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)/../global.json))</GlobalJson>
-    <GlobalVersion>$([System.Text.RegularExpressions.Regex]::Match($(GlobalJson), `(\"version\":[ ]*\"([^\"]*)\")`))</GlobalVersion>
-    <GlobalVersion>$(GlobalVersion.Substring(10))</GlobalVersion>
-    <GlobalVersion>$(GlobalVersion.Trim())</GlobalVersion>
-    <GlobalVersion>$(GlobalVersion.Trim('"'))</GlobalVersion>
     <Framework462Supported Condition="'$(Framework462Supported)'==''">true</Framework462Supported>
     <Framework462Installed>false</Framework462Installed>
     <Framework462Installed Condition="'$(BUILD_NET462)'=='yes'">true</Framework462Installed>
     <NetStandard2Supported Condition="'$(NetStandard2Supported)'==''">true</NetStandard2Supported>
-    <Net6Supported Condition="'$(Net6Supported)'==''">true</Net6Supported>
-    <Net6Installed>false</Net6Installed>
-    <Net6Installed Condition="$(GlobalVersion.StartsWith('6.0'))">true</Net6Installed>
-    <Net6Installed Condition="'$(BUILD_NET6)'=='yes'">true</Net6Installed>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetStandard2Supported)'">$(TargetFrameworks);netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(Net6Installed)' and '$(Net6Supported)'">$(TargetFrameworks);net6.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
     <TargetFrameworks Condition="'$(Framework462Installed)' and '$(Framework462Supported)'">$(TargetFrameworks);net462</TargetFrameworks>

@@ -2238,14 +2238,21 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notify that an uncontrolled synchronization method invocation was detected.
         /// </summary>
-        internal void NotifyUncontrolledSynchronizationInvocation(string methodName)
+        internal void NotifyUncontrolledSynchronizationInvocation(string methodName) =>
+            this.NotifyUncontrolledSynchronizationInvocation(methodName,
+                $"Executing thread '{Thread.CurrentThread.ManagedThreadId}' is not controlled and " +
+                $"is invoking the {methodName} synchronization method, which can cause deadlocks during testing.");
+
+        /// <summary>
+        /// Reports unsafe synchronization that cannot continue under controlled interleaving.
+        /// </summary>
+        internal void NotifyUncontrolledSynchronizationInvocation(string methodName, string message)
         {
             using (SynchronizedSection.Enter(this.RuntimeLock))
             {
                 if (this.SchedulingPolicy is SchedulingPolicy.Interleaving)
                 {
-                    string message = $"Executing thread '{Thread.CurrentThread.ManagedThreadId}' is not controlled and " +
-                        $"is invoking the {methodName} synchronization method, which can cause deadlocks during testing.";
+                    this.UncontrolledInvocations.Add(methodName);
                     if (this.Configuration.IsSystematicFuzzingFallbackEnabled)
                     {
                         this.LogWriter.LogWarning("[coyote::warning] {0}", message);

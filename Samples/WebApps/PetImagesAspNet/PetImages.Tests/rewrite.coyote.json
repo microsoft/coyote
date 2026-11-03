@@ -1,5 +1,5 @@
 {
-  "AssembliesPath": "./bin/net8.0",
+  "AssembliesPath": "./bin/net10.0",
   "Assemblies": [
     "PetImages.dll",
     "PetImages.Tests.dll"

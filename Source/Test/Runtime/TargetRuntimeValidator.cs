@@ -25,11 +25,6 @@ namespace Microsoft.Coyote.Runtime
         private const string CoreFrameworkIdentifier = ".NETCoreApp";
 
         /// <summary>
-        /// The .NET version of the running Coyote host, or null if the host is not running on .NET.
-        /// </summary>
-        private static readonly Version HostVersion = GetHostVersion();
-
-        /// <summary>
         /// Validates that the running Coyote host can load the specified assembly for testing.
         /// </summary>
         /// <remarks>
@@ -49,16 +44,22 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static void ValidateTestingTarget(string assemblyPath, AssemblyDefinition definition)
         {
+            Version hostVersion = GetHostVersion();
+            if (hostVersion is null)
+            {
+                return;
+            }
+
             FrameworkName framework = GetCoreTargetFramework(definition);
             if (framework is null)
             {
                 return;
             }
 
-            if (framework.Version > HostVersion)
+            if (framework.Version > hostVersion)
             {
                 throw new InvalidOperationException(
-                    $"The Coyote host is running on .NET {HostVersion}, but test assembly " +
+                    $"The Coyote host is running on .NET {hostVersion}, but test assembly " +
                     $"'{assemblyPath}' requires {framework.Identifier},Version=v{framework.Version}. " +
                     $"Run the net{framework.Version.Major}.0 Coyote host for this assembly.");
             }
@@ -85,25 +86,31 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static void ValidateRewritingTarget(string assemblyPath, AssemblyDefinition definition)
         {
+            Version hostVersion = GetHostVersion();
+            if (hostVersion is null)
+            {
+                return;
+            }
+
             FrameworkName framework = GetCoreTargetFramework(definition);
             if (framework is null)
             {
                 return;
             }
 
-            if (framework.Version > HostVersion)
+            if (framework.Version > hostVersion)
             {
                 throw new InvalidOperationException(
-                    $"The Coyote host is running on .NET {HostVersion}, but assembly '{assemblyPath}' " +
+                    $"The Coyote host is running on .NET {hostVersion}, but assembly '{assemblyPath}' " +
                     $"targets {framework.Identifier},Version=v{framework.Version}, which this host cannot " +
                     $"load. Run the net{framework.Version.Major}.0 Coyote host to rewrite this assembly.");
             }
-            else if (framework.Version.Major < HostVersion.Major)
+            else if (framework.Version.Major < hostVersion.Major)
             {
                 throw new InvalidOperationException(
-                    $"The Coyote host is running on .NET {HostVersion}, but assembly '{assemblyPath}' " +
+                    $"The Coyote host is running on .NET {hostVersion}, but assembly '{assemblyPath}' " +
                     $"targets {framework.Identifier},Version=v{framework.Version}. Rewriting it with this " +
-                    $"host would inject .NET {HostVersion} runtime references and the rewritten assembly " +
+                    $"host would inject .NET {hostVersion} runtime references and the rewritten assembly " +
                     $"would fail to load on .NET {framework.Version}. Run the net{framework.Version.Major}.0 " +
                     "Coyote host to rewrite this assembly.");
             }
@@ -111,15 +118,10 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Returns the .NET target framework of the specified assembly, or null if the assembly does
-        /// not declare a parsable .NET target framework, or if the host runtime is unknown.
+        /// not declare a parsable .NET target framework.
         /// </summary>
         private static FrameworkName GetCoreTargetFramework(AssemblyDefinition definition)
         {
-            if (HostVersion is null)
-            {
-                return null;
-            }
-
             CustomAttribute attribute = definition.CustomAttributes.FirstOrDefault(
                 candidate => candidate.AttributeType.FullName == TargetFrameworkAttributeName);
             if (attribute is null || attribute.ConstructorArguments.Count != 1 ||

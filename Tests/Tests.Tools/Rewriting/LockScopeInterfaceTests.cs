@@ -141,6 +141,56 @@ namespace Microsoft.Coyote.Tools.Tests
             }
         }
 
+        [Theory(Timeout = 10000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestUnavailableUnrelatedInterface(bool inheritedInterface)
+        {
+            string directory = CreateScratchDirectory();
+            try
+            {
+                using var contract = AssemblyDefinition.CreateAssembly(
+                    new AssemblyNameDefinition("UnavailableContract", new Version(1, 0)),
+                    "UnavailableContract", ModuleKind.Dll);
+                var declaration = new TypeDefinition("Regression", "IEmpty",
+                    TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract);
+                contract.MainModule.Types.Add(declaration);
+                string contractPath = Path.Combine(directory, "UnavailableContract.dll");
+                contract.Write(contractPath);
+
+                using var target = AssemblyDefinition.CreateAssembly(
+                    new AssemblyNameDefinition("Implementation", new Version(1, 0)), "Implementation", ModuleKind.Dll);
+                var module = target.MainModule;
+                TypeReference implementedInterface = module.ImportReference(declaration);
+                if (inheritedInterface)
+                {
+                    var derived = new TypeDefinition("Regression", "IDerived",
+                        TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract);
+                    derived.Interfaces.Add(new InterfaceImplementation(implementedInterface));
+                    module.Types.Add(derived);
+                    implementedInterface = derived;
+                }
+
+                var implementation = new TypeDefinition("Regression", "Provider",
+                    TypeAttributes.Public, module.TypeSystem.Object);
+                implementation.Interfaces.Add(new InterfaceImplementation(implementedInterface));
+                module.Types.Add(implementation);
+                string path = Path.Combine(directory, "Implementation.dll");
+                target.Write(path);
+                File.Delete(contractPath);
+
+                Rewrite(directory, path, rewriteContract: false);
+                using var rewritten = AssemblyDefinition.ReadAssembly(path);
+                Assert.Contains(rewritten.MainModule.AssemblyReferences,
+                    reference => reference.Name == "UnavailableContract");
+                Assert.Single(rewritten.MainModule.Types.Single(type => type.Name == "Provider").Interfaces);
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
         private static string CreateScratchDirectory() => Directory.CreateDirectory(Path.Combine(
             Path.GetDirectoryName(typeof(LockScopeInterfaceTests).Assembly.Location),
             nameof(LockScopeInterfaceTests), Guid.NewGuid().ToString("N"))).FullName;

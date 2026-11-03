@@ -74,6 +74,7 @@ Rewriting rejects incompatible `Lock.Scope` signatures across unrewritten bounda
   scope return or parameter, including `ref` and `out`.
 - Passing a scope to an external method or constructor, or receiving a scope by reference.
 - Binding a delegate to an external method with a scope return or parameter.
+- Reading, writing, or taking the address of an external scope field.
 
 The rewrite-time diagnostic names the affected type or method and the external
 assembly. Include that assembly in rewriting with its callers and implementations,

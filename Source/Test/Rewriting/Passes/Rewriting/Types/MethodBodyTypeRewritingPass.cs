@@ -50,6 +50,18 @@ namespace Microsoft.Coyote.Rewriting
             // https://docs.microsoft.com/en-us/archive/blogs/shawnfa/calli-is-not-verifiable.
             if (instruction.Operand is FieldReference field)
             {
+#if NET10_0_OR_GREATER
+                if (ContainsLockScope(field.FieldType) &&
+                    field.DeclaringType.Resolve() is TypeDefinition declaringType &&
+                    this.IsExternalLockScopeContract(declaringType))
+                {
+                    throw new InvalidOperationException(
+                        $"Cannot rewrite method '{this.Method.FullName}' because its reference to unrewritten " +
+                        $"field '{field.FullName}' would change the Lock.Scope signature. " +
+                        $"Include assembly '{declaringType.Module.Assembly.Name.Name}' in rewriting, " +
+                        "and ensure the declaring type is not marked with SkipRewriting.");
+                }
+#endif
                 if (this.TryRewriteType(field.FieldType, out TypeReference newFieldType) &&
                     this.TryResolve(newFieldType, out TypeDefinition _))
                 {

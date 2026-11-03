@@ -121,7 +121,11 @@ namespace Microsoft.Coyote.Rewriting
 
             foreach (var implementedInterface in type.Interfaces)
             {
-                TypeDefinition contract = implementedInterface.InterfaceType.Resolve();
+                if (!this.TryResolve(implementedInterface.InterfaceType, out TypeDefinition contract))
+                {
+                    continue;
+                }
+
                 if (this.IsExternalLockScopeContract(contract))
                 {
                     foreach (var method in contract.Methods)

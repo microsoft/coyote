@@ -205,6 +205,65 @@ namespace Microsoft.Coyote.Tools.Tests
             }
         }
 
+        [Theory(Timeout = 10000)]
+        [InlineData(Code.Ldfld, false)]
+        [InlineData(Code.Ldflda, false)]
+        [InlineData(Code.Stfld, false)]
+        [InlineData(Code.Ldfld, true)]
+        [InlineData(Code.Ldflda, true)]
+        [InlineData(Code.Stfld, true)]
+        public void TestScopeFieldAccess(Code access, bool rewriteContract)
+        {
+            string directory = CreateScratchDirectory();
+            try
+            {
+                using var contract = CreateAssembly("ScopeContract");
+                var holder = AddType(contract.MainModule, "ScopeHolder",
+                    TypeAttributes.Sealed | TypeAttributes.SequentialLayout,
+                    contract.MainModule.ImportReference(typeof(ValueType)));
+                holder.CustomAttributes.Add(new CustomAttribute(contract.MainModule.ImportReference(
+                    typeof(System.Runtime.CompilerServices.IsByRefLikeAttribute).GetConstructor(Type.EmptyTypes))));
+                var field = new FieldDefinition("Scope", FieldAttributes.Public,
+                    contract.MainModule.ImportReference(typeof(System.Threading.Lock.Scope)));
+                holder.Fields.Add(field);
+                contract.Write(Path.Combine(directory, "ScopeContract.dll"));
+
+                using var target = CreateAssembly("ScopeImplementation");
+                var module = target.MainModule;
+                var caller = AddType(module, "Caller", TypeAttributes.Abstract | TypeAttributes.Sealed, module.TypeSystem.Object);
+                var call = new MethodDefinition("Run", MethodAttributes.Public | MethodAttributes.Static, module.TypeSystem.Void);
+                caller.Methods.Add(call);
+                call.Parameters.Add(new ParameterDefinition(new ByReferenceType(module.ImportReference(holder))));
+                call.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
+                if (access is Code.Stfld)
+                {
+                    call.Parameters.Add(new ParameterDefinition(module.ImportReference(field.FieldType)));
+                    call.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_1));
+                }
+                else
+                {
+                    call.ReturnType = access is Code.Ldflda ?
+                        new ByReferenceType(module.ImportReference(field.FieldType)) : module.ImportReference(field.FieldType);
+                }
+
+                call.Body.Instructions.Add(Instruction.Create(access is Code.Ldfld ? OpCodes.Ldfld :
+                    access is Code.Ldflda ? OpCodes.Ldflda : OpCodes.Stfld, module.ImportReference(field)));
+                call.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+                string path = Path.Combine(directory, "ScopeImplementation.dll");
+                target.Write(path);
+                AssertTypesLoad(directory);
+                VerifyRewrite(directory, path, rewriteContract, "field", "ScopeContract");
+                if (rewriteContract)
+                {
+                    AssertTypesLoad(directory);
+                }
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
         private static string CreateScratchDirectory() => Directory.CreateDirectory(Path.Combine(
             Path.GetDirectoryName(typeof(LockScopeBoundaryTests).Assembly.Location),
             nameof(LockScopeBoundaryTests), Guid.NewGuid().ToString("N"))).FullName;

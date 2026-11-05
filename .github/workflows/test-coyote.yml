@@ -33,7 +33,7 @@ jobs:
       - name: Setup .NET 10.0 SDK
         uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
         with:
-          dotnet-version: '10.0.401'
+          dotnet-version: '10.0.403'
       - name: Setup .NET 8.0 runtimes
         run: ./Scripts/install-dotnet8-runtimes.ps1
         shell: pwsh
@@ -90,7 +90,7 @@ jobs:
       - name: Setup .NET 10.0 SDK
         uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
         with:
-          dotnet-version: '10.0.401'
+          dotnet-version: '10.0.403'
       - name: Setup .NET 8.0 runtimes
         run: ./Scripts/install-dotnet8-runtimes.ps1
         shell: pwsh

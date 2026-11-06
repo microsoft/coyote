@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/concepts/non-determinism/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Program non-determinism - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Program non-determinism", url: "#_top", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../concurrency-unit-testing/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../concurrency-unit-testing/" class="btn btn-xs btn-link">
+        Concurrency unit testing
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../tutorials/actors/test-failover/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../tutorials/actors/test-failover/" class="btn btn-xs btn-link">
+        Test failover and liveness
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="program-non-determinism">Program non-determinism</h2>
+<p>Programs that are deterministic are also easy to test. Intuitively, a program is deterministic
+whenever it executes in the same manner if provided the same inputs. Most software, however, isn&rsquo;t
+deterministic. Let&rsquo;s begin by understanding this non-determinism and how it makes your life as
+developers more difficult.</p>
+<p>The most common form of non-determinism stems from concurrency. Consider the following procedure:</p>
+<pre><code class="language-csharp">// Shared variable x.
+int x = 0;
+
+int foo()
+{
+   // Concurrent operations on x.
+   var t1 = Task.Run(() =&gt; { x = 1; });
+   var t2 = Task.Run(() =&gt; { x = 2; });
+
+   // Join all.
+   Task.WaitAll(t1, t2);
+}
+</code></pre>
+<p>Executing <code>foo</code> can result in <code>x == 1</code> or <code>x == 2</code>. The exact value of <code>x</code> depends on the order in
+which the tasks are executed. This is non-determinism because the scheduling of tasks is not in your
+control. Adding synchronization helps reduce the amount of non-determinism but doesn&rsquo;t completely
+take it away.</p>
+<p>The above example showed a classical <em>data race</em>. Actually, it is a <em>low level</em> data race between
+individual memory accesses. Even <em>high level</em> races such as the order in which messages arrive and
+get processed also contributes to non-determinism.</p>
+<p>Non-determinism arises from many other sources as well. Timeouts are a good example. The use of
+timers prevail in many distributed systems. Consider a program that wishes to offload some
+computation to a remote computer. It will typically send a message over the network, and then start
+a timer with some pre-determined timeout value. If the response arrives successfully from the remote
+machine, the timer is canceled and all is good. If the timer fires before the response arrives, then
+the sender may wish to invoke a recovery action. Which of these two cases actually happen in
+practice is, again, not in the programmer&rsquo;s control. Timers, thus, are another source of
+non-determinism in the program.</p>
+<p>Other similar examples include failures. When designing software services that execute in the cloud,
+you must anticipate the possibility of hardware or software failures that cause the hosting VM to
+reboot. In such cases the fallback is to restart the VM (or spawn a new one) to take over the failed
+process. This is also non-determinism because the failure (and restart) can happen at any time.
+Calling into an external service that may return one of many error codes is also non-determinism;
+the exact return value is again not in your control when you call the external service.</p>
+<p>The trouble with non-determinism is that you must defend against all the ways in which the
+non-determinism unfolds at runtime. For example, no matter what scheduling happens between
+concurrent operations or when failures happen, your program must still work. This imposes a cognitive
+burden on your design and makes it harder to write correct code. Once the design and code are in
+place, even testing is hard because how do you get coverage of these non-deterministic activities?
+Stress testing techniques hope that with enough load on the system, the corner cases will get
+covered. Coyote offers a more principled approach, namely <a href="../concurrency-unit-testing/">concurrency unit testing</a>
+that has proven to be very effective in practice, and <a href="../../case-studies/azure-batch-service/">widely adopted in Azure</a>.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../concurrency-unit-testing/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../concurrency-unit-testing/" class="btn btn-xs btn-link">
+        Concurrency unit testing
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../../tutorials/actors/test-failover/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../tutorials/actors/test-failover/" class="btn btn-xs btn-link">
+        Test failover and liveness
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

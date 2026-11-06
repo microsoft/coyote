@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Driver(1)" Category="StateMachine" Bounds="419.83,0,275.83,157.88" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Driver(1).Init" Bounds="532.745,40,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Driver(1).InjectFailures" Bounds="513.505,111.92,88.48,25.96" Label="InjectFailures" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)" Category="StateMachine" Bounds="254.94263027094,189.5675,449.60473945812,229.8" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Init" Bounds="506.301964633464,229.5675,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset" Bounds="348.301964633464,373.4075,50,25.96" Label="Reset" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Bounds="496.306964633464,301.4875,69.99,25.96" Label="SendPing" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse" Bounds="501.11363130013,373.4075,146.376666666667,25.96" Label="WaitForCancelResponse" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Liveness" Category="Monitor" Bounds="735.193333333333,225.5275,319.103333333333,157.88" Group="Expanded" Label="Microsoft.Coyote.Samples.Monitors.Liveness" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Liveness.Init" Bounds="875.823333333333,265.5275,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Liveness.Wait" Bounds="974.823333333333,265.5275,50,25.96" Label="Wait" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Liveness.Wait[hot]" Bounds="965.35,337.4475,68.9466666666667,25.96" Label="Wait[hot]" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Node(2)" Category="StateMachine" Bounds="0,487.015,273.49,157.88" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Node(2).Halt" Bounds="111.745,598.935000000001,50,25.96" Label="Halt" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Node(2).WaitPing" Bounds="103.093333333333,527.015,67.3033333333333,25.96" Label="WaitPing" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Node(3)" Category="StateMachine" Bounds="304,487.015,273.49,157.88" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Node(3).Halt" Bounds="415.745,598.935,49.9999999999999,25.96" Label="Halt" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Node(3).WaitPing" Bounds="407.093333333333,527.015,67.3033333333333,25.96" Label="WaitPing" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Safety" Category="Monitor" Bounds="309.336666666667,712.5425,262.816666666667,85.96" Group="Expanded" Label="Microsoft.Coyote.Samples.Monitors.Safety" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Safety.Init" Bounds="484.568333333333,752.5425,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Timer(5)" Category="StateMachine" Bounds="639.82375,451.055,333.8425,229.8" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Timer(5).Init" Bounds="812.83375,491.055,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel" Bounds="789.865416666667,634.895,95.9366666666666,25.96" Label="WaitForCancel" />
+    <Node Id="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Bounds="797.307083333333,562.975,81.0533333333334,25.96" Label="WaitForReq" />
+  </Nodes>
+  <Links>
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Driver(1)" Target="Microsoft.Coyote.Samples.Monitors.Driver(1).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Driver(1)" Target="Microsoft.Coyote.Samples.Monitors.Driver(1).InjectFailures" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Driver(1).Init" Target="Microsoft.Coyote.Samples.Monitors.Driver(1).InjectFailures" Category="goto" Bounds="557.744995117188,65.9599990844727,0,36.9599990844727" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="532.551666666667,80.96,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Driver(1).Init" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse" EventId="Microsoft.Coyote.Samples.Monitors.Driver+RegisterClient" HandledBy="Init" Label="RegisterClient" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Driver(1).Init" Target="Microsoft.Coyote.Samples.Monitors.Liveness.Init" EventId="Microsoft.Coyote.Samples.Monitors.Liveness+RegisterNodes" Label="RegisterNodes" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Driver(1).InjectFailures" Target="Microsoft.Coyote.Samples.Monitors.Liveness.Wait" EventId="Microsoft.Coyote.Samples.Monitors.FailureDetector+NodeFailed" Label="NodeFailed" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Init" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Bounds="531.301940917969,255.527496337891,0,36.9599914550781" EventId="Microsoft.Coyote.Samples.Monitors.FailureDetector+Unit" Label="Unit" LabelBounds="509.295297966797,270.5275,22.0066666666667,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Bounds="348.013031005859,322.313293457031,139.434600830078,51.0942077636719" EventId="Microsoft.Coyote.Samples.Monitors.Timer+TimeoutEvent" HandledBy="Reset" Label="TimeoutEvent" LabelBounds="274.94263027094,345.190761380651,72.6433333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" EventId="Microsoft.Coyote.Samples.Monitors.Timer+StartTimerEvent" HandledBy="WaitForReq" Label="StartTimerEvent" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.Driver(1).InjectFailures" EventId="Microsoft.Coyote.Samples.Monitors.FailureDetector+NodeFailed" HandledBy="InjectFailures" Label="NodeFailed" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset" Bounds="406.751098632813,327.447509765625,102.893463134766,46.6661987304688" EventId="Microsoft.Coyote.Samples.Monitors.FailureDetector+RoundDone" Label="RoundDone" LabelBounds="408.28863130013,342.4475,63.0133333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Category="goto" Bounds="452.806976318359,307.977508544922,43.5,12.9546813964844" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="427.61363130013,306.4875,25.1933333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse" Bounds="562.241943359375,327.447509765625,40.5220947265625,40.1477661132813" EventId="Microsoft.Coyote.Samples.Monitors.FailureDetector+TimerCancelled" Label="TimerCancelled" LabelBounds="603.264036395727,342.4475,81.2833333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.Node(2).WaitPing" EventId="Microsoft.Coyote.Samples.Monitors.Node+Ping" HandledBy="WaitPing" Label="Ping" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.Node(3).WaitPing" EventId="Microsoft.Coyote.Samples.Monitors.Node+Ping" HandledBy="WaitPing" Label="Ping" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.Safety.Init" EventId="Microsoft.Coyote.Samples.Monitors.Safety+Ping" Label="Ping" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Index="1" EventId="Microsoft.Coyote.Samples.Monitors.Timer+CancelTimerEvent" HandledBy="WaitForReq" Label="CancelTimerEvent" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" EventId="Microsoft.Coyote.Samples.Monitors.Timer+StartTimerEvent" HandledBy="WaitForReq" Label="StartTimerEvent" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" Category="pop" Bounds="531.567443847656,336.443572998047,27.21337890625,36.9639282226563" EventId="Microsoft.Coyote.Coverage.ActorRuntimeLogGraphBuilder+PopStateEvent" Label="pop" LabelBounds="511.196304763042,342.12102824081,21.1366666666668,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Liveness" Target="Microsoft.Coyote.Samples.Monitors.Liveness.Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Liveness" Target="Microsoft.Coyote.Samples.Monitors.Liveness.Wait" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Liveness" Target="Microsoft.Coyote.Samples.Monitors.Liveness.Wait[hot]" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Liveness.Init" Target="Microsoft.Coyote.Samples.Monitors.Liveness.Init" Bounds="832.323303222656,272.017486572266,43.5,12.9800109863281" EventId="Microsoft.Coyote.Samples.Monitors.Liveness+RegisterNodes" Label="RegisterNodes" LabelBounds="755.193333333333,270.5275,77.13,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Liveness.Init" Target="Microsoft.Coyote.Samples.Monitors.Liveness.Wait[hot]" Category="goto" Bounds="900.823303222656,291.487487792969,57.0223999023438,43.6923828125" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="877.854905301184,305.071132016882,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Liveness.Wait" Target="Microsoft.Coyote.Samples.Monitors.Liveness.Wait[hot]" Bounds="999.823303222656,291.487487792969,0,36.9600219726563" EventId="Microsoft.Coyote.Samples.Monitors.FailureDetector+NodeFailed" Label="NodeFailed" LabelBounds="939.76,306.4875,60.0633333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(2)" Target="Microsoft.Coyote.Samples.Monitors.Node(2).Halt" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(2)" Target="Microsoft.Coyote.Samples.Monitors.Node(2).WaitPing" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(2).WaitPing" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" EventId="Microsoft.Coyote.Samples.Monitors.Node+Pong" HandledBy="SendPing" Label="Pong" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(2).WaitPing" Target="Microsoft.Coyote.Samples.Monitors.Node(2).Halt" Category="halt" Bounds="136.744995117188,552.974975585938,0,36.9600219726563" EventId="Microsoft.Coyote.Actors.HaltEvent" Label="halt" LabelBounds="116.875,567.975,19.87,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(2).WaitPing" Target="Microsoft.Coyote.Samples.Monitors.Safety.Init" EventId="Microsoft.Coyote.Samples.Monitors.Safety+Pong" Label="Pong" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(3)" Target="Microsoft.Coyote.Samples.Monitors.Node(3).Halt" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(3)" Target="Microsoft.Coyote.Samples.Monitors.Node(3).WaitPing" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(3).WaitPing" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" EventId="Microsoft.Coyote.Samples.Monitors.Node+Pong" HandledBy="SendPing" Label="Pong" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(3).WaitPing" Target="Microsoft.Coyote.Samples.Monitors.Node(3).Halt" Category="halt" Bounds="440.744995117188,552.974975585938,0,36.9600219726563" EventId="Microsoft.Coyote.Actors.HaltEvent" Label="halt" LabelBounds="420.875,567.975,19.8699999999999,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Node(3).WaitPing" Target="Microsoft.Coyote.Samples.Monitors.Safety.Init" EventId="Microsoft.Coyote.Samples.Monitors.Safety+Pong" Label="Pong" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Safety" Target="Microsoft.Coyote.Samples.Monitors.Safety.Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Safety.Init" Target="Microsoft.Coyote.Samples.Monitors.Safety.Init" Index="1" Bounds="374.084991455078,759.032470703125,110.483337402344,12.9800415039063" EventId="Microsoft.Coyote.Samples.Monitors.Safety+Pong" Label="Pong" LabelBounds="346.921666666667,757.5425,27.1633333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Safety.Init" Target="Microsoft.Coyote.Samples.Monitors.Safety.Init" Bounds="441.068328857422,759.032470703125,43.5,12.9800415039063" EventId="Microsoft.Coyote.Samples.Monitors.Safety+Ping" Label="Ping" LabelBounds="417.585,757.5425,23.4833333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5)" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5)" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5)" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5).Init" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Category="goto" Bounds="837.833740234375,517.015014648438,0,36.9599609375" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="812.640416666667,532.015,25.1933333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset" EventId="Microsoft.Coyote.Samples.Monitors.Timer+TimeoutEvent" HandledBy="Reset" Label="TimeoutEvent" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing" EventId="Microsoft.Coyote.Samples.Monitors.Timer+TimeoutEvent" HandledBy="SendPing" Label="TimeoutEvent" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Category="default" Bounds="805.583740234375,594.718688964844,16.7288818359375,40.1763305664063" EventId="Microsoft.Coyote.Actors.DefaultEvent" Label="default" LabelBounds="768.11375,603.935,36.97,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Target="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse" EventId="Microsoft.Coyote.Samples.Monitors.Timer+CancelFailure" HandledBy="WaitForCancelResponse" Label="CancelFailure" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel" Bounds="853.235778808594,588.934997558594,16.6004638671875,40.1495361328125" EventId="Microsoft.Coyote.Samples.Monitors.Timer+StartTimerEvent" HandledBy="WaitForReq" Label="StartTimerEvent" LabelBounds="870.33625,603.935,83.3299999999999,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Target="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq" Bounds="753.807067871094,569.465026855469,43.5,12.9228515625" EventId="Microsoft.Coyote.Samples.Monitors.Timer+CancelTimerEvent" HandledBy="WaitForReq" Label="CancelTimerEvent" LabelBounds="659.82375,567.975,93.9833333333333,15.96" />
+  </Links>
+  <Categories>
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+    <Category Id="Monitor" />
+    <Category Id="StateMachine" />
+    <Category Id="default" />
+    <Category Id="goto" />
+    <Category Id="halt" />
+    <Category Id="pop" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="EventId" DataType="System.String" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="HandledBy" DataType="System.String" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Error" ValueLabel="True">
+      <Condition Expression="HasCategory('Error')" />
+      <Setter Property="Background" Value="#FFC15656" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Actor" ValueLabel="True">
+      <Condition Expression="HasCategory('Actor')" />
+      <Setter Property="Background" Value="#FF57AC56" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Monitor" ValueLabel="True">
+      <Condition Expression="HasCategory('Monitor')" />
+      <Setter Property="Background" Value="#FF558FDA" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="halt" ValueLabel="True">
+      <Condition Expression="HasCategory('halt')" />
+      <Setter Property="Stroke" Value="#FFFF6C6C" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="push" ValueLabel="True">
+      <Condition Expression="HasCategory('push')" />
+      <Setter Property="Stroke" Value="#FF7380F5" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="pop" ValueLabel="True">
+      <Condition Expression="HasCategory('pop')" />
+      <Setter Property="Stroke" Value="#FF7380F5" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+  </Styles>
+</DirectedGraph>

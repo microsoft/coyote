@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Tools.Tests
             }
             else
             {
-                Assert.True(false, "Unexpected test method type.");
+                Assert.Fail("Unexpected test method type.");
             }
         }
     }

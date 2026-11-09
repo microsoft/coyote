@@ -64,6 +64,14 @@ namespace Microsoft.Coyote.Rewriting.Types
             typeof(SystemCompiler.YieldAwaitable).FullName + "/YieldAwaiter";
 
         internal static string TaskExtensions { get; } = typeof(SystemTasks.TaskExtensions).FullName;
+#if NET
+        internal static string TaskAsyncEnumerableExtensions { get; } = typeof(SystemTasks.TaskAsyncEnumerableExtensions).FullName;
+        internal static string ConfiguredCancelableAsyncEnumerable { get; } =
+            typeof(SystemCompiler.ConfiguredCancelableAsyncEnumerable<>).FullName;
+        internal static string ConfiguredAsyncEnumerator { get; } =
+            typeof(SystemCompiler.ConfiguredCancelableAsyncEnumerable<>).FullName + "/Enumerator";
+        internal static string ConfiguredAsyncDisposable { get; } = typeof(SystemCompiler.ConfiguredAsyncDisposable).FullName;
+#endif
         internal static string TaskFactory { get; } = typeof(SystemTasks.TaskFactory).FullName;
         internal static string GenericTaskFactory { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
         internal static string TaskParallel { get; } = typeof(SystemTasks.Parallel).FullName;
@@ -79,6 +87,10 @@ namespace Microsoft.Coyote.Rewriting.Types
         internal static string ManualResetEvent { get; } = typeof(SystemThreading.ManualResetEvent).FullName;
         internal static string EventWaitHandle { get; } = typeof(SystemThreading.EventWaitHandle).FullName;
         internal static string WaitHandle { get; } = typeof(SystemThreading.WaitHandle).FullName;
+#if NET10_0_OR_GREATER
+        internal static string Lock { get; } = typeof(SystemThreading.Lock).FullName;
+        internal static string LockScope { get; } = typeof(SystemThreading.Lock).FullName + "/Scope";
+#endif
 
         internal static string GenericList { get; } = typeof(SystemGenericCollections.List<>).FullName;
         internal static string GenericDictionary { get; } = typeof(SystemGenericCollections.Dictionary<,>).FullName;

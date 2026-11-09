@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -147,6 +148,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Exceptions
             configuration: this.GetConfiguration().WithTestingIterations(1));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestThreadInterruptedExceptionInNonEmptyCatchBlock()
         {

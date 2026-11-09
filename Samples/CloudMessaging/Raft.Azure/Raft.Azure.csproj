@@ -20,7 +20,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.1.1" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.7.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Raft\Raft.csproj" />

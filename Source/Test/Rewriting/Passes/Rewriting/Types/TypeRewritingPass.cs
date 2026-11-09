@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting.Types;
 using Mono.Cecil;
@@ -71,6 +72,15 @@ namespace Microsoft.Coyote.Rewriting
 #endif
             this.KnownTypes[NameCache.GenericTaskCompletionSource] = typeof(Types.Threading.Tasks.TaskCompletionSource<>);
             this.KnownTypes[NameCache.TaskExtensions] = typeof(Types.TaskExtensions);
+#if NET
+            this.KnownTypes[NameCache.TaskAsyncEnumerableExtensions] = typeof(Types.Threading.Tasks.TaskAsyncEnumerableExtensions);
+            this.KnownTypes[NameCache.ConfiguredCancelableAsyncEnumerable] =
+                typeof(Types.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable<>);
+            this.KnownTypes[NameCache.ConfiguredAsyncEnumerator] =
+                typeof(Types.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable<>.Enumerator);
+            this.KnownTypes[NameCache.ConfiguredAsyncDisposable] =
+                typeof(Types.Runtime.CompilerServices.ConfiguredAsyncDisposable);
+#endif
             this.KnownTypes[NameCache.TaskFactory] = typeof(Types.Threading.Tasks.TaskFactory);
             this.KnownTypes[NameCache.GenericTaskFactory] = typeof(Types.Threading.Tasks.TaskFactory<>);
             this.KnownTypes[NameCache.TaskParallel] = typeof(Types.Threading.Tasks.Parallel);
@@ -88,6 +98,10 @@ namespace Microsoft.Coyote.Rewriting
             this.KnownTypes[NameCache.ManualResetEvent] = typeof(Types.Threading.ManualResetEvent);
             this.KnownTypes[NameCache.EventWaitHandle] = typeof(Types.Threading.EventWaitHandle);
             this.KnownTypes[NameCache.WaitHandle] = typeof(Types.Threading.WaitHandle);
+#if NET10_0_OR_GREATER
+            this.KnownTypes[NameCache.Lock] = typeof(Types.Threading.Lock);
+            this.KnownTypes[NameCache.LockScope] = typeof(Types.Threading.Lock.Scope);
+#endif
 
 #if NET
             // Populate the map with the known HTTP and web-related types.
@@ -235,6 +249,24 @@ namespace Microsoft.Coyote.Rewriting
         /// Checks if the specified type is a supported type.
         /// </summary>
         protected virtual bool IsSupportedType(TypeDefinition type) => false;
+
+#if NET10_0_OR_GREATER
+        /// <summary>
+        /// Checks for a native lock scope, including by-reference and generic wrappers.
+        /// </summary>
+        protected static bool ContainsLockScope(TypeReference type) =>
+            type.FullName == NameCache.LockScope ||
+            (type is GenericInstanceType genericType && genericType.GenericArguments.Any(ContainsLockScope)) ||
+            (type is TypeSpecification specification && ContainsLockScope(specification.ElementType));
+
+        /// <summary>
+        /// Checks if a lock scope contract stays native across rewriting.
+        /// </summary>
+        protected bool IsExternalLockScopeContract(TypeDefinition type) =>
+            type != null && !IsRuntimeType(type) && !this.KnownTypes.ContainsKey(type.FullName) &&
+            (!this.IsVisitedType(type) || type.CustomAttributes.Any(
+                attribute => attribute.AttributeType.FullName == typeof(SkipRewritingAttribute).FullName));
+#endif
 
         /// <summary>
         /// Options for rewriting a type.

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
@@ -77,6 +78,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             });
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestParallelSemaphoreSlim()
         {
@@ -120,6 +122,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestParallelSemaphoreSlimWithDoubleAccess()
         {
@@ -160,6 +163,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAsyncSemaphoreSlim()
         {
@@ -203,6 +207,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAsyncSemaphoreSlimWithDoubleAccess()
         {
@@ -243,6 +248,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAsyncSemaphoreSlimWithBlockingWait()
         {
@@ -277,6 +283,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedSemaphoreSlim()
         {
@@ -311,6 +318,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedSemaphoreSlimWithDoubleAccess()
         {
@@ -351,6 +359,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestParallelSemaphoreSlimWithNoInitialAccess()
         {
@@ -387,6 +396,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestParallelSemaphoreSlimWithNoInitialAccessAndExpectedOrder()
         {
@@ -431,6 +441,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestParallelSemaphoreSlimWithNoInitialAccessAndExpectedAltOrder()
         {
@@ -476,6 +487,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAsyncSemaphoreSlimWithNoInitialAccess()
         {
@@ -512,6 +524,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAsyncSemaphoreSlimWithNoInitialAccessAndExpectedOrder()
         {
@@ -557,6 +570,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestAsyncSemaphoreSlimWithNoInitialAccessAndExpectedAltOrder()
         {
@@ -601,6 +615,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedSemaphoreSlimWithNoInitialAccess()
         {
@@ -637,6 +652,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedSemaphoreSlimWithNoInitialAccessAndExpectedOrder()
         {
@@ -681,6 +697,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedSemaphoreSlimWithNoInitialAccessAndExpectedAltOrder()
         {
@@ -726,6 +743,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedAltSemaphoreSlimWithNoInitialAccess()
         {
@@ -762,6 +780,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             configuration: this.GetConfiguration().WithTestingIterations(100));
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedAltSemaphoreSlimWithNoInitialAccessAndExpectedOrder()
         {
@@ -807,6 +826,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedAltSemaphoreSlimWithNoInitialAccessAndExpectedAltOrder()
         {
@@ -851,6 +871,7 @@ namespace Microsoft.Coyote.BugFinding.Tests
             replay: true);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestMixedSemaphoreSlimForUnexpectedOrder()
         {

@@ -25,19 +25,18 @@ jobs:
     env:
       COYOTE_CLI_TELEMETRY_OPTOUT: 1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
       - name: Setup NuGet.exe
-        uses: NuGet/setup-nuget@v1
+        uses: NuGet/setup-nuget@296fd3ccf8528660c91106efefe2364482f86d6f # v1.2.0
         with:
           nuget-version: '6.x'
-      - name: Setup .NET 8.0 SDK
-        uses: actions/setup-dotnet@v1
+      - name: Setup .NET 10.0 SDK
+        uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
         with:
-          dotnet-version: '8.0.x'
-      - name: Setup .NET 6.0 SDK
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '10.0.403'
+      - name: Setup .NET 8.0 runtimes
+        run: ./Scripts/install-dotnet8-runtimes.ps1
+        shell: pwsh
       - name: Setup debugging tools
         if: ${{ matrix.platform == 'windows-latest' }}
         run: |
@@ -48,9 +47,14 @@ jobs:
       - name: Build Coyote projects
         run: ./Scripts/build.ps1 -ci -nuget
         shell: pwsh
+      - name: Run native host compatibility matrix
+        run: ./Tests/Compatibility/run-compatibility-matrix.ps1
+        shell: pwsh
       - name: Validate Coyote rewriting
         if: ${{ matrix.platform == 'windows-latest' }}
-        run: ./Tests/compare-rewriting-diff-logs.ps1
+        run: |
+          ./Tests/compare-rewriting-diff-logs.ps1 -framework net10.0
+          ./Tests/compare-rewriting-diff-logs.ps1 -framework net8.0
         shell: pwsh
       - name: Run Coyote tests
         run: ./Scripts/run-tests.ps1 -ci
@@ -82,11 +86,14 @@ jobs:
     env:
       COYOTE_CLI_TELEMETRY_OPTOUT: 1
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup .NET 8.0 SDK
-        uses: actions/setup-dotnet@v1
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
+      - name: Setup .NET 10.0 SDK
+        uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb # v1.10.1
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.403'
+      - name: Setup .NET 8.0 runtimes
+        run: ./Scripts/install-dotnet8-runtimes.ps1
+        shell: pwsh
       - name: Download Coyote binaries
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
@@ -102,6 +109,11 @@ jobs:
         run: |
           ./Samples/Scripts/build.ps1 -local -nuget
           ./Samples/Scripts/build-tests.ps1 -local -nuget
+        shell: pwsh
+      - name: Test locally packaged Coyote consumers and CLI
+        run: |
+          ./Tests/Compatibility/run-package-smoke.ps1 -framework net10.0
+          ./Tests/Compatibility/run-package-smoke.ps1 -framework net8.0
         shell: pwsh
       - name: Test Coyote samples
         run: ./Samples/Scripts/run-tests.ps1

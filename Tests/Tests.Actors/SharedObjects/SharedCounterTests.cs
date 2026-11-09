@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.SharedObjects;
 using Xunit;
@@ -100,6 +101,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
             }
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestProductionSharedCounter1()
         {
@@ -123,6 +125,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
             Assert.False(failed);
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestProductionSharedCounter2()
         {

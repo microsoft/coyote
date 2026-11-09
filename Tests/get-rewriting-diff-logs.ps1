@@ -1,9 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+param(
+    [ValidateSet("net10.0", "net8.0")]
+    [string]$framework = "net10.0"
+)
+
 Import-Module $PSScriptRoot/../Scripts/common.psm1 -Force
 
-$framework = "net8.0"
 $targets = [ordered]@{
     "rewriting" = "Tests.Rewriting"
     "rewriting-helpers" = "Tests.Rewriting.Helpers"

@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.Logging;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -46,50 +48,66 @@ namespace Microsoft.Coyote.Rewriting
 
             // Note that the C# compiler is not generating `OpCodes.Calli` instructions:
             // https://docs.microsoft.com/en-us/archive/blogs/shawnfa/calli-is-not-verifiable.
-            // TODO: what about ldsfld, for static fields?
-            if (instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldflda)
+            if (instruction.Operand is FieldReference field)
             {
-                if (instruction.Operand is FieldDefinition fd &&
-                    this.TryRewriteType(fd.FieldType, out TypeReference newFieldType) &&
+#if NET10_0_OR_GREATER
+                if (ContainsLockScope(field.FieldType) &&
+                    field.DeclaringType.Resolve() is TypeDefinition declaringType &&
+                    this.IsExternalLockScopeContract(declaringType))
+                {
+                    throw new InvalidOperationException(
+                        $"Cannot rewrite method '{this.Method.FullName}' because its reference to unrewritten " +
+                        $"field '{field.FullName}' would change the Lock.Scope signature. " +
+                        $"Include assembly '{declaringType.Module.Assembly.Name.Name}' in rewriting, " +
+                        "and ensure the declaring type is not marked with SkipRewriting.");
+                }
+#endif
+                if (this.TryRewriteType(field.FieldType, out TypeReference newFieldType) &&
                     this.TryResolve(newFieldType, out TypeDefinition _))
                 {
                     this.LogWriter.LogDebug("............. [-] {0}", instruction);
-                    fd.FieldType = newFieldType;
+                    field.FieldType = newFieldType;
                     this.IsMethodBodyModified = true;
                     this.LogWriter.LogDebug("............. [+] {0}", instruction);
                 }
-                else if (instruction.Operand is FieldReference fr &&
-                    this.TryRewriteType(fr.FieldType, out newFieldType) &&
-                    this.TryResolve(newFieldType, out TypeDefinition _))
+
+                if (this.TryRewriteType(field.DeclaringType, out TypeReference newDeclaringType) &&
+                    this.TryResolve(newDeclaringType, out TypeDefinition _))
                 {
                     this.LogWriter.LogDebug("............. [-] {0}", instruction);
-                    fr.FieldType = newFieldType;
+                    field.DeclaringType = newDeclaringType;
                     this.IsMethodBodyModified = true;
                     this.LogWriter.LogDebug("............. [+] {0}", instruction);
                 }
             }
-            else if (instruction.OpCode == OpCodes.Initobj)
+            else if (instruction.Operand is TypeReference)
             {
-                instruction = this.VisitInitobjInstruction(instruction);
+                instruction = this.VisitTypeInstruction(instruction);
+            }
+            else if (instruction.Operand is MethodReference arrayMethod && arrayMethod.DeclaringType is ArrayType)
+            {
+                instruction = this.VisitArrayMethodInstruction(instruction, arrayMethod);
             }
             else if (instruction.OpCode == OpCodes.Newobj)
             {
                 instruction = this.VisitNewobjInstruction(instruction);
             }
-            else if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
+            else if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt ||
+                instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn ||
+                instruction.OpCode == OpCodes.Ldtoken) &&
                 instruction.Operand is MethodReference methodReference)
             {
-                instruction = this.VisitCallInstruction(instruction, methodReference);
+                instruction = this.VisitMethodInstruction(instruction, methodReference);
             }
 
             return instruction;
         }
 
         /// <summary>
-        /// Rewrites the specified <see cref="OpCodes.Initobj"/> instruction.
+        /// Rewrites a type operand while preserving its instruction opcode.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
-        private Instruction VisitInitobjInstruction(Instruction instruction)
+        private Instruction VisitTypeInstruction(Instruction instruction)
         {
             TypeReference type = instruction.Operand as TypeReference;
             if (this.TryRewriteType(type, out TypeReference newType) &&
@@ -109,12 +127,47 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
+        /// Rewrites synthetic array methods, which have no method definitions to resolve.
+        /// </summary>
+        /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
+        private Instruction VisitArrayMethodInstruction(Instruction instruction, MethodReference method)
+        {
+            if (this.TryRewriteType(method.DeclaringType, out TypeReference newDeclaringType))
+            {
+                var newMethod = new MethodReference(method.Name,
+                    this.RewriteType(method.ReturnType, Options.None), newDeclaringType)
+                {
+                    HasThis = method.HasThis,
+                    ExplicitThis = method.ExplicitThis,
+                    CallingConvention = method.CallingConvention
+                };
+                foreach (var parameter in method.Parameters)
+                {
+                    newMethod.Parameters.Add(new ParameterDefinition(parameter.Name, parameter.Attributes,
+                        this.RewriteType(parameter.ParameterType, Options.None)));
+                }
+
+                var newInstruction = Instruction.Create(instruction.OpCode, this.Module.ImportReference(newMethod));
+                newInstruction.Offset = instruction.Offset;
+                this.LogWriter.LogDebug("............. [-] {0}", instruction);
+                this.Replace(instruction, newInstruction);
+                this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
+                instruction = newInstruction;
+            }
+
+            return instruction;
+        }
+
+        /// <summary>
         /// Rewrites the specified <see cref="OpCodes.Newobj"/> instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitNewobjInstruction(Instruction instruction)
         {
             MethodReference constructor = instruction.Operand as MethodReference;
+#if NET10_0_OR_GREATER
+            this.ValidateExternalLockScopeInstruction(instruction, constructor);
+#endif
             if (this.TryRewriteMethodReference(constructor, "Create", out MethodReference newMethod) &&
                 this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
             {
@@ -134,21 +187,56 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
+        /// Rewrites a call, function-pointer or method-token instruction.
         /// </summary>
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
-        private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
+        private Instruction VisitMethodInstruction(Instruction instruction, MethodReference method)
         {
-            if (this.TryRewriteMethodReference(method, out MethodReference newMethod) &&
-                this.TryResolve(newMethod, out MethodDefinition resolvedMethod))
+#if NET10_0_OR_GREATER
+            this.ValidateExternalLockScopeInstruction(instruction, method);
+            if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
+                method.ReturnType.FullName == Types.NameCache.LockScope &&
+                this.IsExternalLockScopeContract(method.DeclaringType.Resolve()))
+            {
+                return this.VisitExternalLockScopeInstruction(instruction, method);
+            }
+#endif
+
+            bool preserveBinding = instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn ||
+                instruction.OpCode == OpCodes.Ldtoken;
+            bool isClosedLockDelegate = false;
+#if NET10_0_OR_GREATER
+            // A closed static delegate binds the original lock to the forwarding method's
+            // first parameter, so it shares ownership with rewritten direct calls.
+            isClosedLockDelegate = instruction.OpCode == OpCodes.Ldftn &&
+                method.DeclaringType.FullName == Types.NameCache.Lock && method.HasThis;
+#endif
+            if (this.TryRewriteMethodReference(method, out MethodReference newMethod, preserveBinding && !isClosedLockDelegate,
+                isMethodToken: instruction.OpCode == OpCodes.Ldtoken) &&
+                this.TryResolve(newMethod, out MethodDefinition resolvedMethod) &&
+                (!preserveBinding || isClosedLockDelegate || method.HasThis == newMethod.HasThis))
             {
                 // Create and return the new instruction.
-                Instruction newInstruction = Instruction.Create(resolvedMethod.IsVirtual ?
-                    OpCodes.Callvirt : OpCodes.Call, newMethod);
+                Instruction newInstruction = Instruction.Create(preserveBinding || !resolvedMethod.IsStatic ?
+                    instruction.OpCode : OpCodes.Call, newMethod);
 
                 newInstruction.Offset = instruction.Offset;
                 this.LogWriter.LogDebug("............. [-] {0}", instruction);
-                this.Replace(instruction, newInstruction);
+#if NET10_0_OR_GREATER
+                if (isClosedLockDelegate && resolvedMethod.IsStatic)
+                {
+                    // Closed static delegates accept null targets, unlike the original instance delegates.
+                    var checkTarget = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                        typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.CheckDelegateTarget))));
+                    this.Replace(instruction, checkTarget);
+                    this.Processor.InsertAfter(checkTarget, newInstruction);
+                }
+                else
+#endif
+                {
+                    this.Replace(instruction, newInstruction);
+                }
+
                 this.LogWriter.LogDebug("............. [+] {0}", newInstruction);
 
                 instruction = newInstruction;
@@ -157,22 +245,137 @@ namespace Microsoft.Coyote.Rewriting
             return instruction;
         }
 
+#if NET10_0_OR_GREATER
         /// <summary>
-        /// Tries to rewrite the specified <see cref="MethodReference"/>.
+        /// Rejects native scope boundaries for which there is no ownership-safe adapter.
         /// </summary>
-        private bool TryRewriteMethodReference(MethodReference method, out MethodReference result) =>
-            this.TryRewriteMethodReference(method, null, out result);
+        private void ValidateExternalLockScopeInstruction(Instruction instruction, MethodReference method)
+        {
+            if (instruction.OpCode == OpCodes.Ldtoken)
+            {
+                return;
+            }
+
+            bool hasScopeParameter = method.Parameters.Any(parameter => ContainsLockScope(parameter.ParameterType));
+            bool hasScopeReturn = ContainsLockScope(method.ReturnType);
+            if (!hasScopeParameter && !hasScopeReturn)
+            {
+                return;
+            }
+
+            TypeDefinition declaringType = method.DeclaringType.Resolve();
+            if (!this.IsExternalLockScopeContract(declaringType))
+            {
+                return;
+            }
+
+            bool isScopeDelegate = (instruction.OpCode == OpCodes.Ldftn || instruction.OpCode == OpCodes.Ldvirtftn) &&
+                (hasScopeParameter || hasScopeReturn);
+            bool hasUnsupportedReturn = hasScopeReturn &&
+                method.ReturnType.FullName != Types.NameCache.LockScope;
+            if (hasScopeParameter || isScopeDelegate || hasUnsupportedReturn)
+            {
+                string boundary = isScopeDelegate ? "delegate binding" :
+                    hasScopeParameter ? "parameter boundary" : "return boundary";
+                throw new InvalidOperationException(
+                    $"Cannot rewrite method '{this.Method.FullName}' because its {boundary} with " +
+                    $"unrewritten method '{method.FullName}' would change the Lock.Scope signature. " +
+                    $"Include assembly '{declaringType.Module.Assembly.Name.Name}' in rewriting, and ensure the " +
+                    "declaring type is not marked with SkipRewriting.");
+            }
+        }
+
+        /// <summary>
+        /// Guards native lock acquisition and adapts its scope to the rewritten caller.
+        /// </summary>
+        private Instruction VisitExternalLockScopeInstruction(Instruction instruction, MethodReference method)
+        {
+            var loadName = Instruction.Create(OpCodes.Ldstr, GetFullyQualifiedMethodName(method));
+            var check = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.CheckUncontrolledScopeInvocation))));
+            var wrap = Instruction.Create(OpCodes.Call, this.Module.ImportReference(
+                typeof(Types.Threading.Lock).GetMethod(nameof(Types.Threading.Lock.Wrap))));
+
+            Instruction entry = instruction;
+            while (entry.Previous != null && entry.Previous.OpCode.OpCodeType == OpCodeType.Prefix)
+            {
+                entry = entry.Previous;
+            }
+
+            // Redirect branches and exception regions to the guard, then restore the complete
+            // prefix chain immediately before its original call.
+            this.Replace(entry, loadName);
+            this.Processor.InsertAfter(loadName, check);
+            this.Processor.InsertAfter(check, entry);
+            this.Processor.InsertAfter(instruction, wrap);
+            this.LogWriter.LogDebug("............. [+] uncontrolled lock scope guard and adapter for '{0}'", method);
+            return wrap;
+        }
+#endif
 
         /// <summary>
         /// Tries to rewrite the specified <see cref="MethodReference"/>.
         /// </summary>
-        private bool TryRewriteMethodReference(MethodReference method, string matchName, out MethodReference result)
+        private bool TryRewriteMethodReference(MethodReference method, out MethodReference result,
+            bool preserveInstanceBinding = false, bool isMethodToken = false) =>
+            this.TryRewriteMethodReference(method, null, out result, preserveInstanceBinding, isMethodToken);
+
+        /// <summary>
+        /// Tries to rewrite the specified <see cref="MethodReference"/>.
+        /// </summary>
+        private bool TryRewriteMethodReference(MethodReference method, string matchName, out MethodReference result,
+            bool preserveInstanceBinding = false, bool isMethodToken = false)
         {
             result = method;
             TypeDefinition resolvedDeclaringType = method.DeclaringType.Resolve();
             if (!this.IsRewritableType(resolvedDeclaringType))
             {
-                return false;
+                // External concrete signatures stay native, but generic arguments belong to the caller.
+                bool areArgumentsRewritten = false;
+                TypeReference externalDeclaringType = this.RewriteType(method.DeclaringType,
+                    Options.None, ref areArgumentsRewritten);
+                MethodReference externalMethod = (method as GenericInstanceMethod)?.ElementMethod ?? method;
+                if (areArgumentsRewritten)
+                {
+                    var newExternalMethod = new MethodReference(externalMethod.Name,
+                        externalMethod.ReturnType, externalDeclaringType)
+                    {
+                        HasThis = externalMethod.HasThis,
+                        ExplicitThis = externalMethod.ExplicitThis,
+                        CallingConvention = externalMethod.CallingConvention
+                    };
+                    foreach (var parameter in externalMethod.GenericParameters)
+                    {
+                        newExternalMethod.GenericParameters.Add(new GenericParameter(parameter.Name, newExternalMethod));
+                    }
+
+                    foreach (var parameter in externalMethod.Parameters)
+                    {
+                        newExternalMethod.Parameters.Add(new ParameterDefinition(parameter.Name,
+                            parameter.Attributes, parameter.ParameterType));
+                    }
+
+                    externalMethod = newExternalMethod;
+                }
+
+                if (method is GenericInstanceMethod genericMethod)
+                {
+                    var newGenericMethod = new GenericInstanceMethod(externalMethod);
+                    foreach (var argument in genericMethod.GenericArguments)
+                    {
+                        newGenericMethod.GenericArguments.Add(
+                            this.RewriteType(argument, Options.None, ref areArgumentsRewritten));
+                    }
+
+                    externalMethod = newGenericMethod;
+                }
+
+                if (areArgumentsRewritten)
+                {
+                    result = this.Module.ImportReference(externalMethod);
+                }
+
+                return areArgumentsRewritten;
             }
 
             // Variable that is passed by reference to rewriting methods keeping
@@ -200,9 +403,14 @@ namespace Microsoft.Coyote.Rewriting
                 isRewritten = true;
             }
 
-            // Try to rewrite the declaring type.
+            // Method handles, bound delegates and base-constructor calls must retain instance binding.
+            // Generic method tokens must also agree with their separately emitted type handles.
+            Options declaringTypeOptions = (preserveInstanceBinding && method.HasThis) ||
+                (isMethodToken && method.DeclaringType.IsGenericInstance) ||
+                (resolvedMethod.IsConstructor && matchName is null) ?
+                Options.None : Options.AllowStaticRewrittenType;
             TypeReference newDeclaringType = this.RewriteType(method.DeclaringType,
-                Options.AllowStaticRewrittenType, ref isRewritten);
+                declaringTypeOptions, ref isRewritten);
             if (!this.TryResolve(newDeclaringType, out TypeDefinition resolvedNewDeclaringType))
             {
                 // Unable to resolve the declaring type of the method.

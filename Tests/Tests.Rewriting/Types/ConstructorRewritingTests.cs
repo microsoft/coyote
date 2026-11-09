@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
         {
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRewritingGenericClassConstructor()
         {
@@ -26,6 +28,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
             box.Value.GetResult();
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRewritingGenericStructConstructor()
         {
@@ -34,6 +37,7 @@ namespace Microsoft.Coyote.Rewriting.Tests
             value.Value.GetResult();
         }
 
+        [SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "This test covers the rewriting of Task-using code. The test does not actually execute the tasks as a normal xUnit test would, so the flagged operation is intentional.")]
         [Fact(Timeout = 5000)]
         public void TestRewritingGenericDelegateConstructor()
         {

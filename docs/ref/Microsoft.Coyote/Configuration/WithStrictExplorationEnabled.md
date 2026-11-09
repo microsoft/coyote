@@ -1,6 +1,6 @@
 # Configuration.WithStrictExplorationEnabled method
 
-Updates the configuration with strict exploration enabled or disabled. If enabled, an exploration that detected uncontrolled invocations, truncated execution paths or no scheduling decisions is reported as incomplete, instead of being reported as a successful test run.
+Enables or disables strict exit codes in the Coyote CLI. When enabled, the CLI returns exit code 4 for an incomplete exploration. The exploration verdict is independent of this setting. In-process callers must check `TestReport.GetVerdict()` explicitly.
 
 ```csharp
 public Configuration WithStrictExplorationEnabled(bool isEnabled = true)
@@ -8,7 +8,7 @@ public Configuration WithStrictExplorationEnabled(bool isEnabled = true)
 
 | parameter | description |
 | --- | --- |
-| isEnabled | If true, then enables strict exploration. |
+| isEnabled | If true, then enables strict CLI exit codes. |
 
 ## See Also
 

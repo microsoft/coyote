@@ -328,8 +328,7 @@ namespace Microsoft.Coyote
         internal bool IsXmlLogEnabled;
 
         /// <summary>
-        /// If true, then an exploration that detected uncontrolled invocations, truncated
-        /// execution paths or no scheduling decisions is reported as incomplete.
+        /// If true, then the CLI returns exit code 4 for an incomplete exploration.
         /// </summary>
         [DataMember]
         internal bool IsStrictExplorationEnabled;
@@ -972,12 +971,11 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with strict exploration enabled or disabled. If enabled,
-        /// an exploration that detected uncontrolled invocations, truncated execution paths or
-        /// no scheduling decisions is reported as incomplete, instead of being reported as a
-        /// successful test run.
+        /// Enables or disables strict exit codes in the Coyote CLI. When enabled, the CLI returns
+        /// exit code 4 for an incomplete exploration. The exploration verdict is independent of
+        /// this setting. In-process callers must check <c>TestReport.GetVerdict()</c> explicitly.
         /// </summary>
-        /// <param name="isEnabled">If true, then enables strict exploration.</param>
+        /// <param name="isEnabled">If true, then enables strict CLI exit codes.</param>
         public Configuration WithStrictExplorationEnabled(bool isEnabled = true)
         {
             this.IsStrictExplorationEnabled = isEnabled;

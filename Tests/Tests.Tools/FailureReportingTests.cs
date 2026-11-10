@@ -62,8 +62,31 @@ namespace Microsoft.Coyote.Tools.Tests
                 });
         }
 
+        [Theory(Timeout = 20000)]
+        [InlineData(false, 0, "Complete")]
+        [InlineData(true, 4, "Incomplete")]
+        public void TestSingleStrategyTimeoutEmitsJsonAfterCompletedPath(bool omitSchedulingDecision,
+            int expectedExitCode, string expectedVerdict)
+        {
+            this.RunCli(omitSchedulingDecision ? "timeout-after-path-without-decisions" : "timeout-after-path",
+                2, true, (exitCode, output, report) =>
+                {
+                    Assert.Equal(expectedExitCode, exitCode);
+                    Assert.Equal("random", report.GetProperty("settings").GetProperty("strategy").GetString());
+                    var exploration = report.GetProperty("exploration");
+                    Assert.Equal(1, exploration.GetProperty("fairPaths").GetInt32() +
+                        exploration.GetProperty("unfairPaths").GetInt32());
+                    var verdict = report.GetProperty("verdict");
+                    Assert.Equal(expectedVerdict, verdict.GetProperty("status").GetString());
+                    Assert.Equal(omitSchedulingDecision,
+                        verdict.GetProperty("reasons").ToString().Contains("NoSchedulingDecisions"));
+                    Assert.Contains("TestingTimedOut", verdict.GetProperty("warnings").ToString());
+                    Assert.Contains("Exploration verdict: " + expectedVerdict, output);
+                }, useSingleStrategy: true);
+        }
+
         private void RunCli(string mode, int iterations, bool timeout,
-            Action<int, string, JsonElement> assertResult, bool enableXml = false)
+            Action<int, string, JsonElement> assertResult, bool enableXml = false, bool useSingleStrategy = false)
         {
             string directory = Path.Combine(Path.GetTempPath(), "CoyoteFailureCli-" + Guid.NewGuid().ToString("N"));
             string fixtureDirectory = Path.Combine(directory, "fixture");
@@ -83,6 +106,11 @@ namespace Microsoft.Coyote.Tools.Tests
                 if (timeout)
                 {
                     arguments += " --timeout 1";
+                }
+
+                if (useSingleStrategy)
+                {
+                    arguments += " --strategy random";
                 }
 
                 if (enableXml)
@@ -147,6 +175,8 @@ namespace Microsoft.Coyote.Tools.Tests
 
     public static class ReportFailureFixture
     {
+        private static int DisposedIterations;
+
         [TestInit]
         public static void Initialize()
         {
@@ -158,22 +188,40 @@ namespace Microsoft.Coyote.Tools.Tests
 
             if (mode == "slow-init")
             {
-                NativeInitialization.Delay();
+                NativeDelay.DelayInitialization();
             }
         }
 
         [Test]
-        public static void Run() => SchedulingPoint.Interleave();
-
-        [SkipRewriting("Preserve native TestInit timing for the timeout regression.")]
-        private static class NativeInitialization
+        public static void Run()
         {
-            internal static void Delay()
+            if (Environment.GetEnvironmentVariable("COYOTE_REPORT_FAILURE_MODE") != "timeout-after-path-without-decisions")
+            {
+                SchedulingPoint.Interleave();
+            }
+        }
+
+        [TestIterationDispose]
+        public static void DisposeIteration()
+        {
+            string mode = Environment.GetEnvironmentVariable("COYOTE_REPORT_FAILURE_MODE");
+            if (mode?.StartsWith("timeout-after-path", StringComparison.Ordinal) is true && ++DisposedIterations is 2)
+            {
+                NativeDelay.Pause();
+            }
+        }
+
+        [SkipRewriting("Preserve native timing for the timeout regressions.")]
+        private static class NativeDelay
+        {
+            internal static void DelayInitialization()
             {
                 Console.WriteLine("INIT_STARTED");
-                Thread.Sleep(3000);
+                Pause();
                 Console.WriteLine("INIT_FINISHED");
             }
+
+            internal static void Pause() => Thread.Sleep(3000);
         }
     }
 }

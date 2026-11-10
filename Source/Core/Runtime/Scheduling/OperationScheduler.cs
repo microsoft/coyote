@@ -35,9 +35,14 @@ namespace Microsoft.Coyote.Runtime
         private readonly LinkedList<Strategy> Portfolio;
 
         /// <summary>
+        /// The node for the current strategy in the fixed portfolio.
+        /// </summary>
+        private volatile LinkedListNode<Strategy> ActiveStrategy;
+
+        /// <summary>
         /// The exploration strategy used in the current iteration.
         /// </summary>
-        private Strategy Strategy => this.Portfolio.First.Value;
+        private Strategy Strategy => this.ActiveStrategy.Value;
 
         /// <summary>
         /// The pipeline of schedule reducers.
@@ -189,6 +194,8 @@ namespace Microsoft.Coyote.Runtime
                     interleavingStrategy.TracePrefix = prefixTrace;
                 }
             }
+
+            this.ActiveStrategy = this.Portfolio.First;
         }
 
         /// <summary>
@@ -216,10 +223,8 @@ namespace Microsoft.Coyote.Runtime
         {
             if (iteration > 0)
             {
-                // Rotate the portfolio strategies using round-robin.
-                var strategy = this.Portfolio.First.Value;
-                this.Portfolio.RemoveFirst();
-                this.Portfolio.AddLast(strategy);
+                // Advance in round-robin order without mutating the portfolio while reports can read it.
+                this.ActiveStrategy = this.ActiveStrategy.Next ?? this.Portfolio.First;
 
                 this.Graph.Clear();
                 this.Trace.Clear();

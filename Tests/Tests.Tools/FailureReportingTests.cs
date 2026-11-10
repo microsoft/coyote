@@ -4,12 +4,15 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,6 +21,8 @@ namespace Microsoft.Coyote.Tools.Tests
     [SkipRewriting("CLI regression tests manage native child processes.")]
     public class FailureReportingTests : BaseToolsTest
     {
+        private const string StrategyRotationPaused = "STRATEGY_ROTATION_PAUSED";
+
         public FailureReportingTests(ITestOutputHelper output)
             : base(output)
         {
@@ -28,7 +33,7 @@ namespace Microsoft.Coyote.Tools.Tests
         [InlineData(true)]
         public void TestInternalInitializationFailureEmitsJson(bool enableXml)
         {
-            this.RunCli("throw-init", 1, false, (exitCode, output, report) =>
+            this.RunCli("throw-init", 1, 0, (exitCode, output, report) =>
             {
                 Assert.Equal(1, exitCode);
                 Assert.Contains("Fixture initialization failed.", output);
@@ -43,7 +48,7 @@ namespace Microsoft.Coyote.Tools.Tests
         public void TestZeroExecutionCliIsIncomplete(bool initializePastTimeout)
         {
             this.RunCli(initializePastTimeout ? "slow-init" : string.Empty,
-                initializePastTimeout ? 1 : 0, initializePastTimeout, (exitCode, output, report) =>
+                initializePastTimeout ? 1 : 0, initializePastTimeout ? 1 : 0, (exitCode, output, report) =>
                 {
                     Assert.Equal(4, exitCode);
                     Assert.True(report.GetProperty("assembly").GetProperty("isRewritten").GetBoolean());
@@ -69,7 +74,7 @@ namespace Microsoft.Coyote.Tools.Tests
             int expectedExitCode, string expectedVerdict)
         {
             this.RunCli(omitSchedulingDecision ? "timeout-after-path-without-decisions" : "timeout-after-path",
-                2, true, (exitCode, output, report) =>
+                2, 3, (exitCode, output, report) =>
                 {
                     Assert.Equal(expectedExitCode, exitCode);
                     Assert.Equal("random", report.GetProperty("settings").GetProperty("strategy").GetString());
@@ -82,11 +87,11 @@ namespace Microsoft.Coyote.Tools.Tests
                         verdict.GetProperty("reasons").ToString().Contains("NoSchedulingDecisions"));
                     Assert.Contains("TestingTimedOut", verdict.GetProperty("warnings").ToString());
                     Assert.Contains("Exploration verdict: " + expectedVerdict, output);
-                }, useSingleStrategy: true);
+                }, pauseDuringStrategyRotation: true);
         }
 
-        private void RunCli(string mode, int iterations, bool timeout,
-            Action<int, string, JsonElement> assertResult, bool enableXml = false, bool useSingleStrategy = false)
+        private void RunCli(string mode, int iterations, int timeoutSeconds,
+            Action<int, string, JsonElement> assertResult, bool enableXml = false, bool pauseDuringStrategyRotation = false)
         {
             string directory = Path.Combine(Path.GetTempPath(), "CoyoteFailureCli-" + Guid.NewGuid().ToString("N"));
             string fixtureDirectory = Path.Combine(directory, "fixture");
@@ -103,14 +108,16 @@ namespace Microsoft.Coyote.Tools.Tests
                 Assert.True(rewrite.ExitCode is 0, rewrite.Output);
                 string arguments = "test " + Quote(assembly) + " --method " + typeof(ReportFailureFixture).FullName +
                     ".Run --iterations " + iterations + " --strict --json-report --console --outdir " + Quote(directory);
-                if (timeout)
+                if (timeoutSeconds > 0)
                 {
-                    arguments += " --timeout 1";
+                    arguments += " --timeout " + timeoutSeconds;
                 }
 
-                if (useSingleStrategy)
+                string cli = GetCliPath();
+                if (pauseDuringStrategyRotation)
                 {
                     arguments += " --strategy random";
+                    cli = CreateCliWithPausedStrategyRotation(cli, directory);
                 }
 
                 if (enableXml)
@@ -118,9 +125,18 @@ namespace Microsoft.Coyote.Tools.Tests
                     arguments += " --xml-trace";
                 }
 
-                var result = this.InvokeCli(arguments, mode);
+                var result = this.InvokeCli(arguments, mode, cli);
+                if (pauseDuringStrategyRotation)
+                {
+                    int pause = result.Output.IndexOf(StrategyRotationPaused, StringComparison.Ordinal);
+                    int reportStart = result.Output.IndexOf("... Emitting execution trace reports:", StringComparison.Ordinal);
+                    Assert.True(pause >= 0 && reportStart > pause,
+                        $"Expected strategy rotation to pause before report emission.\n{result.Output}");
+                }
+
                 string[] reports = Directory.GetFiles(directory, "*.report.json", SearchOption.AllDirectories);
-                Assert.True(reports.Length is 1, result.Output + "\nExpected exactly one JSON report, found " + reports.Length);
+                Assert.True(reports.Length is 1,
+                    $"{result.Output}\nExpected exactly one JSON report, found {reports.Length} (exit {result.ExitCode}).");
                 using var document = JsonDocument.Parse(File.ReadAllText(reports[0]));
                 assertResult(result.ExitCode, result.Output, document.RootElement);
             }
@@ -133,14 +149,68 @@ namespace Microsoft.Coyote.Tools.Tests
             }
         }
 
-        private (int ExitCode, string Output) InvokeCli(string arguments, string mode)
+        private static string CreateCliWithPausedStrategyRotation(string cli, string directory)
+        {
+            const string coreAssemblyName = "Microsoft.Coyote.dll";
+            string cliDirectory = Path.GetDirectoryName(cli);
+            string isolatedCli = Directory.CreateDirectory(Path.Combine(directory, "cli")).FullName;
+            foreach (string file in Directory.GetFiles(cliDirectory))
+            {
+                File.Copy(file, Path.Combine(isolatedCli, Path.GetFileName(file)));
+            }
+
+            // Pause in the actual rotation, after removing the old head or before publishing the new cursor.
+            // The CLI timeout can report while the iteration remains parked. Only this disposable copy is changed.
+            using var core = AssemblyDefinition.ReadAssembly(Path.Combine(cliDirectory, coreAssemblyName));
+            var scheduler = core.MainModule.GetType("Microsoft.Coyote.Runtime.OperationScheduler");
+            var initialize = scheduler.Methods.Single(method => method.Name == "InitializeNextIteration");
+            var checkpoint = Assert.Single(initialize.Body.Instructions.Where(instruction =>
+                instruction.Operand is MethodReference method &&
+                ((method.DeclaringType.Name == "LinkedList`1" && method.Name == "RemoveFirst") ||
+                 (method.DeclaringType.Name == "LinkedListNode`1" && method.Name == "get_Next"))));
+
+            // The cursor checkpoint is valid only when rotation leaves the strategy list intact.
+            if (checkpoint.Operand is MethodReference { Name: "get_Next" })
+            {
+                Assert.DoesNotContain(initialize.Body.Instructions, instruction =>
+                    instruction.Operand is MethodReference method && method.DeclaringType.Name == "LinkedList`1" &&
+                    (method.Name.StartsWith("Add", StringComparison.Ordinal) ||
+                     method.Name.StartsWith("Remove", StringComparison.Ordinal) || method.Name == "Clear"));
+            }
+
+            var processor = initialize.Body.GetILProcessor();
+            var marker = processor.Create(OpCodes.Ldstr, StrategyRotationPaused);
+            processor.InsertAfter(checkpoint, marker);
+            var writeLine = processor.Create(OpCodes.Call,
+                core.MainModule.ImportReference(typeof(Console).GetMethod(nameof(Console.WriteLine), new[] { typeof(string) })));
+            processor.InsertAfter(marker, writeLine);
+            var delay = processor.Create(OpCodes.Ldc_I4_M1);
+            processor.InsertAfter(writeLine, delay);
+            processor.InsertAfter(delay, processor.Create(OpCodes.Call,
+                core.MainModule.ImportReference(typeof(Thread).GetMethod(nameof(Thread.Sleep), new[] { typeof(int) }))));
+
+            string signingKey = Path.Combine(AppContext.BaseDirectory, "../../../../Common/Key.snk");
+            core.Write(Path.Combine(isolatedCli, coreAssemblyName),
+                new WriterParameters { StrongNameKeyBlob = File.ReadAllBytes(signingKey) });
+            return Path.Combine(isolatedCli, Path.GetFileName(cli));
+        }
+
+        private static string GetCliPath()
         {
             string framework = new DirectoryInfo(AppContext.BaseDirectory).Name;
 #if NETFRAMEWORK
-            string cli = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../bin", framework, "coyote.exe"));
+            return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../bin", framework, "coyote.exe"));
+#else
+            return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../bin", framework, "coyote.dll"));
+#endif
+        }
+
+        private (int ExitCode, string Output) InvokeCli(string arguments, string mode, string cli = null)
+        {
+            cli ??= GetCliPath();
+#if NETFRAMEWORK
             var start = new ProcessStartInfo(cli, arguments);
 #else
-            string cli = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../bin", framework, "coyote.dll"));
             string host = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet";
             var start = new ProcessStartInfo(host, Quote(cli) + " " + arguments);
 #endif
@@ -175,8 +245,6 @@ namespace Microsoft.Coyote.Tools.Tests
 
     public static class ReportFailureFixture
     {
-        private static int DisposedIterations;
-
         [TestInit]
         public static void Initialize()
         {
@@ -188,7 +256,7 @@ namespace Microsoft.Coyote.Tools.Tests
 
             if (mode == "slow-init")
             {
-                NativeDelay.DelayInitialization();
+                NativeInitialization.Delay();
             }
         }
 
@@ -201,27 +269,15 @@ namespace Microsoft.Coyote.Tools.Tests
             }
         }
 
-        [TestIterationDispose]
-        public static void DisposeIteration()
+        [SkipRewriting("Preserve native TestInit timing for the timeout regression.")]
+        private static class NativeInitialization
         {
-            string mode = Environment.GetEnvironmentVariable("COYOTE_REPORT_FAILURE_MODE");
-            if (mode?.StartsWith("timeout-after-path", StringComparison.Ordinal) is true && ++DisposedIterations is 2)
-            {
-                NativeDelay.Pause();
-            }
-        }
-
-        [SkipRewriting("Preserve native timing for the timeout regressions.")]
-        private static class NativeDelay
-        {
-            internal static void DelayInitialization()
+            internal static void Delay()
             {
                 Console.WriteLine("INIT_STARTED");
-                Pause();
+                Thread.Sleep(3000);
                 Console.WriteLine("INIT_FINISHED");
             }
-
-            internal static void Pause() => Thread.Sleep(3000);
         }
     }
 }

@@ -10,7 +10,7 @@ public enum ExplorationStatus
 
 | name | value | description |
 | --- | --- | --- |
-| Complete | `0` | The exploration found no bugs and detected no limitation to its coverage. |
+| Complete | `0` | The exploration reported no bugs, internal errors, or incomplete reasons. Warnings can still be present. |
 | Incomplete | `1` | The exploration found no bugs, but detected limitations to its coverage that are described by [`Reasons`](./ExplorationVerdict/Reasons.md). |
 | BugFound | `2` | The exploration found at least one bug. |
 | InternalError | `3` | The exploration terminated with at least one internal error. |

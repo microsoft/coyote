@@ -43,8 +43,11 @@ starts, but there is one schedule where the task starts fast enough to set `valu
 the assertion to fail. Of course, this is a very naive example and the bug is obvious, but you could
 imagine much more complicated race conditions that are hidden in complex execution paths.
 
-The way Coyote works, is that you first convert the above test to a concurrency unit test using the
-Coyote `TestingEngine` API:
+The example below uses the exploration verdict API. The published `1.7.11` packages do not include
+this API, the strict CLI options, or machine-readable JSON reports. Use the CLI and libraries
+[built from the same source revision](docs/get-started/build-source.md).
+
+Use the Coyote `TestingEngine` API to turn the above test into a concurrency unit test:
 ```csharp
 using Microsoft.Coyote;
 using Microsoft.Coyote.SystematicTesting;
@@ -70,15 +73,10 @@ beginning to the end for N iterations (in the above example N was configured to 
 hood, Coyote uses intelligent search strategies to explore all kinds of execution paths that might
 hide a bug in each iteration.
 
-The awesome thing is that once a bug is found, Coyote gives you a trace through the `engine.TestReport`
-API that you can use to reliably *reproduce* the bug as many times as you want, making debugging and
-fixing the issue significantly easier.
+When a reproducible trace is available, read it from `engine.ReproducibleTrace` and use it to
+[replay the bug](docs/get-started/using-coyote.md#reproducing-and-debugging-traces).
 
 ## Exploration verdicts and CI
-
-This branch adds exploration verdicts, strict CLI options and machine-readable JSON reports. These
-additions are not included in the published `1.7.11` packages. Use the CLI and libraries built from
-the same revision; see [building from source](docs/get-started/build-source.md).
 
 Finding zero bugs does not necessarily mean that a test explored useful interleavings. For example,
 execution paths can reach a scheduling-step limit, or the test can execute without making any
@@ -86,7 +84,7 @@ scheduling decisions. Inspect the exploration verdict as well as the bug count:
 
 | Verdict | Meaning |
 | --- | --- |
-| `Complete` | No bug or reported exploration limitation was detected under the configured strategy and bounds. |
+| `Complete` | The exploration reported no bugs, internal errors, or incomplete reasons. Warnings can still be present. |
 | `Incomplete` | No bug was found, but exploration had limitations listed in `reasons`. |
 | `BugFound` | At least one bug was found; `bugs.reports` contains the diagnostic messages. |
 | `InternalError` | The test report contains an internal testing error. |
@@ -95,13 +93,19 @@ scheduling decisions. Inspect the exploration verdict as well as the bug count:
 include incomplete reasons that affect confidence in reproducing the bug. Internal errors and bugs
 take priority over an incomplete verdict.
 
-For CI, rewrite the test and production binaries as described above, then enable strict exploration
-and JSON output:
+For CI with `coyote test`, use an assembly with a [Coyote test entry point](docs/get-started/using-coyote.md#test-entry-point).
+The CLI discovers methods marked with `[Microsoft.Coyote.SystematicTesting.Test]`. If the assembly
+has multiple Coyote tests, use `--method` to select one. When the test and the code under test are
+in the same assembly, rewrite that assembly and run:
 
 ```plain
 coyote rewrite path/to/Tests.dll
 coyote test path/to/Tests.dll --iterations 1000 --strict --json-report
 ```
+
+To rewrite multiple assemblies, list them in a [rewrite configuration](docs/concepts/binary-rewriting.md#configuration)
+and pass it to `coyote rewrite`. If the configuration sets a separate output directory, point
+`coyote test` at the rewritten test assembly in that directory.
 
 The CLI normally returns `0` when no bugs were found, `2` when a bug was found, and `3` for an
 internal testing error. With `--strict`, an `Incomplete` verdict returns `4` instead of `0`.
@@ -178,7 +182,7 @@ exploration. For more details, see [machine-readable results](docs/get-started/u
 
 Getting started with Coyote is easy! First, follow this
 [guide](https://microsoft.github.io/coyote/#get-started/install/) to install the `coyote`
-command-line tool from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). You are now ready
+command-line tool from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote.CLI/). You are now ready
 to check out the Coyote [website](https://microsoft.github.io/coyote/) for tutorials, documentation,
 how-tos, samples and more information about the project. Enjoy!
 

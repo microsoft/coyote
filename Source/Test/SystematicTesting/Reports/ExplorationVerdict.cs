@@ -55,7 +55,8 @@ namespace Microsoft.Coyote.SystematicTesting
     public enum ExplorationStatus
     {
         /// <summary>
-        /// The exploration found no bugs and detected no limitation to its coverage.
+        /// The exploration reported no bugs, internal errors, or incomplete reasons.
+        /// Warnings can still be present.
         /// </summary>
         Complete = 0,
 

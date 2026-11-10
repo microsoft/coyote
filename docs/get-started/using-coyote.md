@@ -170,8 +170,9 @@ and warnings still apply. When reports are merged, exhaustion is retained only i
 with explored paths recorded it. Reports with no explored paths are neutral for exhaustion,
 but their recorded limitations still apply. Merged verdicts use the destination configuration
 and aggregate path counts, so they do not establish that each contributing run met its own budget.
-`Complete` means that no bug or reported exploration limitation was detected under the configured
-strategy and bounds; it does not prove that every possible program execution was explored.
+A `Complete` verdict means the exploration reported no bugs, internal errors, or incomplete reasons.
+Warnings can still be present. This verdict does not prove that every possible program execution was
+explored.
 
 The timeout ends the wait for testing; it does not synchronously terminate arbitrary user
 initialization or an iteration still running in the background. Reports use the statistics

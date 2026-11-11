@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="ExternalCode" Bounds="755.715,0,129.7,85.96" Group="Expanded" />
+    <Node Id="ExternalCode.ExternalCode" Bounds="775.715,40,89.7,25.96" Label="ExternalCode" />
+    <Node Id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" Category="StateMachine" Bounds="0,117.6475,375.13,157.88" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Active" Bounds="161.425,157.6475,52.28,25.96" Label="Active" />
+    <Node Id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Halt" Bounds="162.565,229.5675,50,25.96" Label="Halt" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.MockClient" Category="Actor" Bounds="79.2383333333332,343.175,330.653333333333,157.88" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.MockClient.Halt" Bounds="164.72,455.095,50,25.96" Label="Halt" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.MockClient.MockClient" Bounds="244.72,383.175,79.6900000000001,25.96" Label="MockClient" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.MockClient.null" Bounds="164.72,383.175,50,25.96" Label="null" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager" Category="StateMachine" Bounds="405.41,153.6075,384.31,85.96" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Bounds="572.565,193.6075,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor" Category="Monitor" Bounds="851.503333333333,153.6075,346.123333333333,85.96" Group="Expanded" Label="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring" Bounds="1059.69666666667,193.6075,79.5366666666669,25.96" Label="Monitoring" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server" Category="StateMachine" Bounds="440.160921492205,307.215,470.80815701559,229.8" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Bounds="528.854254825538,347.215,73.8166666666667,25.96" Label="Candidate" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Bounds="653.334254825538,491.055,64.8566666666666,25.96" Label="Follower" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" Bounds="703.762588158871,419.135,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Bounds="603.987588158872,419.135,55.55,25.96" Label="Leader" />
+  </Nodes>
+  <Links>
+    <Link Source="ExternalCode" Target="ExternalCode" Category="Contains" Bounds="712.215026855469,21.7220935821533,43.5,41.8734455108643" />
+    <Link Source="ExternalCode" Target="ExternalCode.ExternalCode" Category="Contains" />
+    <Link Source="ExternalCode" Target="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring" EventId="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor+NotifyLeaderElected" Label="NotifyLeaderElected" />
+    <Link Source="ExternalCode.ExternalCode" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" EventId="Microsoft.Coyote.Samples.CloudMessaging.RegisterClientEvent" HandledBy="Init" Label="RegisterClientEvent" />
+    <Link Source="ExternalCode.ExternalCode" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Index="1" EventId="Microsoft.Coyote.Samples.CloudMessaging.RegisterServerEvent" HandledBy="Init" Label="RegisterServerEvent" />
+    <Link Source="ExternalCode.ExternalCode" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" EventId="Microsoft.Coyote.Samples.CloudMessaging.NotifyJoinedServiceEvent" HandledBy="Init" Label="NotifyJoinedServiceEvent" />
+    <Link Source="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" Target="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Active" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" Target="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Halt" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Active" Target="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Halt" Category="halt" Bounds="187.565002441406,183.607498168945,0,36.9600067138672" EventId="Microsoft.Coyote.Actors.HaltEvent" Label="halt" LabelBounds="167.695,198.6075,19.87,15.96" />
+    <Link Source="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Active" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClient.MockClient" Category="timer_elapsed" EventId="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" Label="timer_elapsed" />
+    <Link Source="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Active" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Category="timer_elapsed" EventId="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" HandledBy="Candidate" Label="timer_elapsed" />
+    <Link Source="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Active" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Category="timer_elapsed" EventId="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" HandledBy="Follower" Label="timer_elapsed" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClient" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClient.Halt" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClient" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClient.MockClient" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClient" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClient.null" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClient.MockClient" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" EventId="Microsoft.Coyote.Samples.CloudMessaging.ClientRequestEvent" HandledBy="Init" Label="ClientRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClient.null" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClient.Halt" Category="halt" Bounds="189.720001220703,409.135009765625,0,36.9599914550781" EventId="Microsoft.Coyote.Actors.HaltEvent" Label="halt" LabelBounds="169.85,424.135,19.87,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClient.MockClient" EventId="Microsoft.Coyote.Samples.CloudMessaging.ClientResponseEvent" Label="ClientResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Index="3" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteRequestEvent" HandledBy="Candidate" Label="VoteRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Index="1" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesRequestEvent" HandledBy="Candidate" Label="AppendLogEntriesRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteResponseEvent" HandledBy="Candidate" Label="VoteResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Index="2" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesResponseEvent" HandledBy="Candidate" Label="AppendLogEntriesResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Index="2" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesResponseEvent" HandledBy="Follower" Label="AppendLogEntriesResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Index="1" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesRequestEvent" HandledBy="Follower" Label="AppendLogEntriesRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteRequestEvent" HandledBy="Follower" Label="VoteRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Index="3" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteResponseEvent" HandledBy="Follower" Label="VoteResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Index="4" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesRequestEvent" HandledBy="Leader" Label="AppendLogEntriesRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteResponseEvent" HandledBy="Leader" Label="VoteResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Index="1" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesResponseEvent" HandledBy="Leader" Label="AppendLogEntriesResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Index="2" EventId="Microsoft.Coyote.Samples.CloudMessaging.ClientRequestEvent" HandledBy="Leader" Label="ClientRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Index="3" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteRequestEvent" HandledBy="Leader" Label="VoteRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor" Target="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring" Target="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring" Bounds="1016.19665527344,200.097503662109,43.5,12.9277801513672" EventId="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor+NotifyLeaderElected" Label="NotifyLeaderElected" LabelBounds="909.896666666667,198.6075,106.3,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteRequestEvent" HandledBy="Init" Label="VoteRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Index="2" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteResponseEvent" HandledBy="Init" Label="VoteResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Index="1" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesResponseEvent" HandledBy="Init" Label="AppendLogEntriesResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Category="goto" Bounds="485.354248046875,353.704986572266,43.5,12.9447937011719" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="460.160921492205,352.215,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Category="goto" Bounds="565.762573242188,373.174987792969,78.950439453125,118.558837890625" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="540.615561199681,424.129767339342,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Category="goto" Bounds="579.770141601563,373.174987792969,36.7349243164063,38.7916259765625" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="604.569254825538,388.175,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Index="1" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesResponseEvent" HandledBy="Init" Label="AppendLogEntriesResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteResponseEvent" HandledBy="Init" Label="VoteResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Category="goto" Bounds="501.762573242188,377.583618164063,151.571655273438,120.11376953125" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="476.569254825538,424.135,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Index="1" Category="goto" Bounds="686.028076171875,445.095001220703,27.21337890625,36.9639282226563" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="661.600261621784,460.421471759191,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Bounds="724.5732421875,445.095001220703,32.7525024414063,42.6846618652344" EventId="Microsoft.Coyote.Samples.CloudMessaging.NotifyJoinedServiceEvent" HandledBy="Init" Label="NotifyJoinedServiceEvent" LabelBounds="757.825745174462,460.095,133.143333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Index="2" EventId="Microsoft.Coyote.Samples.CloudMessaging.VoteResponseEvent" HandledBy="Init" Label="VoteResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" Index="1" EventId="Microsoft.Coyote.Samples.CloudMessaging.ClientResponseEvent" HandledBy="Init" Label="ClientResponseEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Target="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init" EventId="Microsoft.Coyote.Samples.CloudMessaging.AppendLogEntriesRequestEvent" HandledBy="Init" Label="AppendLogEntriesRequestEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Category="goto" Bounds="626.0869140625,445.095001220703,28.7281494140625,41.5513610839844" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="600.872155001419,459.101533528359,25.1933333333334,15.96" />
+  </Links>
+  <Categories>
+    <Category Id="Actor" />
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+    <Category Id="Monitor" />
+    <Category Id="StateMachine" />
+    <Category Id="goto" />
+    <Category Id="halt" />
+    <Category Id="timer_elapsed" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="EventId" DataType="System.String" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="HandledBy" DataType="System.String" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Error" ValueLabel="True">
+      <Condition Expression="HasCategory('Error')" />
+      <Setter Property="Background" Value="#FFC15656" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Actor" ValueLabel="True">
+      <Condition Expression="HasCategory('Actor')" />
+      <Setter Property="Background" Value="#FF57AC56" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Monitor" ValueLabel="True">
+      <Condition Expression="HasCategory('Monitor')" />
+      <Setter Property="Background" Value="#FF558FDA" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="halt" ValueLabel="True">
+      <Condition Expression="HasCategory('halt')" />
+      <Setter Property="Stroke" Value="#FFFF6C6C" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="push" ValueLabel="True">
+      <Condition Expression="HasCategory('push')" />
+      <Setter Property="Stroke" Value="#FF7380F5" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="pop" ValueLabel="True">
+      <Condition Expression="HasCategory('pop')" />
+      <Setter Property="Stroke" Value="#FF7380F5" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+  </Styles>
+</DirectedGraph>

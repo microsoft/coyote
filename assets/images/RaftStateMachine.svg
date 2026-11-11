@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="592.00999999999988" height="519.16750000000047" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="592.00999999999988" height="519.16750000000047" fill="#1E1E1E" />
+  <g transform="translate(20,20)">
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.Server">
+      <rect rx="5" ry="5" width="552.00999999999988" height="479.16750000000047" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="144" y="17.950000000000003" fill="#000000">Microsoft.Coyote.Samples.CloudMessaging.Server</text>
+      <rect x="5" y="27.96" width="542.00999999999988" height="446.20750000000049" fill="#1E1E1E" stroke="#A5A6A9" stroke-width="1" />
+      <g id="944b151a-5736-40d5-8851-dff5e6bb6c201-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Init">
+        <path d="M 164.12,81.9200000000001 L 164.12,104.6075" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 164.12,113.6075 L 168.12,103.6075 C 165.453333333333,104.6075 162.786666666666,104.6075 160.12,103.6075 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="HandlesClientRequestEvent-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Leader">
+        <path d="M 322.900976220276,299.3675 L 225.350705957414,342.668981077793" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 217.124706822916,346.320410693606 L 227.887563468275,345.919266291368 C 225.89165849309,343.887647616237 224.809753421738,341.450314539349 224.641848254219,338.607267060703 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <path d="M 177.417678652708,265.4275 L 168.62,256.4375 C 155.562132156684,243.094181092203 150.803730043609,230.854691126527 154.344793660774,219.719030102974" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 157.983737486095,211.4875 L 150.282008745528,219.01633619205 C 153.125307719593,219.179927314037 155.564279601956,220.25813289191 157.598924392616,222.250952925669 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="104.59166666666658" y="239.43750000000017" fill="#A0A0A0">demoted</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Leader">
+        <path d="M 190.12,291.3875 L 190.12,336.327500000001" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 190.12,345.327500000001 L 194.12,335.327500000001 C 191.453333333333,336.327500000001 188.786666666666,336.327500000001 186.12,335.327500000001 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="101.21333333333354" y="327.31750000000028" fill="#A0A0A0">majority of votes</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate">
+        <path d="M 188.855153874675,211.4875 L 198.383333333333,216.4875 C 221.225555555555,228.474166666667 225.558888888889,241.790833333334 211.383333333333,256.4375 L 208.941600733085,258.960381261677" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 202.682497344864,265.4275 L 212.511331659919,261.023636241073 C 209.899692398021,259.88765583771 207.983509068148,258.033106685645 206.762781670299,255.459988784877 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="220.02589566574596" y="239.43750000000006" fill="#A0A0A0">timeout</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Init-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <path d="M 164.12,139.5675 L 164.12,176.5275" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 164.12,185.5275 L 168.12,175.5275 C 165.453333333333,176.5275 162.786666666666,176.5275 160.12,175.5275 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="30.9766666666668" y="167.5175000000001" fill="#A0A0A0">NotifyJoinedServiceEvent</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <path d="M 162.345,350.120704918033 L 129.12,340.327500000001 C 88.4533333333332,328.340833333334 68.1199999999998,307.700833333334 68.1199999999998,278.4075 C 68.1199999999998,249.114166666667 84.1199999999998,228.474166666667 116.12,216.4875 L 123.950089066016,213.554479137355" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 132.378205638246,210.397447138007 L 121.610506336059,210.159430882958 C 123.482380621669,212.305869274802 124.417797510364,214.803088999907 124.416757002145,217.651090058273 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="20" y="283.37750000000023" fill="#A0A0A0">demoted</text>
+      </g>
+      <g id="SendsVoteRequestEvents-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate">
+        <path d="M 305.12,211.4875 L 305.12,216.4875 C 305.12,228.474166666667 285.953333333333,241.790833333334 247.62,256.4375 L 232.496894863723,262.215841214678" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 224.089682617408,265.428127354705 L 234.858712286659,265.595459308593 C 232.97278910669,263.461354140058 232.021000620756,260.970328289298 232.003346828857,258.122381756313 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="944b151a-5736-40d5-8851-dff5e6bb6c201">
+        <rect x="43.198333333333267" y="40" rx="2" ry="2" width="241.84333333333302" height="41.920000000000016" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+        <g>
+          <text x="53.198333333333267" y="57.95" fill="#3D3D3D">Start state where all events are deferred </text>
+          <text x="53.198333333333267" y="73.91" fill="#3D3D3D">until we get the NotifyJoinedServiceEvent.</text>
+        </g>
+      </g>
+      <g id="AnyStateExceptInitCanHandleAppendLogEntriesResponseEvent">
+        <rect x="20" y="401.28750000000059" rx="2" ry="2" width="241.41999999999996" height="57.879999999999995" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+        <g>
+          <text x="30" y="419.23750000000058" fill="#3D3D3D">Any state except Init can handle </text>
+          <text x="30" y="435.19750000000056" fill="#3D3D3D">AppendLogEntriesRequestEvents, sending </text>
+          <text x="30" y="451.15750000000054" fill="#3D3D3D">back AppendLogEntriesResponseEvents</text>
+        </g>
+      </g>
+      <g id="HandlesClientRequestEvent">
+        <rect x="257.80666666666633" y="257.44750000000022" rx="2" ry="2" width="224.626666666667" height="41.920000000000073" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+        <g>
+          <text x="267.80666666666633" y="275.39750000000021" fill="#3D3D3D">Handles ClientRequestEvent and sends </text>
+          <text x="267.80666666666633" y="291.35750000000019" fill="#3D3D3D">AppendLogEntriesRequestEvent</text>
+        </g>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate">
+        <rect x="153.21166666666653" y="265.42750000000024" rx="3" ry="3" width="73.8166666666666" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="163.21166666666653" y="283.37750000000023" fill="#3D3D3D">Candidate</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <rect x="131.69166666666646" y="185.52750000000015" rx="3" ry="3" width="64.856666666666683" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="141.69166666666646" y="203.47750000000013" fill="#3D3D3D">Follower</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Init">
+        <rect x="139.11999999999978" y="113.60750000000007" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="155.11999999999978" y="131.55750000000006" fill="#3D3D3D">Init</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader">
+        <rect x="162.34499999999986" y="345.32750000000055" rx="3" ry="3" width="55.549999999999955" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="172.34499999999986" y="363.27750000000054" fill="#3D3D3D">Leader</text>
+      </g>
+      <g id="SendsVoteRequestEvents">
+        <rect x="227.42499999999978" y="185.52750000000015" rx="2" ry="2" width="155.39" height="25.960000000000036" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+        <text x="237.42499999999978" y="203.47750000000013" fill="#3D3D3D">Sends VoteRequestEvents</text>
+      </g>
+      <g id="SendsVoteResponseEvents">
+        <rect x="291.4199999999999" y="401.28750000000059" rx="2" ry="2" width="240.58999999999986" height="41.920000000000073" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+        <g>
+          <text x="301.4199999999999" y="419.23750000000058" fill="#3D3D3D">Any state handles VoteRequestEvents and </text>
+          <text x="301.4199999999999" y="435.19750000000056" fill="#3D3D3D">sends back VoteResponseEvents.</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

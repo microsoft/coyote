@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/concepts/actors/state-machines/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>State machines - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "State machines", url: "#_top", children: [
+              {title: "Goto, push and pop states", url: "#goto-push-and-pop-states" },
+              {title: "Only one Raise* operation per action", url: "#only-one-raise-operation-per-action" },
+              {title: "Deferring and ignoring events", url: "#deferring-and-ignoring-events" },
+              {title: "Default events", url: "#default-events" },
+              {title: "WildCard events", url: "#wildcard-events" },
+          ]},
+          {title: "Precise semantics", url: "#precise-semantics", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../actor-semantics/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../actor-semantics/" class="btn btn-xs btn-link">
+        Actor semantics
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../overview/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../overview/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="state-machines">State machines</h2>
+<p>A Coyote state machine is a special type of <code>Actor</code> that inherits from the <code>StateMachine</code> class
+which lives in the <code>Microsoft.Coyote.Actors</code> namespace. A state machine adds <code>State</code> semantics with
+explicit information about how <code>Events</code> can trigger <code>State</code> changes in a <code>StateMachine</code>. You can
+write a state machine version of the <code>Server</code> class shown in <a href="../overview/">Programming model: asynchronous
+actors</a> like this:</p>
+<pre><code class="language-csharp">class ReadyEvent : Event { }
+
+class Server : StateMachine
+{
+    [Start]
+    [OnEntry(nameof(InitOnEntry))]
+    [OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
+    class Init : State { }
+
+    void InitOnEntry()
+    {
+        this.RaiseEvent(new ReadyEvent());
+    }
+
+    [OnEventDoAction(typeof(PingEvent), nameof(HandlePing))]
+    class Active : State { }
+
+    void HandlePing(Event e)
+    {
+        var pe = (PingEvent)e;
+        Console.WriteLine(&quot;Server received ping event from {0}&quot;, pe.Caller.Name);
+        this.SendEvent(pe.Caller, new PongEvent());
+    }
+}
+</code></pre>
+<p>The above class declares a state machine named <code>Server</code>. The <code>StateMachine</code> class itself inherits
+from <code>Actor</code> so state machines are also actors and, of course, state machines are also normal C#
+classes. <code>Actors</code> and <code>StateMachines</code> can talk to each other by sending events. State machines in
+Coyote must also declare one or more <em>states</em> where a state is a nested class that inherits from the
+coyote <code>State</code> class which is a nested class inside <code>StateMachine</code>. The nested state classes can be
+private.</p>
+<p>The above code snippet declares two states in the <code>Server</code> machine: <code>Init</code> and <code>Active</code>. You must
+use the <code>Start</code> attribute to declare one of the states the <em>initial</em> state, which will be the first
+state that the machine will transition to upon initialization. In this example, the <code>Init</code> state has
+been declared as the initial state of <code>Server</code>. A state declaration can optionally be decorated with
+a number of state-specific attributes, as seen in the <code>[Init]</code> state:</p>
+<pre><code class="language-csharp">[OnEntry(nameof(InitOnEntry))]
+[OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
+</code></pre>
+<p>The <code>OnEntry</code> attribute denotes an action that will be executed when the machine transitions to the
+<code>Init</code> state, while the <code>OnExit</code> attribute denotes an action that will be executed when the machine
+leaves the state. Actions in Coyote are C# methods that take either no input parameters or a single
+input parameter of type <code>Event</code>, and return either <code>void</code> or <code>async Task</code>. <code>OnExit</code> actions cannot
+receive an Event argument. Note that Coyote actions are also referred to as event handlers, however
+these should not be confused with the <code>System.EventHandler</code>, which have a different prototype.</p>
+<p>Notice that the <code>InitOnEntry</code> method declared above is similar to the original <code>OnInitializeAsync</code>
+method on the <code>Server</code> Actor. The <code>RaiseEvent</code> call is used to trigger the state transition defined
+in the <code>OnEventGotoState</code> custom attribute, in this case it is ready to transition to the <code>Active</code>
+state:</p>
+<pre><code class="language-csharp">this.RaiseEvent(new ReadyEvent());
+</code></pre>
+<p>The <code>RaiseEvent</code> call is used to send an event to yourself. Similar to <code>SendEvent</code>, when a machine
+raises an event on itself, it is also queued so that the method can continue execution until the
+<code>InitOnEntry</code> method is completed. When control returns to the coyote runtime, instead of dequeuing
+the next event from the inbox (if there is one), the machine immediately handles the raised event
+(so raised events are prioritized over any events in the inbox). This prioritization is important in
+the above case, because it guarantees that the Server will transition to the <code>Active</code> state before
+the <code>PingEvent</code> is received from the <code>Client</code>.</p>
+<p>The attribute <code>OnEventGotoState</code> indicates that if the state machine receives the <code>ReadyEvent</code> event
+while it is currently in the <code>Init</code> state, it will automatically handle the <code>ReadyEvent</code> by exiting
+the <code>Init</code> state and transitioning to the <code>Active</code> state. This saves you from having to write that
+trivial event handler logic.</p>
+<p>All this happens as a result of the simple <code>RaiseEvent</code> call and the <code>OnEventGotoState</code> attribute.
+The Coyote state machine programming model takes a lot of tedium out of managing explicit state
+machinery. If you ever find yourself building your own state machinery, then you definitely should
+consider using the Coyote state machine class instead. Note that on a given <code>State</code> of a state
+machine, you can only define one handler for a given event type.</p>
+<p>When you run this new <code>StateMachine</code> based <code>Server</code> you will see the same output as before, with the
+addition of the state information from <code>HandlePong</code>:</p>
+<pre><code class="language-plain">Program+Client(2) initializing
+Program+Client(2) sending ping event to server
+Program+Client(1) initializing
+Program+Client(1) sending ping event to server
+Program+Client(3) initializing
+Program+Client(3) sending ping event to server
+Server received ping event from Program+Client(2)
+Server received ping event from Program+Client(1)
+Server received ping event from Program+Client(3)
+Program+Client(2) received pong event
+Program+Client(3) received pong event
+Program+Client(1) received pong event
+</code></pre>
+<p>Unlike Actors which declare the events they can receive at the class level, <code>StateMachines</code> can also
+declare this information on the <code>States</code>. This gives <code>StateMachines</code> more fine grained control, for
+example, perhaps you want your state machine to only be able to receive a certain type of event when
+it is in a particular state. In an Actor you would need to check this yourself and throw an
+exception, whereas in a state machine this is more declarative and is enforced by the Coyote
+runtime; the Coyote runtime will report an error if an event is received on a <code>State</code> of a
+<code>StateMachine</code> that was not expecting to receive that event. This reduces the amount of tedious book
+keeping code you need to write, and keeps your code even cleaner.</p>
+<p>For an example of a state machine in action see the <a href="../state-machine-demo/">state machine demo</a>.</p>
+<h3 id="goto-push-and-pop-states">Goto, push and pop states</h3>
+<p>Besides <code>RaiseEvent</code>, state machine event handlers can request a state change in code rather than
+depending on <code>OnEventGotoState</code> attributes. This allows <em>conditional</em> goto operations as shown in
+the following example:</p>
+<pre><code class="language-csharp">void InitOnEntry()
+{
+    if (this.Random())
+    {
+        this.RaiseGotoStateEvent&lt;Active&gt;();
+    }
+    else
+    {
+        this.RaiseGotoStateEvent&lt;Busy&gt;();
+    }
+}
+</code></pre>
+<p>State machines can also push and pop states, effectively creating a stack of active states. Use
+<code>[OnEventPushState(...)]</code> or <code>RaisePushStateEvent</code> in code to push a new state:</p>
+<pre><code class="language-csharp">this.RaisePushStateEvent&lt;Active&gt;();
+</code></pre>
+<p>This will push the <code>Active</code> state on the stack, but it will also inherit some actions declared on
+the <code>Init</code> state. The <code>Active</code> state can pop itself off the stack, returning to the <code>Init</code> state
+using a <code>RaisePopStateEvent</code> call:</p>
+<pre><code class="language-csharp">void HandlePing()
+{
+    Console.WriteLine(&quot;Server received ping event while in the {0} state&quot;, 
+        this.CurrentState.Name);
+    // pop the current state off the stack of active states.
+    this.RaisePopStateEvent();  
+}
+</code></pre>
+<p>Note that this does not result in the <code>OnEntry</code> method being called again, because you never
+actually exited the <code>Init</code> state in this case. But if you used <code>RaiseGotoStateEvent</code> instead of
+<code>RaisePushStateEvent</code> and <code>RaisePopStateEvent</code> then <code>InitOnEntry</code> will be called again, and that
+would make our <code>Server</code> toggle back and forth between the <code>Init</code> and <code>Active</code> states.</p>
+<p>The push and pop feature is considered an advanced feature of state machines. It is designed to help
+you reuse some of your event handling code, where you can put &ldquo;common event handling&rdquo; in lower
+states and more specific event handling in pushed states. If an event handler is defined more than
+once in the stack, the one closest to the top of the stack is used.</p>
+<h3 id="only-one-raise-operation-per-action">Only one Raise* operation per action</h3>
+<p>There is an important restriction on the use of the following. Only one of these operations can be
+queued up per event handling action:</p>
+<pre><code class="language-csharp">RaiseEvent
+RaiseGotoStateEvent
+RaisePushStateEvent
+RaisePopStateEvent
+RaiseHaltEvent
+</code></pre>
+<p>A runtime <code>Assert</code> will be raised if you accidentally try and do two of these operations in a single
+action. For example, this would be an error because you are trying to do two <code>Raise</code> operations in
+the <code>InitOnEntry</code> action:</p>
+<pre><code class="language-csharp">void InitOnEntry()
+{
+    this.RaiseGotoStateEvent&lt;Active&gt;();
+    this.RaiseEvent(new TestEvent());
+}
+</code></pre>
+<h3 id="deferring-and-ignoring-events">Deferring and ignoring events</h3>
+<p>Coyote also provides the capability to <em>defer</em> and <em>ignore</em> events while in a particular state:</p>
+<pre><code class="language-csharp">[DeferEvents(typeof(PingEvent), typeof(PongEvent))]
+[IgnoreEvents(typeof(ReadyEvent))]
+class SomeState : State { }
+</code></pre>
+<p>The attribute <code>DeferEvents</code> indicates that the <code>PingEvent</code> and <code>PongEvent</code> events should not be
+dequeued while the machine is in the state <code>SomeState</code>. Instead, the machine should skip over
+<code>PingEvent</code> and <code>PongEvent</code> (without dropping these events from the queue) and dequeue the next
+event that is not being deferred. Note that when a state decides to defer an event a subsequent
+pushed state can choose to receive that event if it wants to, but if the pushed state chooses not to
+receive the event then it is not an error and it remains deferred.</p>
+<p>The attribute <code>IgnoreEvents</code> indicates that whenever <code>ReadyEvent</code> is dequeued while the machine is
+in <code>SomeState</code>, then the machine should drop <code>ReadyEvent</code> without invoking any action. Note that
+when a state decides to ignore an event a subsequent pushed state can choose to receive that event
+if it wants to, but if the pushed state chooses not to receive the event then it is not an error and
+the event will be ignored and dropped.</p>
+<h3 id="default-events">Default events</h3>
+<p>State machines support an interesting concept called <em>default events</em>. A state can request that
+something be done by default when there is <em>nothing else</em> to do.</p>
+<pre><code class="language-csharp">[OnEventDoAction(typeof(DefaultEvent), nameof(OnIdle))]
+class Idle : State { }
+
+public void OnIdle()
+{
+    Console.WriteLine(&quot;OnIdle&quot;);
+}
+</code></pre>
+<p>The Coyote runtime will invoke this action handler when <code>Idle</code> is the current active state and the
+state machine has nothing else to do (the inbox has no events that can be processed). If nothing
+else happens, (no other actionable events are queued on this state machine) then the <code>OnIdle</code> method
+will be called over and over until something else changes. It is more efficient to use
+<code>CreatePeriodicTimer</code> for low priority work.</p>
+<p>Default events can also invoke goto, and push state transitions, which brings up an interesting case
+where you can actually implement an infinite ping pong using the following:</p>
+<pre><code class="language-csharp">internal class PingPongMachine : StateMachine
+{
+    [Start]
+    [OnEntry(nameof(OnPing))]
+    [OnEventGotoState(typeof(DefaultEvent), typeof(Pong))]
+
+    public class Ping : State { }
+
+    public void OnPing()
+    {
+        Console.WriteLine(&quot;OnPing&quot;);
+    }
+
+    [OnEntry(nameof(OnPong))]
+    [OnEventGotoState(typeof(DefaultEvent), typeof(Ping))]
+    public class Pong : State { }
+
+    void OnPong()
+    {
+        Console.WriteLine(&quot;OnPong&quot;);
+    }
+}
+</code></pre>
+<p>The difference between this and a timer based ping-pong is that this will run as fast as the Coyote
+runtime can go. So you have to be careful using <code>DefaultEvents</code> like this as it could use up a lot
+of CPU time.</p>
+<h3 id="wildcard-events">WildCard events</h3>
+<p>State machines also support a special <code>WildcardEvent</code> which acts as a special pattern matching event
+that matches all event types. This means you can create generic actions, or state transitions as a
+result of receiving any event (except the <code>DefaultEvent</code>).</p>
+<p>The following example shows how the <code>WildcardEvent</code> can be used:</p>
+<pre><code class="language-csharp">internal class WildMachine : StateMachine
+{
+    [Start]
+    [OnEntry(nameof(OnInit))]
+    [OnEventGotoState(typeof(WildCardEvent), typeof(CatchAll))]
+
+    public class Init : State { }
+
+    public void OnInit()
+    {
+        Console.WriteLine(&quot;Entering state {0}&quot;, this.CurrentStateName);
+    }
+
+    [OnEntry(nameof(OnInit))]
+    [OnEntry(nameof(OnCatchAll))]
+    [OnEventDoAction(typeof(WildCardEvent), nameof(OnCatchAll))]
+    public class CatchAll : State { }
+
+    void OnCatchAll(Event e)
+    {
+        Console.WriteLine(&quot;Catch all state caught event of type {0}&quot;, e.GetType().Name);
+    }
+}
+</code></pre>
+<p>The client of this state machine can send any event it wants and it will cause a transition to the
+<code>CatchAll</code> state where it will be handled by the <code>OnCatchAll</code> method. For example:</p>
+<pre><code class="language-csharp">class X : Event { };
+var actor = runtime.CreateActor(typeof(WildMachine));
+runtime.SendEvent(actor, new X());
+</code></pre>
+<p>And the output of this test is:</p>
+<pre><code class="language-plain">Entering state Init
+Entering state CatchAll
+Catch all state caught event of type X
+</code></pre>
+<h2 id="precise-semantics">Precise semantics</h2>
+<p>There is a lot of interesting combinations of things that you can do with <code>DeferEvents</code>,
+<code>IgnoreEvents</code>, <code>OnEventDoAction</code>,  <code>OnEventGotoState</code> or <code>OnEventPushState</code> and  <code>WildcardEvent</code>.
+The following gives the precise semantics of these operations with regards to push and pop.</p>
+<p>First of all only one action per specific event type can be defined on a given <code>State</code>, so the
+following would be an error:</p>
+<pre><code class="language-csharp">[DeferEvents(typeof(E1), typeof(E2))]
+[OnEventDoAction(typeof(E1), nameof(HandleE1))]
+class SomeState : State { }
+</code></pre>
+<p>Because the <code>E1</code> has both a <code>DeferEvents</code> and <code>OnEventDoAction</code> defined on the same state.</p>
+<p>Second, a pushed state inherits <code>DeferEvents</code>, <code>IgnoreEvents</code>, <code>OnEventDoAction</code> actions from all
+previous states on the active state stack, but it <strong>does not</strong> inherit <code>OnEventGotoState</code> or
+<code>OnEventPushState</code> actions.</p>
+<p>If multiple states on the stack of active states define an action for a specific event type then the
+action closest to the top of the stack takes precedence. For example:</p>
+<pre><code class="language-csharp">[DeferEvents(typeof(E1))]
+[OnEventPushState(typeof(E1), typeof(S2))]
+class A : State { }
+
+[OnEventDoAction(typeof(E1), nameof(HandleE1))]
+class B : State { }
+</code></pre>
+<p>In state <code>B</code> the <code>OnEventDoAction</code> takes precedence over the inherited <code>DeferEvents</code> for event <code>E1</code>.</p>
+<p>On a given state actions defined for a specific event type take precedence over actions involving
+<code>WildcardEvent</code> but a pushed state can override a specific event type action with a
+<code>WildcardEvent</code> action.</p>
+<p>If an event cannot be handled by a pushed state then that state is automatically popped so handling
+can be attempted again on the lower states. If this auto-popping pops all states then an unhandled
+event error is raised.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../actor-semantics/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../actor-semantics/" class="btn btn-xs btn-link">
+        Actor semantics
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../overview/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../overview/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

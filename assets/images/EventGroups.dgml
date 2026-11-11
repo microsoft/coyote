@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" Offset="-294.631666666666,-185.33625" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="A" Bounds="247.145,57.6475,50,25.96" />
+    <Node Id="B" Bounds="153.145,129.5675,50,25.96" />
+    <Node Id="C" Bounds="125.145,209.4675,50,25.96" />
+    <Node Id="CreateActor(&quot;A&quot;,Op)" Bounds="211.399996643066,-4.57763672301326E-07,120.23,25.96" Label="CreateActor(&quot;A&quot;, g)" />
+    <Node Id="CurrentOperation==Op" Category="Comment" Bounds="104,57.6475,112.29,25.96" Label="EventGroup == g" />
+    <Node Id="CurrentOperation==Op1" Category="Comment" Bounds="0,129.5675,112.29,25.96" Label="EventGroup == g" />
+    <Node Id="CurrentOperation==Op2" Category="Comment" Bounds="361.629996643066,29.9999995422363,112.29,25.96" Label="EventGroup == g" UseManualLocation="True" />
+    <Node Id="CurrentOperation==OpWhenEventIsDequeued" Category="Comment" Bounds="306.566666666667,201.4875,149.156666666667,41.92" Label="EventGroup == g &#xD;&#xA;when event is dequeued" />
+    <Node Id="D" Bounds="356.145,289.3675,50,25.96" />
+    <Node Id="E" Bounds="226.145,209.4675,50,25.96" />
+    <Node Id="EventGroup==G" Category="Comment" Bounds="234,129.5675,112.29,25.96" Label="EventGroup == g" />
+  </Nodes>
+  <Links>
+    <Link Source="A" Target="B" Bounds="202.257797241211,83.6074981689453,52.9222412109375,40.4911422729492" Label="CreateActor" LabelBounds="225.145,98.6075000000001,62.8833333333333,15.96" />
+    <Link Source="B" Target="C" Bounds="150.145004272461,155.527496337891,17.8932037353516,44.9400024414063" Label="CreateActor" LabelBounds="88.212173940246,170.733703127303,62.8833333333332,15.96" />
+    <Link Source="B" Target="E" Bounds="184.684326171875,155.527496337891,43.2222442626953,48.3151397705078" Label="CreateActor" LabelBounds="196.261666666667,170.5275,62.8833333333333,15.96" />
+    <Link Source="C" Target="D" Bounds="175.145004272461,231.094680786133,172.494430541992,59.6636505126953" Label="SendEvent" LabelBounds="277.180544430538,258.4075,55.4566666666667,15.96" />
+    <Link Source="CreateActor(&quot;A&quot;,Op)" Target="A" Bounds="271.656851852554,25.9599995422363,0.247951939243762,22.6880365056878" />
+    <Link Source="CurrentOperation==Op" Target="B" Bounds="163.393615722656,83.6074981689453,9.31767272949219,37.2292938232422" />
+    <Link Source="CurrentOperation==Op1" Target="C" Bounds="56.1450004577637,155.527496337891,61.2570762634277,51.6144256591797" />
+    <Link Source="CurrentOperation==Op2" Target="A" Bounds="305.987079026308,53.6389914995324,55.6429176167588,10.5636728356491" />
+    <Link Source="CurrentOperation==OpWhenEventIsDequeued" Target="D" Bounds="381.144989013672,243.407501220703,0,36.9599914550781" />
+    <Link Source="EventGroup==G" Target="E" Bounds="268.640045166016,155.527496337891,21.5049438476563,47.2089233398438" />
+  </Links>
+  <Categories>
+    <Category Id="Comment" Label="Comment" Description="Represents a user defined comment on the diagram" CanBeDataDriven="True" IsProviderRoot="False" NavigationActionLabel="Comments" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsProviderRoot" Label="IsProviderRoot" Description="IsProviderRoot" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="NavigationActionLabel" Label="NavigationActionLabel" Description="NavigationActionLabel" DataType="System.String" />
+    <Property Id="Offset" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Comment" ValueLabel="Has comment">
+      <Condition Expression="HasCategory('Comment')" />
+      <Setter Property="Background" Value="#FFFFFACD" />
+      <Setter Property="Stroke" Value="#FFE5C365" />
+      <Setter Property="StrokeThickness" Value="1" />
+      <Setter Property="NodeRadius" Value="2" />
+      <Setter Property="MaxWidth" Value="250" />
+    </Style>
+  </Styles>
+</DirectedGraph>

@@ -1,0 +1,484 @@
+<Log>
+  <CreateMonitor id="Coyote.Examples.Raft.SafetyMonitor(1)" type="Coyote.Examples.Raft.SafetyMonitor" />
+  <MonitorState id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="Coyote.Examples.Raft.SafetyMonitor" state="Init" isEntry="True" isInHotState="False" />
+  <MonitorRaise id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="Coyote.Examples.Raft.SafetyMonitor" state="Init" event="Coyote.Examples.Raft.SafetyMonitor+LocalEvent" />
+  <MonitorState id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="Coyote.Examples.Raft.SafetyMonitor" state="Init" isEntry="False" isInHotState="False" />
+  <MonitorState id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="Coyote.Examples.Raft.SafetyMonitor" state="Monitoring" isEntry="True" isInHotState="False" />
+  <CreateActor id="Coyote.Examples.Raft.ClusterManager(2)" />
+  <State id="Coyote.Examples.Raft.ClusterManager(2)" state="Init" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ClusterManager(2)" state="Init" action="EntryOnInit" />
+  <CreateActor id="Coyote.Examples.Raft.Server(3)" creator="Coyote.Examples.Raft.ClusterManager(2)" />
+  <CreateActor id="Coyote.Examples.Raft.Server(4)" creator="Coyote.Examples.Raft.ClusterManager(2)" />
+  <State id="Coyote.Examples.Raft.Server(4)" state="Init" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(4)" state="Init" action="EntryOnInit" />
+  <CreateActor id="Coyote.Examples.Raft.Server(5)" creator="Coyote.Examples.Raft.ClusterManager(2)" />
+  <CreateActor id="Coyote.Examples.Raft.Server(6)" creator="Coyote.Examples.Raft.ClusterManager(2)" />
+  <State id="Coyote.Examples.Raft.Server(6)" state="Init" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(6)" state="Init" action="EntryOnInit" />
+  <CreateActor id="Coyote.Examples.Raft.Server(7)" creator="Coyote.Examples.Raft.ClusterManager(2)" />
+  <CreateActor id="Coyote.Examples.Raft.Client(8)" creator="Coyote.Examples.Raft.ClusterManager(2)" />
+  <Raise id="Coyote.Examples.Raft.ClusterManager(2)" state="Init" event="Coyote.Examples.Raft.ClusterManager+LocalEvent" />
+  <Goto id="Coyote.Examples.Raft.ClusterManager(2)" currState="Init" newState="Coyote.Examples.Raft.ClusterManager.Configuring" />
+  <State id="Coyote.Examples.Raft.ClusterManager(2)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ClusterManager(2)" state="Configuring" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ClusterManager(2)" state="Configuring" action="ConfiguringOnInit" />
+  <Send target="Coyote.Examples.Raft.Server(3)" sender="Coyote.Examples.Raft.ClusterManager(2)" senderState="Configuring" event="Coyote.Examples.Raft.Server+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(3)" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.ClusterManager(2)" senderState="Configuring" event="Coyote.Examples.Raft.Server+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(4)" state="Init" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.Server(4)" state="Init" action="Configure" />
+  <CreateActor id="Coyote.Examples.Raft.ElectionTimer(9)" creator="Coyote.Examples.Raft.Server(4)" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.ClusterManager(2)" senderState="Configuring" event="Coyote.Examples.Raft.Server+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <Send target="Coyote.Examples.Raft.Server(6)" sender="Coyote.Examples.Raft.ClusterManager(2)" senderState="Configuring" event="Coyote.Examples.Raft.Server+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(6)" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(6)" state="Init" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.Server(6)" state="Init" action="Configure" />
+  <CreateActor id="Coyote.Examples.Raft.ElectionTimer(10)" creator="Coyote.Examples.Raft.Server(6)" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(10)" sender="Coyote.Examples.Raft.Server(6)" senderState="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(10)" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <CreateActor id="Coyote.Examples.Raft.PeriodicTimer(11)" creator="Coyote.Examples.Raft.Server(6)" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(11)" sender="Coyote.Examples.Raft.Server(6)" senderState="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(11)" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Raise id="Coyote.Examples.Raft.Server(6)" state="Init" event="Coyote.Examples.Raft.Server+BecomeFollower" />
+  <Goto id="Coyote.Examples.Raft.Server(6)" currState="Init" newState="Coyote.Examples.Raft.Server.Follower" />
+  <State id="Coyote.Examples.Raft.Server(6)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(6)" state="Follower" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(6)" state="Follower" action="FollowerOnInit" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(10)" sender="Coyote.Examples.Raft.Server(6)" senderState="Follower" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(10)" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <Send target="Coyote.Examples.Raft.Server(7)" sender="Coyote.Examples.Raft.ClusterManager(2)" senderState="Configuring" event="Coyote.Examples.Raft.Server+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(7)" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <Send target="Coyote.Examples.Raft.Client(8)" sender="Coyote.Examples.Raft.ClusterManager(2)" senderState="Configuring" event="Coyote.Examples.Raft.Client+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Client(8)" event="Coyote.Examples.Raft.Client+ConfigureEvent" />
+  <Raise id="Coyote.Examples.Raft.ClusterManager(2)" state="Configuring" event="Coyote.Examples.Raft.ClusterManager+LocalEvent" />
+  <Goto id="Coyote.Examples.Raft.ClusterManager(2)" currState="Configuring" newState="Coyote.Examples.Raft.ClusterManager+Availability.Availability.Unavailable" />
+  <State id="Coyote.Examples.Raft.ClusterManager(2)" state="Configuring" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ClusterManager(2)" state="Availability.Unavailable" isEntry="True" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(11)" state="Init" isEntry="True" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(11)" state="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(11)" state="Init" action="Configure" />
+  <State id="Coyote.Examples.Raft.Server(7)" state="Init" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(7)" state="Init" action="EntryOnInit" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(7)" state="Init" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.Server(7)" state="Init" action="Configure" />
+  <CreateActor id="Coyote.Examples.Raft.ElectionTimer(12)" creator="Coyote.Examples.Raft.Server(7)" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(12)" sender="Coyote.Examples.Raft.Server(7)" senderState="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(12)" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <CreateActor id="Coyote.Examples.Raft.PeriodicTimer(13)" creator="Coyote.Examples.Raft.Server(7)" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(13)" state="Init" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(13)" sender="Coyote.Examples.Raft.Server(7)" senderState="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(13)" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Raise id="Coyote.Examples.Raft.Server(7)" state="Init" event="Coyote.Examples.Raft.Server+BecomeFollower" />
+  <Goto id="Coyote.Examples.Raft.Server(7)" currState="Init" newState="Coyote.Examples.Raft.Server.Follower" />
+  <State id="Coyote.Examples.Raft.Server(7)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(7)" state="Follower" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(7)" state="Follower" action="FollowerOnInit" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(13)" state="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(13)" state="Init" action="Configure" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(12)" sender="Coyote.Examples.Raft.Server(7)" senderState="Follower" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(12)" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Init" isEntry="True" />
+  <State id="Coyote.Examples.Raft.Client(8)" state="Init" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Client(8)" state="Init" action="InitOnEntry" />
+  <DequeueEvent id="Coyote.Examples.Raft.Client(8)" state="Init" event="Coyote.Examples.Raft.Client+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.Client(8)" state="Init" action="Configure" />
+  <Raise id="Coyote.Examples.Raft.Client(8)" state="Init" event="Coyote.Examples.Raft.Client+LocalEvent" />
+  <Goto id="Coyote.Examples.Raft.Client(8)" currState="Init" newState="Coyote.Examples.Raft.Client.PumpRequest" />
+  <State id="Coyote.Examples.Raft.Client(8)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Client(8)" state="PumpRequest" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Client(8)" state="PumpRequest" action="PumpRequestOnEntry" />
+  <Random id="Coyote.Examples.Raft.Client(8)" result="69" />
+  <Send target="Coyote.Examples.Raft.ClusterManager(2)" sender="Coyote.Examples.Raft.Client(8)" senderState="PumpRequest" event="Coyote.Examples.Raft.Client+Request" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ClusterManager(2)" event="Coyote.Examples.Raft.Client+Request" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(12)" state="Init" isEntry="True" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(12)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(12)" state="Init" action="Configure" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(12)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(12)" currState="Init" newState="Coyote.Examples.Raft.ElectionTimer.Active" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(12)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(12)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(12)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(12)" sender="Coyote.Examples.Raft.ElectionTimer(12)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(12)" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(12)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(12)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.ElectionTimer(12)" result="False" />
+  <Raise id="Coyote.Examples.Raft.ElectionTimer(12)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(12)" currState="Active" newState="Coyote.Examples.Raft.ElectionTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(12)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(12)" state="Inactive" isEntry="True" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(10)" state="Init" isEntry="True" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(10)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(10)" state="Init" action="Configure" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(10)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(10)" currState="Init" newState="Coyote.Examples.Raft.ElectionTimer.Active" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(10)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(10)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(10)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(10)" sender="Coyote.Examples.Raft.ElectionTimer(10)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(10)" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(10)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(10)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.ElectionTimer(10)" result="False" />
+  <Raise id="Coyote.Examples.Raft.ElectionTimer(10)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(10)" currState="Active" newState="Coyote.Examples.Raft.ElectionTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(10)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(10)" state="Inactive" isEntry="True" />
+  <State id="Coyote.Examples.Raft.Server(3)" state="Init" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(3)" state="Init" action="EntryOnInit" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(3)" state="Init" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.Server(3)" state="Init" action="Configure" />
+  <CreateActor id="Coyote.Examples.Raft.ElectionTimer(14)" creator="Coyote.Examples.Raft.Server(3)" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(14)" state="Init" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(14)" sender="Coyote.Examples.Raft.Server(3)" senderState="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(14)" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(14)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(14)" state="Init" action="Configure" />
+  <CreateActor id="Coyote.Examples.Raft.PeriodicTimer(15)" creator="Coyote.Examples.Raft.Server(3)" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(15)" state="Init" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(15)" sender="Coyote.Examples.Raft.Server(3)" senderState="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(15)" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Raise id="Coyote.Examples.Raft.Server(3)" state="Init" event="Coyote.Examples.Raft.Server+BecomeFollower" />
+  <Goto id="Coyote.Examples.Raft.Server(3)" currState="Init" newState="Coyote.Examples.Raft.Server.Follower" />
+  <State id="Coyote.Examples.Raft.Server(3)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(3)" state="Follower" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(3)" state="Follower" action="FollowerOnInit" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(15)" state="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(15)" state="Init" action="Configure" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(14)" sender="Coyote.Examples.Raft.Server(3)" senderState="Follower" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(14)" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(14)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(14)" currState="Init" newState="Coyote.Examples.Raft.ElectionTimer.Active" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(14)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(14)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(14)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(14)" sender="Coyote.Examples.Raft.ElectionTimer(14)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(14)" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(14)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(14)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.ElectionTimer(14)" result="False" />
+  <Raise id="Coyote.Examples.Raft.ElectionTimer(14)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(14)" currState="Active" newState="Coyote.Examples.Raft.ElectionTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(14)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(14)" state="Inactive" isEntry="True" />
+  <State id="Coyote.Examples.Raft.Server(5)" state="Init" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Init" action="EntryOnInit" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Init" event="Coyote.Examples.Raft.Server+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Init" action="Configure" />
+  <CreateActor id="Coyote.Examples.Raft.ElectionTimer(16)" creator="Coyote.Examples.Raft.Server(5)" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(16)" state="Init" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(16)" sender="Coyote.Examples.Raft.Server(5)" senderState="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(16)" state="Init" action="Configure" />
+  <CreateActor id="Coyote.Examples.Raft.PeriodicTimer(17)" creator="Coyote.Examples.Raft.Server(5)" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Init" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(17)" sender="Coyote.Examples.Raft.Server(5)" senderState="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Raise id="Coyote.Examples.Raft.Server(5)" state="Init" event="Coyote.Examples.Raft.Server+BecomeFollower" />
+  <Goto id="Coyote.Examples.Raft.Server(5)" currState="Init" newState="Coyote.Examples.Raft.Server.Follower" />
+  <State id="Coyote.Examples.Raft.Server(5)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(5)" state="Follower" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Follower" action="FollowerOnInit" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Init" action="Configure" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(16)" sender="Coyote.Examples.Raft.Server(5)" senderState="Follower" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(16)" currState="Init" newState="Coyote.Examples.Raft.ElectionTimer.Active" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(16)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(16)" sender="Coyote.Examples.Raft.ElectionTimer(16)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.ElectionTimer(16)" result="True" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.ElectionTimer(16)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TimeoutEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.ElectionTimer+TimeoutEvent" />
+  <Raise id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(16)" currState="Active" newState="Coyote.Examples.Raft.ElectionTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(16)" state="Inactive" isEntry="True" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Follower" event="Coyote.Examples.Raft.ElectionTimer+TimeoutEvent" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Follower" action="StartLeaderElection" />
+  <Raise id="Coyote.Examples.Raft.Server(5)" state="Follower" event="Coyote.Examples.Raft.Server+BecomeCandidate" />
+  <Goto id="Coyote.Examples.Raft.Server(5)" currState="Follower" newState="Coyote.Examples.Raft.Server.Candidate" />
+  <State id="Coyote.Examples.Raft.Server(5)" state="Follower" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(5)" state="Candidate" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="CandidateOnInit" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(9)" sender="Coyote.Examples.Raft.Server(4)" senderState="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(9)" state="Init" action="Configure" />
+  <CreateActor id="Coyote.Examples.Raft.PeriodicTimer(18)" creator="Coyote.Examples.Raft.Server(4)" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Init" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(18)" sender="Coyote.Examples.Raft.Server(4)" senderState="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(18)" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Raise id="Coyote.Examples.Raft.Server(4)" state="Init" event="Coyote.Examples.Raft.Server+BecomeFollower" />
+  <Goto id="Coyote.Examples.Raft.Server(4)" currState="Init" newState="Coyote.Examples.Raft.Server.Follower" />
+  <State id="Coyote.Examples.Raft.Server(4)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(4)" state="Follower" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(4)" state="Follower" action="FollowerOnInit" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Init" event="Coyote.Examples.Raft.PeriodicTimer+ConfigureEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Init" action="Configure" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(9)" sender="Coyote.Examples.Raft.Server(4)" senderState="Follower" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" state="Init" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(9)" currState="Init" newState="Coyote.Examples.Raft.ElectionTimer.Active" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(9)" sender="Coyote.Examples.Raft.ElectionTimer(9)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.ElectionTimer(9)" result="True" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.ElectionTimer(9)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TimeoutEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.ElectionTimer+TimeoutEvent" />
+  <Raise id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(9)" currState="Active" newState="Coyote.Examples.Raft.ElectionTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Inactive" isEntry="True" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(4)" state="Follower" event="Coyote.Examples.Raft.ElectionTimer+TimeoutEvent" />
+  <Action id="Coyote.Examples.Raft.Server(4)" state="Follower" action="StartLeaderElection" />
+  <Raise id="Coyote.Examples.Raft.Server(4)" state="Follower" event="Coyote.Examples.Raft.Server+BecomeCandidate" />
+  <Goto id="Coyote.Examples.Raft.Server(4)" currState="Follower" newState="Coyote.Examples.Raft.Server.Candidate" />
+  <State id="Coyote.Examples.Raft.Server(4)" state="Follower" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(4)" state="Candidate" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(4)" state="Candidate" action="CandidateOnInit" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(9)" sender="Coyote.Examples.Raft.Server(4)" senderState="Candidate" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" state="Inactive" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(9)" currState="Inactive" newState="Coyote.Examples.Raft.ElectionTimer.Active" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Inactive" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(18)" sender="Coyote.Examples.Raft.Server(4)" senderState="Candidate" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(18)" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" />
+  <Send target="Coyote.Examples.Raft.Server(3)" sender="Coyote.Examples.Raft.Server(4)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(3)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(3)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(3)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.Server(3)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(4)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Send target="Coyote.Examples.Raft.Server(6)" sender="Coyote.Examples.Raft.Server(4)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(6)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(6)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(6)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.Server(6)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(16)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" state="Inactive" event="Coyote.Examples.Raft.ElectionTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(16)" currState="Inactive" newState="Coyote.Examples.Raft.ElectionTimer.Active" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(16)" state="Inactive" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(16)" sender="Coyote.Examples.Raft.ElectionTimer(16)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(16)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.ElectionTimer(16)" result="True" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(17)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Init" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.PeriodicTimer(17)" currState="Init" newState="Coyote.Examples.Raft.PeriodicTimer.Active" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(17)" sender="Coyote.Examples.Raft.PeriodicTimer(17)" senderState="Active" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.PeriodicTimer(17)" result="True" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.PeriodicTimer(17)" senderState="Active" event="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" />
+  <Raise id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" event="Coyote.Examples.Raft.PeriodicTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.PeriodicTimer(17)" currState="Active" newState="Coyote.Examples.Raft.PeriodicTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Inactive" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.Server(3)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(3)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(3)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(3)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(3)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Send target="Coyote.Examples.Raft.Server(6)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(6)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(6)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(6)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(6)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Send target="Coyote.Examples.Raft.Server(7)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(7)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(7)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(7)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(7)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="VoteAsCandidate" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="BroadcastVoteRequests" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(17)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Inactive" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.PeriodicTimer(17)" currState="Inactive" newState="Coyote.Examples.Raft.PeriodicTimer.Active" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Inactive" isEntry="False" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(17)" sender="Coyote.Examples.Raft.PeriodicTimer(17)" senderState="Active" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.PeriodicTimer(17)" result="True" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.PeriodicTimer(17)" senderState="Active" event="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" />
+  <Raise id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" event="Coyote.Examples.Raft.PeriodicTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.PeriodicTimer(17)" currState="Active" newState="Coyote.Examples.Raft.PeriodicTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Inactive" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.Server(3)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(3)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(3)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(3)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(3)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Send target="Coyote.Examples.Raft.Server(6)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(6)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(6)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(6)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(6)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Send target="Coyote.Examples.Raft.Server(7)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(7)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(7)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(7)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(7)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="RespondVoteAsCandidate" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="RespondVoteAsCandidate" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="RespondVoteAsCandidate" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="BroadcastVoteRequests" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(17)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Inactive" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.PeriodicTimer(17)" currState="Inactive" newState="Coyote.Examples.Raft.PeriodicTimer.Active" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Inactive" isEntry="False" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(17)" sender="Coyote.Examples.Raft.PeriodicTimer(17)" senderState="Active" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.PeriodicTimer(17)" result="True" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.PeriodicTimer(17)" senderState="Active" event="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.PeriodicTimer+TimeoutEvent" />
+  <Raise id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" event="Coyote.Examples.Raft.PeriodicTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.PeriodicTimer(17)" currState="Active" newState="Coyote.Examples.Raft.PeriodicTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(17)" state="Inactive" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.Server(3)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(3)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Send target="Coyote.Examples.Raft.Server(6)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(6)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(6)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(6)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(6)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Send target="Coyote.Examples.Raft.Server(7)" sender="Coyote.Examples.Raft.Server(5)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(7)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(7)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(7)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.Server(7)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="RespondVoteAsCandidate" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="RespondVoteAsCandidate" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Candidate" action="RespondVoteAsCandidate" />
+  <Raise id="Coyote.Examples.Raft.Server(5)" state="Candidate" event="Coyote.Examples.Raft.Server+BecomeLeader" />
+  <Goto id="Coyote.Examples.Raft.Server(5)" currState="Candidate" newState="Coyote.Examples.Raft.Server.Leader" />
+  <State id="Coyote.Examples.Raft.Server(5)" state="Candidate" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(5)" state="Leader" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(5)" state="Leader" action="LeaderOnInit" />
+  <MonitorEvent sender="Coyote.Examples.Raft.Server(5)" senderState="Leader" id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="SafetyMonitor" state="Monitoring" event="Coyote.Examples.Raft.SafetyMonitor+NotifyLeaderElected" />
+  <MonitorAction id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="Coyote.Examples.Raft.SafetyMonitor" state="Monitoring" action="ProcessLeaderElected" />
+  <Send target="Coyote.Examples.Raft.ClusterManager(2)" sender="Coyote.Examples.Raft.Server(5)" senderState="Leader" event="Coyote.Examples.Raft.ClusterManager+NotifyLeaderUpdate" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ClusterManager(2)" event="Coyote.Examples.Raft.ClusterManager+NotifyLeaderUpdate" />
+  <DequeueEvent id="Coyote.Examples.Raft.ClusterManager(2)" state="Availability.Unavailable" event="Coyote.Examples.Raft.ClusterManager+NotifyLeaderUpdate" />
+  <Action id="Coyote.Examples.Raft.ClusterManager(2)" state="Availability.Unavailable" action="BecomeAvailable" />
+  <Raise id="Coyote.Examples.Raft.ClusterManager(2)" state="Availability.Unavailable" event="Coyote.Examples.Raft.ClusterManager+LocalEvent" />
+  <Goto id="Coyote.Examples.Raft.ClusterManager(2)" currState="Availability.Unavailable" newState="Coyote.Examples.Raft.ClusterManager+Availability.Availability.Available" />
+  <State id="Coyote.Examples.Raft.ClusterManager(2)" state="Availability.Unavailable" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ClusterManager(2)" state="Availability.Available" isEntry="True" />
+  <DequeueEvent id="Coyote.Examples.Raft.ClusterManager(2)" state="Availability.Available" event="Coyote.Examples.Raft.Client+Request" />
+  <Action id="Coyote.Examples.Raft.ClusterManager(2)" state="Availability.Available" action="SendClientRequestToLeader" />
+  <Send target="Coyote.Examples.Raft.Server(5)" sender="Coyote.Examples.Raft.ClusterManager(2)" senderState="Availability.Available" event="Coyote.Examples.Raft.Client+Request" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(5)" event="Coyote.Examples.Raft.Client+Request" />
+  <Send target="Coyote.Examples.Raft.Server(3)" sender="Coyote.Examples.Raft.Server(5)" senderState="Leader" event="Coyote.Examples.Raft.Server+AppendEntriesRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(3)" event="Coyote.Examples.Raft.Server+AppendEntriesRequest" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.Server(5)" senderState="Leader" event="Coyote.Examples.Raft.Server+AppendEntriesRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+AppendEntriesRequest" />
+  <Send target="Coyote.Examples.Raft.ElectionTimer(9)" sender="Coyote.Examples.Raft.ElectionTimer(9)" senderState="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.ElectionTimer(9)" result="False" />
+  <Raise id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" event="Coyote.Examples.Raft.ElectionTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.ElectionTimer(9)" currState="Active" newState="Coyote.Examples.Raft.ElectionTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.ElectionTimer(9)" state="Inactive" isEntry="True" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Init" event="Coyote.Examples.Raft.PeriodicTimer+StartTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.PeriodicTimer(18)" currState="Init" newState="Coyote.Examples.Raft.PeriodicTimer.Active" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Init" isEntry="False" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Active" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Active" action="ActiveOnEntry" />
+  <Send target="Coyote.Examples.Raft.PeriodicTimer(18)" sender="Coyote.Examples.Raft.PeriodicTimer(18)" senderState="Active" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.PeriodicTimer(18)" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" />
+  <DequeueEvent id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Active" event="Coyote.Examples.Raft.PeriodicTimer+TickEvent" />
+  <Action id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Active" action="Tick" />
+  <Random id="Coyote.Examples.Raft.PeriodicTimer(18)" result="False" />
+  <Raise id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Active" event="Coyote.Examples.Raft.PeriodicTimer+CancelTimerEvent" />
+  <Goto id="Coyote.Examples.Raft.PeriodicTimer(18)" currState="Active" newState="Coyote.Examples.Raft.PeriodicTimer.Inactive" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Active" isEntry="False" />
+  <State id="Coyote.Examples.Raft.PeriodicTimer(18)" state="Inactive" isEntry="True" />
+  <Send target="Coyote.Examples.Raft.Server(7)" sender="Coyote.Examples.Raft.Server(4)" senderState="Candidate" event="Coyote.Examples.Raft.Server+VoteRequest" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(7)" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(7)" state="Follower" event="Coyote.Examples.Raft.Server+VoteRequest" />
+  <Action id="Coyote.Examples.Raft.Server(7)" state="Follower" action="VoteAsFollower" />
+  <Send target="Coyote.Examples.Raft.Server(4)" sender="Coyote.Examples.Raft.Server(7)" senderState="Follower" event="Coyote.Examples.Raft.Server+VoteResponse" isTargetHalted="False" />
+  <EnqueueEvent id="Coyote.Examples.Raft.Server(4)" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(4)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Action id="Coyote.Examples.Raft.Server(4)" state="Candidate" action="RespondVoteAsCandidate" />
+  <DequeueEvent id="Coyote.Examples.Raft.Server(4)" state="Candidate" event="Coyote.Examples.Raft.Server+VoteResponse" />
+  <Action id="Coyote.Examples.Raft.Server(4)" state="Candidate" action="RespondVoteAsCandidate" />
+  <Raise id="Coyote.Examples.Raft.Server(4)" state="Candidate" event="Coyote.Examples.Raft.Server+BecomeLeader" />
+  <Goto id="Coyote.Examples.Raft.Server(4)" currState="Candidate" newState="Coyote.Examples.Raft.Server.Leader" />
+  <State id="Coyote.Examples.Raft.Server(4)" state="Candidate" isEntry="False" />
+  <State id="Coyote.Examples.Raft.Server(4)" state="Leader" isEntry="True" />
+  <Action id="Coyote.Examples.Raft.Server(4)" state="Leader" action="LeaderOnInit" />
+  <MonitorEvent sender="Coyote.Examples.Raft.Server(4)" senderState="Leader" id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="SafetyMonitor" state="Monitoring" event="Coyote.Examples.Raft.SafetyMonitor+NotifyLeaderElected" />
+  <MonitorAction id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="Coyote.Examples.Raft.SafetyMonitor" state="Monitoring" action="ProcessLeaderElected" />
+  <ErrorState id="Coyote.Examples.Raft.Server(5)" state="Leader"/>
+  <ErrorState id="Coyote.Examples.Raft.Server(4)" state="Leader"/>
+  <AssertionFailure>&lt;ErrorLog&gt; Detected more than one leader in term 1</AssertionFailure>
+  <Strategy strategy="PCT">PCT[priority change points '10' [3, 14, 84, 99, 100, 107, 112, 158, 174, 188], seed '564']</Strategy>
+</Log>

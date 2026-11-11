@@ -47,10 +47,10 @@ an alternative feed for those dependencies without changing the Coyote package s
 All runtimes can be installed; the test selects the CLI framework explicitly, so
 this is not a runtime-isolation test.
 
-The samples target .NET 10. Their `-local -nuget` build scripts install the locally
-built CLI with `--framework net10.0` into `Samples/bin/coyote/net10.0`. Both sample
+The samples target .NET 11. Their `-local -nuget` build scripts install the locally
+built CLI with `--framework net11.0` into `Samples/bin/coyote/net11.0`. Both sample
 rewrite targets invoke that tool directly, independently of local-tool manifest
-resolution. The library also supports .NET 11 and .NET 8, which are covered
+resolution. The library also supports .NET 10 and .NET 8, which are covered
 separately by their compatibility probes and package smoke tests.
 
 ## Lock delegates

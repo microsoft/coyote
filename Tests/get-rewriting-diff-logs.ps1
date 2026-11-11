@@ -2,8 +2,8 @@
 # Licensed under the MIT License.
 
 param(
-    [ValidateSet("net10.0", "net8.0")]
-    [string]$framework = "net10.0"
+    [ValidateSet("net11.0", "net10.0", "net8.0")]
+    [string]$framework = "net11.0"
 )
 
 Import-Module $PSScriptRoot/../Scripts/common.psm1 -Force

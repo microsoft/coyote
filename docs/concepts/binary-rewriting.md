@@ -30,8 +30,8 @@ concurrency unit test](../tutorials/first-concurrency-unit-test.md).
 
 Coyote ships a host for each supported .NET version. Rewriting injects references to the runtime of
 the host that performs it, so you must run the host that matches the .NET major version targeted by
-the assembly: use the `net8.0` Coyote host to rewrite a `net8.0` assembly and the `net10.0` host to
-rewrite a `net10.0` assembly. If the versions do not match, `coyote rewrite` reports an error naming
+the assembly: use the `net8.0` Coyote host to rewrite a `net8.0` assembly, the `net10.0` host to rewrite a
+`net10.0` assembly, and the `net11.0` host to rewrite a `net11.0` assembly. If the versions do not match, `coyote rewrite` reports an error naming
 both versions and leaves the assembly unmodified. All assemblies selected for rewriting, including
 dependencies when dependency rewriting is enabled, are validated before output files are copied or
 overwritten.

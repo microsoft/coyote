@@ -2,8 +2,8 @@
 # Licensed under the MIT License.
 
 param(
-    [ValidateSet("net10.0", "net8.0", "net462")]
-    [string]$framework = "net10.0",
+    [ValidateSet("net11.0", "net10.0", "net8.0", "net462")]
+    [string]$framework = "net11.0",
     [ValidateSet("all", "runtime", "rewriting", "testing", "actors", "actors-testing", "tools")]
     [string]$test = "all",
     [string]$filter = "",
@@ -56,7 +56,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
         }
 
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
-        if ($f -eq "net10.0" -or $f -eq "net8.0") {
+        if ($f -eq "net11.0" -or $f -eq "net10.0" -or $f -eq "net8.0") {
             $runtime_version = FindDotNetRuntimeVersion -dotnet_runtime_path $dotnet_runtime_path `
                 -version $f.Substring(3)
             $AssemblyName = GetAssemblyName($target)
@@ -66,9 +66,9 @@ foreach ($kvp in $targets.GetEnumerator()) {
             $command = $command + ' -r "' + [IO.Path]::Combine($PSScriptRoot, "..", "bin", $f, "*.dll") + '"'
             $command = $command + ' -r "' + [IO.Path]::Combine($dotnet_runtime_path, $runtime_version, "*.dll") + '"'
             $command = $command + ' -r "' + [IO.Path]::Combine($aspnet_runtime_path, $runtime_version, "*.dll") + '"'
-            if ($f -eq "net10.0") {
-                # ILVerify rejects the SDK-generated inline-array span helper even before rewriting.
-                $command = $command + ' -e ".*InlineArrayAsReadOnlySpan.*"'
+            if ($f -eq "net11.0" -or $f -eq "net10.0") {
+                # ILVerify rejects the SDK-generated inline-array helpers even before rewriting.
+                $command = $command + ' -e ".*InlineArray(AsReadOnlySpan|ElementRef).*"'
             }
 
             Invoke-ToolCommand -tool $ilverify -cmd $command -error_msg "found corrupted assembly rewriting"

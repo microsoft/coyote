@@ -2,8 +2,8 @@
 # Licensed under the MIT License.
 
 param(
-    [ValidateSet("net10.0", "net8.0")]
-    [string]$framework = "net10.0",
+    [ValidateSet("net11.0", "net10.0", "net8.0")]
+    [string]$framework = "net11.0",
     [string]$dependencySource = "https://api.nuget.org/v3/index.json"
 )
 
@@ -46,7 +46,11 @@ $consumer = Join-Path $workspace "consumer"
 $toolPath = Join-Path $workspace "tool"
 $cache = Join-Path $workspace "packages"
 New-Item -ItemType Directory -Path $consumer -Force | Out-Null
-$probeName = if ($framework -eq "net10.0") { "Net10Probe" } else { "Net8Probe" }
+$probeName = switch ($framework) {
+    "net11.0" { "Net11Probe" }
+    "net10.0" { "Net10Probe" }
+    default { "Net8Probe" }
+}
 foreach ($file in @("$probeName.csproj", "CompatibilityProbe.cs")) {
     Copy-Item (Join-Path $PSScriptRoot "$probeName/$file") $consumer
 }

@@ -27,7 +27,7 @@ $root_path = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath 
 $matrix_path = Join-Path -Path $PSScriptRoot -ChildPath "bin" -AdditionalChildPath @("matrix")
 $iterations = 10
 
-# Both target frameworks are built with the SDK pinned by the repository root.
+# All target frameworks are built with the SDK pinned by the repository root.
 $probes = [ordered]@{
     "net8" = @{
         project = "Net8Probe"
@@ -38,6 +38,11 @@ $probes = [ordered]@{
         project = "Net10Probe"
         assembly = "Net10Probe.dll"
         output = "net10.0"
+    }
+    "net11" = @{
+        project = "Net11Probe"
+        assembly = "Net11Probe.dll"
+        output = "net11.0"
     }
 }
 
@@ -122,6 +127,78 @@ $cases = @(
             "The Coyote host is running on .NET 8.0"
             "requires .NETCoreApp,Version=v10.0"
             "Run the net10.0 Coyote host for this assembly"
+        )
+    },
+    @{
+        # The .NET runtime rolls forward, so the net11.0 host must still test net8.0 and net10.0
+        # assemblies that their own hosts rewrote.
+        name = "net11-host-tests-net8-probe"
+        probe = "net8"
+        setup_framework = "net8.0"
+        host_framework = "net11.0"
+        command = "test"
+        supported = $true
+    },
+    @{
+        name = "net11-host-tests-net10-probe"
+        probe = "net10"
+        setup_framework = "net10.0"
+        host_framework = "net11.0"
+        command = "test"
+        supported = $true
+    },
+    @{
+        name = "net11-host-rewrites-net11-probe"
+        probe = "net11"
+        host_framework = "net11.0"
+        command = "rewrite"
+        supported = $true
+    },
+    @{
+        name = "net11-host-tests-net11-probe"
+        probe = "net11"
+        setup_framework = "net11.0"
+        host_framework = "net11.0"
+        command = "test"
+        supported = $true
+    },
+    @{
+        name = "net10-host-rewrites-net11-probe"
+        probe = "net11"
+        host_framework = "net10.0"
+        command = "rewrite"
+        supported = $false
+        diagnostics = @(
+            "The Coyote host is running on .NET 10.0"
+            "targets .NETCoreApp,Version=v11.0"
+            "which this host cannot load"
+            "Run the net11.0 Coyote host to rewrite this assembly"
+        )
+    },
+    @{
+        name = "net11-host-rewrites-net10-probe"
+        probe = "net10"
+        host_framework = "net11.0"
+        command = "rewrite"
+        supported = $false
+        diagnostics = @(
+            "The Coyote host is running on .NET 11.0"
+            "targets .NETCoreApp,Version=v10.0"
+            "would inject .NET 11.0 runtime references"
+            "Run the net10.0 Coyote host to rewrite this assembly"
+        )
+    },
+    @{
+        name = "net10-host-tests-net11-probe"
+        probe = "net11"
+        setup_framework = "net11.0"
+        host_framework = "net10.0"
+        command = "test"
+        supported = $false
+        diagnostics = @(
+            "The Coyote host is running on .NET 10.0"
+            "requires .NETCoreApp,Version=v11.0"
+            "Run the net11.0 Coyote host for this assembly"
         )
     }
 )

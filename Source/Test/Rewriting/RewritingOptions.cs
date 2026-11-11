@@ -308,7 +308,8 @@ namespace Microsoft.Coyote.Rewriting
             {
                 if (tokens[0] == ".NETCoreApp")
                 {
-                    resolvedTargetFramework = tokens[1] is "v10.0" ? "net10.0" :
+                    resolvedTargetFramework = tokens[1] is "v11.0" ? "net11.0" :
+                        tokens[1] is "v10.0" ? "net10.0" :
                         tokens[1] is "v8.0" ? "net8.0" :
                         resolvedTargetFramework;
                 }

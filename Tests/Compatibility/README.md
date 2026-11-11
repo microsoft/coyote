@@ -1,10 +1,11 @@
 # Runtime compatibility probes
 
-`Net8Probe` and `Net10Probe` exercise the native .NET 8 and .NET 10 Coyote
-hosts. Both probes use the .NET 10 SDK pinned by the repository's `global.json`.
-SDK 8 is not required. Running the probes requires the .NET and ASP.NET Core
-runtimes for both .NET 8 and .NET 10. After installing SDK 10, run
-`./Scripts/install-dotnet8-runtimes.ps1` to add the .NET 8 runtimes.
+`Net8Probe`, `Net10Probe`, and `Net11Probe` exercise the native .NET 8, .NET 10,
+and .NET 11 Coyote hosts. All probes use the .NET 11 SDK pinned by the repository's
+`global.json`. SDK 8 and SDK 10 are not required. Running the probes requires the
+.NET and ASP.NET Core runtimes for .NET 8, .NET 10, and .NET 11. After installing
+SDK 11, run `./Scripts/install-dotnet-runtimes.ps1` to add the .NET 10 and .NET 8
+runtimes.
 
 ## Async builder lifetime
 
@@ -17,8 +18,8 @@ registration. This does not add scheduling points or delay continuations.
 
 `AsyncMethodBuilderLifetimeTests` checks the exact registered task identity,
 control-status timing, and completion, fault, and cancellation outcomes without
-sleeps or timing-based coordination. Run these regressions on .NET 8 and .NET 10
-in both Debug and Release builds.
+sleeps or timing-based coordination. Run these regressions on .NET 8, .NET 10, and
+.NET 11 in both Debug and Release builds.
 
 ## Testing package delivery
 
@@ -26,6 +27,7 @@ After building the local NuGet packages on Windows with `.\Scripts\build.ps1 -ci
 run the package-consumer smoke tests:
 
 ```powershell
+.\Tests\Compatibility\run-package-smoke.ps1 -framework net11.0
 .\Tests\Compatibility\run-package-smoke.ps1 -framework net10.0
 .\Tests\Compatibility\run-package-smoke.ps1 -framework net8.0
 ```
@@ -42,18 +44,18 @@ Package-source mapping requires all `Microsoft.Coyote*` packages to come from
 `bin/nuget`, preventing published packages with the same version from satisfying the
 test. Other dependencies are restored from NuGet.org; `-dependencySource` can select
 an alternative feed for those dependencies without changing the Coyote package source.
-Both runtimes can be installed; the test selects the CLI framework explicitly, so
+All runtimes can be installed; the test selects the CLI framework explicitly, so
 this is not a runtime-isolation test.
 
-The samples target .NET 10. Their `-local -nuget` build scripts install the locally
-built CLI with `--framework net10.0` into `Samples/bin/coyote/net10.0`. Both sample
+The samples target .NET 11. Their `-local -nuget` build scripts install the locally
+built CLI with `--framework net11.0` into `Samples/bin/coyote/net11.0`. Both sample
 rewrite targets invoke that tool directly, independently of local-tool manifest
-resolution under the .NET 10 SDK. The library still supports .NET 8, which is
-covered separately by the .NET 8 compatibility probes and package smoke tests.
+resolution. The library also supports .NET 10 and .NET 8, which are covered
+separately by their compatibility probes and package smoke tests.
 
 ## Lock delegates
 
-On .NET 10, saved `System.Threading.Lock` methods use the same controlled lock
+On .NET 10 and later, saved `System.Threading.Lock` methods use the same controlled lock
 ownership as direct calls. For example, `Action release = gate.Exit` can release
 a lock acquired by `gate.Enter()` during systematic testing. Rewriting binds
 the original lock to the corresponding controlled forwarding method.
@@ -109,8 +111,12 @@ or if a supported case does not execute the probe under Coyote control. Pass
 | net10.0 | net8.0 probe rewritten by the net8.0 host | `test` succeeds, because the runtime rolls forward |
 | net8.0 | net10.0 probe | `rewrite` and `test` are rejected |
 | net10.0 | net8.0 probe | `rewrite` is rejected |
+| net11.0 | net11.0 probe | `rewrite` and `test` succeed |
+| net11.0 | net8.0 and net10.0 probes rewritten by their own hosts | `test` succeeds, because the runtime rolls forward |
+| net10.0 | net11.0 probe | `rewrite` and `test` are rejected |
+| net11.0 | net10.0 probe | `rewrite` is rejected |
 
-Each probe is built once with SDK 10. The matrix tests runtime compatibility,
+Each probe is built once with SDK 11. The matrix tests runtime compatibility,
 not compatibility with the older SDK 8 compiler.
 
 Never rewrite a probe inside its build directory. Coyote skips an assembly that
@@ -123,12 +129,13 @@ before each host invocation, exactly like the script does.
 
 Every case below starts from a fresh copy of a probe build. On Linux and macOS
 there is no `coyote.exe`, so invoke each host as `dotnet ./bin/net8.0/coyote.dll`
-and `dotnet ./bin/net10.0/coyote.dll`, which is what the script does there too.
-Build both probes from the repository root with its pinned SDK:
+, `dotnet ./bin/net10.0/coyote.dll`, and `dotnet ./bin/net11.0/coyote.dll`, which is what the script does there too.
+Build the probes from the repository root with its pinned SDK:
 
 ```powershell
 dotnet build .\Tests\Compatibility\Net8Probe -c Release --no-incremental
 dotnet build .\Tests\Compatibility\Net10Probe -c Release --no-incremental
+dotnet build .\Tests\Compatibility\Net11Probe -c Release --no-incremental
 ```
 
 The .NET 8 host rewrites and tests the .NET 8 probe:
@@ -205,6 +212,9 @@ The Coyote host is running on .NET 8.0, but test assembly '...\Net10Probe.dll'
 requires .NETCoreApp,Version=v10.0. Run the net10.0 Coyote host for this
 assembly.
 ```
+
+The .NET 11 cases follow the same pattern with the `net11.0` host and the
+`Net11Probe` build.
 
 Each rejected command exits with a non-zero exit code and leaves the target
 assembly byte for byte unchanged.

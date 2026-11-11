@@ -10,6 +10,7 @@ frameworks supported by Coyote:
 
 | Target Framework      | Operating System      |
 | :-------------------: | :-------------------: |
+| .NET 11.0             | Linux, macOS, Windows |
 | .NET 10.0             | Linux, macOS, Windows |
 | .NET 8.0              | Linux, macOS, Windows |
 | .NET Standard 2.0     | Linux, macOS, Windows |

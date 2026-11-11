@@ -54,7 +54,6 @@ jobs:
         if: ${{ matrix.platform == 'windows-latest' }}
         run: |
           ./Tests/compare-rewriting-diff-logs.ps1 -framework net11.0
-          ./Tests/compare-rewriting-diff-logs.ps1 -framework net10.0
           ./Tests/compare-rewriting-diff-logs.ps1 -framework net8.0
         shell: pwsh
       - name: Run Coyote tests

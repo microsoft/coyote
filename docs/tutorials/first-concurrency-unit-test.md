@@ -410,7 +410,7 @@ You can build the sample by following the instructions
 You can now run the tests (without Coyote) like this:
 
 ```plain
-cd .\Samples\bin\net10.0
+cd .\Samples\bin\net11.0
 .\AccountManager.exe
 ```
 

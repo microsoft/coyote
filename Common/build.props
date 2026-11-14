@@ -16,13 +16,16 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageOutputPath>$(MSBuildThisFileDirectory)/../bin/nuget</PackageOutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <LangVersion>15.0</LangVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <LangVersion>14.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net10.0' and '$(TargetFramework)' != 'net8.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net11.0' and '$(TargetFramework)' != 'net10.0' and '$(TargetFramework)' != 'net8.0'">
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
@@ -38,7 +41,7 @@
     <Framework462Installed>false</Framework462Installed>
     <Framework462Installed Condition="'$(BUILD_NET462)'=='yes'">true</Framework462Installed>
     <NetStandard2Supported Condition="'$(NetStandard2Supported)'==''">true</NetStandard2Supported>
-    <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net11.0;net10.0;net8.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetStandard2Supported)'">$(TargetFrameworks);netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">

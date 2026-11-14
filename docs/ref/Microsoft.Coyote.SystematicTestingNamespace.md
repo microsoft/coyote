@@ -2,6 +2,10 @@
 
 | public type | description |
 | --- | --- |
+| enum [ExplorationStatus](./Microsoft.Coyote.SystematicTesting/ExplorationStatus.md) | The status of a systematic testing exploration. |
+| class [ExplorationVerdict](./Microsoft.Coyote.SystematicTesting/ExplorationVerdict.md) | Summarizes the outcome of a systematic testing exploration, so that callers can decide whether the exploration was complete without parsing the human-readable report. |
+| enum [ExplorationWarning](./Microsoft.Coyote.SystematicTesting/ExplorationWarning.md) | Warnings about observations made during a systematic testing exploration that do not affect its status. |
+| enum [IncompleteExplorationReason](./Microsoft.Coyote.SystematicTesting/IncompleteExplorationReason.md) | The reasons why a systematic testing exploration is considered incomplete. |
 | class [TestAttribute](./Microsoft.Coyote.SystematicTesting/TestAttribute.md) | Attribute for declaring the entry point to a Coyote test. |
 | class [TestDisposeAttribute](./Microsoft.Coyote.SystematicTesting/TestDisposeAttribute.md) | Attribute for declaring a cleanup method to be called when all test iterations terminate. |
 | class [TestingEngine](./Microsoft.Coyote.SystematicTesting/TestingEngine.md) | Testing engine that can run a controlled concurrency test using a specified configuration. |

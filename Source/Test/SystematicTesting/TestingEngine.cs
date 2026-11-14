@@ -65,6 +65,11 @@ namespace Microsoft.Coyote.SystematicTesting
         internal OperationScheduler Scheduler { get; private set; }
 
         /// <summary>
+        /// The seed used to initialize the scheduler before any iteration advances it.
+        /// </summary>
+        private readonly uint InitialRandomSeed;
+
+        /// <summary>
         /// The profiler.
         /// </summary>
         internal Profiler Profiler { get; private set; }
@@ -73,6 +78,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The testing task cancellation token source.
         /// </summary>
         private readonly CancellationTokenSource CancellationTokenSource;
+
+        /// <summary>
+        /// True if cancellation was requested by stopping the testing engine.
+        /// </summary>
+        private volatile bool IsStopRequested;
 
         /// <summary>
         /// Data structure containing information
@@ -200,6 +210,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Parse the trace if one is provided, and update any configuration values.
             this.Scheduler = OperationScheduler.Setup(configuration, prefixTrace);
+            this.InitialRandomSeed = this.Scheduler.ValueGenerator.Seed;
 
             // Create a client for gathering and sending optional telemetry data.
             TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration, this.LogWriter);
@@ -222,7 +233,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (!this.IsTestRewritten())
                 {
-                    // TODO: eventually will throw an exception; we allow this for now.
+                    this.TestReport.RecordUnrewrittenTestAssembly();
                     this.LogWriter.LogError("... Assembly is not rewritten for testing, see {0}.", Documentation.LearnAboutRewritingUrl);
                 }
 
@@ -244,7 +255,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    this.LogWriter.LogWarning("... Test timed out.");
+                    this.LogWriter.LogWarning(this.IsStopRequested ? "... Test canceled." : "... Test timed out.");
                 }
             }
             catch (Exception ex)
@@ -261,13 +272,24 @@ namespace Microsoft.Coyote.SystematicTesting
                 else
                 {
                     this.LogWriter.LogError("... Test failed due to an internal '{0}' exception.", ex.GetType().FullName);
-                    this.TestReport.InternalErrors.Add(ex.ToString());
                 }
 
+                this.TestReport.RecordInternalError(ex.ToString());
                 ExceptionDispatchInfo.Capture(ex).Throw();
             }
             finally
             {
+                if (this.Configuration.TestingTimeout > 0)
+                {
+                    // Disarm the timeout so it cannot cancel the engine after normal completion.
+                    this.CancellationTokenSource.CancelAfter(Timeout.Infinite);
+                }
+
+                if (this.CancellationTokenSource.IsCancellationRequested)
+                {
+                    this.TestReport.RecordExplorationTermination(this.IsStopRequested);
+                }
+
                 this.Profiler.StopMeasuringExecutionTime();
             }
 
@@ -344,6 +366,10 @@ namespace Microsoft.Coyote.SystematicTesting
                     {
                         ExceptionDispatchInfo.Capture(innerException).Throw();
                     }
+                    else if (!this.CancellationTokenSource.IsCancellationRequested)
+                    {
+                        this.TestReport.RecordExecutionInterruption();
+                    }
                 }
             }, this.CancellationTokenSource.Token);
         }
@@ -364,6 +390,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!this.Scheduler.InitializeNextIteration(iteration, iterationLogWriter))
             {
                 // The next iteration cannot run, so stop exploring.
+                this.TestReport.RecordExplorationExhaustion();
                 return false;
             }
 
@@ -459,26 +486,45 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public void Stop()
         {
+            this.IsStopRequested = true;
             this.CancellationTokenSource.Cancel();
         }
 
         /// <summary>
         /// Returns a report with the testing results.
         /// </summary>
-        public string GetReport()
+        public string GetReport() => this.GetReport(this.TestReport.CreateSnapshot());
+
+        /// <summary>
+        /// Returns the testing results from the specified report snapshot.
+        /// </summary>
+        internal string GetReport(TestReport snapshot)
         {
             if (this.Scheduler.IsReplaying)
             {
                 StringBuilder report = new StringBuilder();
-                report.AppendFormat("... Reproduced {0} bug{1}{2}.", this.TestReport.NumOfFoundBugs,
-                    this.TestReport.NumOfFoundBugs is 1 ? string.Empty : "s",
+                report.AppendFormat("... Reproduced {0} bug{1}{2}.", snapshot.NumOfFoundBugs,
+                    snapshot.NumOfFoundBugs is 1 ? string.Empty : "s",
                     Debugger.IsAttached ? string.Empty : " (use --break to attach the debugger)");
                 report.AppendLine();
                 return report.ToString();
             }
 
-            return this.TestReport.GetText(this.Configuration, "...");
+            return snapshot.GetText(this.Configuration, "...");
         }
+
+        /// <summary>
+        /// Returns a machine-readable report of the test run in JSON format. The report includes
+        /// the exploration verdict, statistics, bug reports and uncontrolled invocations.
+        /// </summary>
+        public string GetJsonReport() => this.CreateJsonReport(this.TestReport.CreateSnapshot(), Array.Empty<string>()).ToJson();
+
+        /// <summary>
+        /// Creates a machine-readable report of the test run that lists the specified emitted report paths.
+        /// </summary>
+        private JsonTestReport CreateJsonReport(TestReport snapshot, IEnumerable<string> reportPaths) => JsonTestReport.Create(
+            snapshot, snapshot.Configuration, this.TestMethodInfo.Name, this.TestMethodInfo.Assembly,
+            this.IsTestRewritten(), this.Scheduler.GetStrategyName(), this.InitialRandomSeed, this.Profiler.Results(), reportPaths);
 
         /// <summary>
         /// Throws either an <see cref="AssertionFailureException"/>, if a bug was found,
@@ -501,7 +547,13 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Tries to emit the available reports to the specified directory with the given file name,
         /// and returns the paths of all emitted reports.
         /// </summary>
-        public bool TryEmitReports(string directory, string fileName, out IEnumerable<string> reportPaths)
+        public bool TryEmitReports(string directory, string fileName, out IEnumerable<string> reportPaths) =>
+            this.TryEmitReports(directory, fileName, this.TestReport.CreateSnapshot(), out reportPaths);
+
+        /// <summary>
+        /// Emits reports using the specified snapshot of the testing results.
+        /// </summary>
+        internal bool TryEmitReports(string directory, string fileName, TestReport snapshot, out IEnumerable<string> reportPaths)
         {
             var paths = new List<string>();
             if (!this.Configuration.RunTestIterationsToCompletion)
@@ -517,7 +569,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (!this.Configuration.RunTestIterationsToCompletion)
             {
-                if (this.Configuration.IsXmlLogEnabled)
+                if (this.Configuration.IsXmlLogEnabled && this.XmlLog != null)
                 {
                     string xmlPath = Path.Combine(directory, fileName + ".trace.xml");
                     File.WriteAllText(xmlPath, this.XmlLog.ToString());
@@ -534,7 +586,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 // Emit the trace visualization, if it exists.
                 if (this.Configuration.IsTraceAnalysisEnabled &&
-                    this.Scheduler.Graph.Length > 0 && this.TestReport.NumOfFoundBugs > 0)
+                    this.Scheduler.Graph.Length > 0 && snapshot.NumOfFoundBugs > 0)
                 {
                     string visualTracePath = Path.Combine(directory, fileName + ".trace.dgml");
                     File.WriteAllText(visualTracePath, TraceVisualizer.Visualize(this.Scheduler.Graph, TraceVisualizer.Layout.Trace));
@@ -542,7 +594,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 if (this.Configuration.IsActorTraceVisualizationEnabled &&
-                    this.LastCoverageGraph != null && this.TestReport.NumOfFoundBugs > 0)
+                    this.LastCoverageGraph != null && snapshot.NumOfFoundBugs > 0)
                 {
                     // TODO: combine with the new ExecutionGraphVisualizer capability.
                     string graphPath = Path.Combine(directory, fileName + ".actors.trace.dgml");
@@ -552,11 +604,19 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             // Emit the uncontrolled invocations report, if it exists.
-            if (this.TestReport.UncontrolledInvocations.Count > 0)
+            if (snapshot.UncontrolledInvocations.Count > 0)
             {
                 string reportPath = Path.Combine(directory, fileName + ".uncontrolled.json");
-                File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(this.TestReport.UncontrolledInvocations));
+                File.WriteAllText(reportPath, UncontrolledInvocationsReport.ToJSON(snapshot.UncontrolledInvocations));
                 paths.Add(reportPath);
+            }
+
+            // Emit the machine-readable JSON report, which also lists the reports emitted above.
+            if (this.Configuration.IsJsonReportEnabled)
+            {
+                string jsonReportPath = Path.Combine(directory, fileName + ".report.json");
+                File.WriteAllText(jsonReportPath, this.CreateJsonReport(snapshot, paths).ToJson());
+                paths.Add(jsonReportPath);
             }
 
             reportPaths = paths;

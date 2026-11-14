@@ -88,6 +88,12 @@ toc:
           link: ref/Microsoft.Coyote/Configuration/WithActorTraceVisualizationEnabled
         - name: WithXmlLogEnabled
           link: ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled
+        - name: WithStrictExplorationEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithStrictExplorationEnabled
+        - name: WithStrictBoundCheckingEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithStrictBoundCheckingEnabled
+        - name: WithJsonReportEnabled
+          link: ref/Microsoft.Coyote/Configuration/WithJsonReportEnabled
         - name: WithTelemetryEnabled
           link: ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled
         - name: Configuration
@@ -1079,11 +1085,30 @@ toc:
     - name: Microsoft.Coyote.SystematicTesting
       link: ref/Microsoft.Coyote.SystematicTestingNamespace
       subfolderitems:
+      - name: ExplorationVerdict
+        link: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict
+        subfolderitems:
+        - name: ToString
+          link: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict/ToString
+        - name: Status
+          link: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict/Status
+        - name: Reasons
+          link: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict/Reasons
+        - name: Warnings
+          link: ref/Microsoft.Coyote.SystematicTesting/ExplorationVerdict/Warnings
+      - name: ExplorationStatus
+        link: ref/Microsoft.Coyote.SystematicTesting/ExplorationStatus
+      - name: IncompleteExplorationReason
+        link: ref/Microsoft.Coyote.SystematicTesting/IncompleteExplorationReason
+      - name: ExplorationWarning
+        link: ref/Microsoft.Coyote.SystematicTesting/ExplorationWarning
       - name: TestReport
         link: ref/Microsoft.Coyote.SystematicTesting/TestReport
         subfolderitems:
         - name: Merge
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge
+        - name: GetVerdict
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/GetVerdict
         - name: GetText
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText
         - name: Clone
@@ -1140,6 +1165,8 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests
         - name: MaxUnfairStepsHitInUnfairTests
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests
+        - name: NumOfTruncatedPaths
+          link: ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfTruncatedPaths
         - name: InternalErrors
           link: ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors
       - name: TestAttribute
@@ -1173,6 +1200,8 @@ toc:
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Stop
         - name: GetReport
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport
+        - name: GetJsonReport
+          link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetJsonReport
         - name: ThrowIfBugFound
           link: ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ThrowIfBugFound
         - name: TryEmitReports

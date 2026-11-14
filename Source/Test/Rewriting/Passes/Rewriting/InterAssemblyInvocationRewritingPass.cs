@@ -182,6 +182,14 @@ namespace Microsoft.Coyote.Rewriting
                 instructions.Add(isParamByReference ? this.Processor.Create(loadOpCode, (byte)3) :
                     this.Processor.Create(loadOpCode));
             }
+            else if (isParamByReference && returnType.IsValueType)
+            {
+                // Save the returned value before passing its address to the guard.
+                var variable = new VariableDefinition(returnType);
+                this.Method.Body.Variables.Add(variable);
+                instructions.Add(this.Processor.Create(OpCodes.Stloc, variable));
+                instructions.Add(this.Processor.Create(OpCodes.Ldloca, variable));
+            }
             else
             {
                 instructions.Add(this.Processor.Create(OpCodes.Ldstr, methodName));

@@ -46,6 +46,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
 
                 engine.Run();
 
+                Assert.Contains("[coyote::report] Exploration verdict: BugFound (TestAssemblyNotRewritten).", engine.ReadableTrace);
                 observed = engine.ReadableTrace.RemoveNonDeterministicValues().NormalizeNewLines().FormatNewLine();
                 Assert.Equal(2, engine.TestReport.NumOfFoundBugs);
             }
@@ -79,12 +80,13 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::test] Exploration finished in runtime '' [found a bug using the 'random' strategy].",
                 "[coyote::report] Testing statistics:",
                 "[coyote::report] Found 2 bugs.",
+                "[coyote::report] Exploration verdict: BugFound ().",
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
-                "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
+                "[coyote::report] Number of exploration steps in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
             Assert.Equal(expectedObserved, observed);
@@ -110,6 +112,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
 
                 engine.Run();
 
+                Assert.Contains("[coyote::report] Exploration verdict: BugFound (TestAssemblyNotRewritten).", engine.ReadableTrace);
                 observed = engine.ReadableTrace.RemoveNonDeterministicValues().NormalizeNewLines().FormatNewLine();
                 Assert.Equal(2, engine.TestReport.NumOfFoundBugs);
             }
@@ -157,12 +160,13 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::test] Exploration finished in runtime '' [found a bug using the 'random' strategy].",
                 "[coyote::report] Testing statistics:",
                 "[coyote::report] Found 2 bugs.",
+                "[coyote::report] Exploration verdict: BugFound ().",
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
-                "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
+                "[coyote::report] Number of exploration steps in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
             Assert.Equal(expectedObserved, observed);
@@ -185,6 +189,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
             engine.SetLogger(logger);
             engine.Run();
 
+            Assert.Contains("[coyote::report] Exploration verdict: BugFound (TestAssemblyNotRewritten).", engine.ReadableTrace);
             string observed = engine.ReadableTrace.RemoveNonDeterministicValues().NormalizeNewLines().FormatNewLine();
             Assert.Equal(2, engine.TestReport.NumOfFoundBugs);
 
@@ -231,12 +236,13 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::test] Exploration finished in runtime '' [found a bug using the 'random' strategy].",
                 "[coyote::report] Testing statistics:",
                 "[coyote::report] Found 2 bugs.",
+                "[coyote::report] Exploration verdict: BugFound ().",
                 "[coyote::report] Exploration statistics:",
                 "[coyote::report] Explored 2 execution paths: 2 fair, 0 unfair, 1 unique.",
                 "[coyote::report] Found 100.00% buggy execution paths.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
-                "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
+                "[coyote::report] Number of exploration steps in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
             Assert.Equal(expectedObserved, observed);

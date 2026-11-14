@@ -15,7 +15,8 @@ namespace Microsoft.Coyote.Testing
         /// Sets the specified scheduling statistics.
         /// </summary>
         void SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int concurrencyDegree,
-            int groupingDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair);
+            int groupingDegree, int scheduledSteps, bool isMaxScheduledStepsBoundReached, bool isScheduleFair,
+            bool? hasSchedulingDecisions = null);
 
         /// <summary>
         /// Sets the specified unhandled exception.
@@ -26,5 +27,20 @@ namespace Microsoft.Coyote.Testing
         /// Sets the specified uncontrolled invocations.
         /// </summary>
         void SetUncontrolledInvocations(HashSet<string> invocations);
+
+        /// <summary>
+        /// Records uncontrolled concurrency, including when its source is unknown.
+        /// </summary>
+        void SetUncontrolledConcurrencyDetected(bool isDetected);
+
+        /// <summary>
+        /// Records an execution path that was interrupted without being completed.
+        /// </summary>
+        void SetExecutionInterrupted(bool isInterrupted);
+
+        /// <summary>
+        /// Records an error reported by the scheduling strategy.
+        /// </summary>
+        void SetInternalError(string error);
     }
 }

@@ -193,18 +193,31 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
         [Fact(Timeout = 5000)]
         public void TestEmittedReportUsesCapturedSnapshot()
         {
-            using var engine = TestingEngine.Create(this.GetConfiguration().WithJsonReportEnabled(), () => { });
-            var snapshot = engine.TestReport.Clone();
-            ((ITestReport)engine.TestReport).SetSchedulingStatistics(true, "Late bug", 1, 1, 1, 1, false, true);
+            var configuration = this.GetConfiguration().WithTestingIterations(1).WithJsonReportEnabled();
+            using var engine = TestingEngine.Create(configuration, () => { });
+            var snapshot = engine.TestReport.CreateSnapshot();
+            var liveReport = engine.TestReport;
+            ((ITestReport)liveReport).SetSchedulingStatistics(true, "Late bug", 1, 1, 1, 1, false, true);
+            liveReport.CoverageInfo.ExploredPaths.Add("late-path");
+            liveReport.CoverageInfo.VisitedStates.Add(1);
+            liveReport.RecordUnrewrittenTestAssembly();
+            configuration.WithTestingIterations(2);
             string directory = Path.Combine(Path.GetTempPath(), "coyote-tests", Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(directory);
             try
             {
                 Assert.True(engine.TryEmitReports(directory, "snapshot", snapshot, out var paths));
                 using var report = JsonDocument.Parse(File.ReadAllText(paths.Single()));
-                Assert.Equal(0, report.RootElement.GetProperty("bugs").GetProperty("count").GetInt32());
+                var bugs = report.RootElement.GetProperty("bugs");
+                Assert.Equal(0, bugs.GetProperty("count").GetInt32());
+                Assert.Empty(bugs.GetProperty("reports").EnumerateArray());
+                var exploration = report.RootElement.GetProperty("exploration");
+                Assert.Equal(0, exploration.GetProperty("uniquePaths").GetInt32());
+                Assert.Equal(0, exploration.GetProperty("visitedStates").GetInt32());
+                Assert.Equal(1, report.RootElement.GetProperty("settings").GetProperty("iterations").GetInt32());
                 Assert.Equal("Incomplete", report.RootElement.GetProperty("verdict").GetProperty("status").GetString());
                 Assert.Contains("NoExecutionPaths", engine.GetReport(snapshot));
+                Assert.DoesNotContain(IncompleteExplorationReason.TestAssemblyNotRewritten, snapshot.GetVerdict().Reasons);
                 Assert.Equal(ExplorationStatus.Incomplete, snapshot.GetVerdict().Status);
                 Assert.Equal(ExplorationStatus.BugFound, engine.TestReport.GetVerdict().Status);
             }

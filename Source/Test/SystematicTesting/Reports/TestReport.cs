@@ -809,6 +809,26 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Captures the state read by text and JSON reporting without serializing caller-defined data.
+        /// </summary>
+        internal TestReport CreateSnapshot()
+        {
+            lock (this.Lock)
+            {
+                var snapshot = (TestReport)this.MemberwiseClone();
+                snapshot.Lock = new object();
+                snapshot.Configuration = this.Configuration?.CreateSnapshot();
+                snapshot.BugReports = new HashSet<string>(this.BugReports, this.BugReports.Comparer);
+                snapshot.UncontrolledInvocations = new HashSet<string>(this.UncontrolledInvocations, this.UncontrolledInvocations.Comparer);
+                snapshot.InternalErrors = new HashSet<string>(this.InternalErrors, this.InternalErrors.Comparer);
+                snapshot.CoverageInfo = new ActorCoverageInfo();
+                snapshot.CoverageInfo.ExploredPaths.UnionWith(this.CoverageInfo.ExploredPaths);
+                snapshot.CoverageInfo.VisitedStates.UnionWith(this.CoverageInfo.VisitedStates);
+                return snapshot;
+            }
+        }
+
+        /// <summary>
         /// Clones the test report.
         /// </summary>
         public TestReport Clone()

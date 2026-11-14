@@ -487,7 +487,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Returns a report with the testing results.
         /// </summary>
-        public string GetReport() => this.GetReport(this.TestReport.Clone());
+        public string GetReport() => this.GetReport(this.TestReport.CreateSnapshot());
 
         /// <summary>
         /// Returns the testing results from the specified report snapshot.
@@ -511,7 +511,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Returns a machine-readable report of the test run in JSON format. The report includes
         /// the exploration verdict, statistics, bug reports and uncontrolled invocations.
         /// </summary>
-        public string GetJsonReport() => this.CreateJsonReport(this.TestReport.Clone(), Array.Empty<string>()).ToJson();
+        public string GetJsonReport() => this.CreateJsonReport(this.TestReport.CreateSnapshot(), Array.Empty<string>()).ToJson();
 
         /// <summary>
         /// Creates a machine-readable report of the test run that lists the specified emitted report paths.
@@ -542,7 +542,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// and returns the paths of all emitted reports.
         /// </summary>
         public bool TryEmitReports(string directory, string fileName, out IEnumerable<string> reportPaths) =>
-            this.TryEmitReports(directory, fileName, this.TestReport.Clone(), out reportPaths);
+            this.TryEmitReports(directory, fileName, this.TestReport.CreateSnapshot(), out reportPaths);
 
         /// <summary>
         /// Emits reports using the specified snapshot of the testing results.

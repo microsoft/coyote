@@ -216,6 +216,42 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
         }
 
         [Theory(Timeout = 10000)]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void TestReportApisWithPolymorphicConfiguration(bool enableJson, bool emitReports)
+        {
+            var configuration = new DerivedConfiguration { Payload = new ConfigurationPayload() };
+            configuration.WithTelemetryEnabled(false).WithTestingIterations(1).WithJsonReportEnabled(enableJson);
+            using var engine = TestingEngine.Create(configuration, () => SchedulingPoint.Interleave());
+            engine.Run();
+            if (!emitReports)
+            {
+                Assert.Contains("Complete", engine.GetReport());
+                using var report = JsonDocument.Parse(engine.GetJsonReport());
+                Assert.Equal("Complete", report.RootElement.GetProperty("verdict").GetProperty("status").GetString());
+                return;
+            }
+
+            string directory = Path.Combine(Path.GetTempPath(), "CoyotePolymorphicReport-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            try
+            {
+                Assert.Equal(enableJson, engine.TryEmitReports(directory, "polymorphic", out var paths));
+                if (enableJson)
+                {
+                    using var report = JsonDocument.Parse(File.ReadAllText(Assert.Single(paths)));
+                    Assert.Equal("Complete", report.RootElement.GetProperty("verdict").GetProperty("status").GetString());
+                }
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        [Theory(Timeout = 10000)]
         [InlineData(false)]
         [InlineData(true)]
         public void TestReplayEarlyCompletionIsInternalError(bool takeSchedulingPoint)
@@ -298,6 +334,14 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
         {
             [DataMember]
             public string Marker { get; set; }
+
+            [DataMember]
+            public object Payload { get; set; }
+        }
+
+        [DataContract]
+        private class ConfigurationPayload
+        {
         }
 
         [DataContract]

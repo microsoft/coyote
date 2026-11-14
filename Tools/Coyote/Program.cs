@@ -54,7 +54,7 @@ namespace Microsoft.Coyote
                     {
                         try
                         {
-                            var failureReport = engine.TestReport.Clone();
+                            var failureReport = engine.TestReport.CreateSnapshot();
                             string failureDirectory = OutputFileManager.CreateOutputDirectory(configuration);
                             string failureFileName = OutputFileManager.GetResolvedFileName(
                                 configuration.AssemblyToBeAnalyzed, failureDirectory);
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote
                 }
 
                 // Keep the emitted report, console summary and exit code on the same result snapshot.
-                var report = engine.TestReport.Clone();
+                var report = engine.TestReport.CreateSnapshot();
 
                 string directory = OutputFileManager.CreateOutputDirectory(configuration);
                 string fileName = OutputFileManager.GetResolvedFileName(configuration.AssemblyToBeAnalyzed, directory);
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
                 engine.Run();
 
-                var report = engine.TestReport.Clone();
+                var report = engine.TestReport.CreateSnapshot();
 
                 // Emit the report.
                 if (report.NumOfFoundBugs > 0)

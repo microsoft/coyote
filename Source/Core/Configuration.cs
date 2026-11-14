@@ -425,6 +425,11 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Copies the configuration values used by report generation.
+        /// </summary>
+        internal Configuration CreateSnapshot() => (Configuration)this.MemberwiseClone();
+
+        /// <summary>
         /// Updates the configuration to use the specified verbosity level, or <see cref="VerbosityLevel.Info"/>,
         /// if no level is specified. The default verbosity level is <see cref="VerbosityLevel.Error"/>.
         /// </summary>

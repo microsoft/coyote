@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Creates a <see cref="JsonTestReport"/> from the specified test report and context.
         /// </summary>
         internal static JsonTestReport Create(TestReport report, Configuration configuration, string testName,
-            Assembly testAssembly, bool isTestRewritten, string strategy, double elapsedSeconds,
+            Assembly testAssembly, bool isTestRewritten, string strategy, uint initialSeed, double elapsedSeconds,
             IEnumerable<string> artifactPaths)
         {
             var verdict = report.GetVerdict();
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 Strategy = strategy,
                 StrategyBound = configuration.StrategyBound,
-                Seed = configuration.RandomGeneratorSeed,
+                Seed = initialSeed,
                 Iterations = configuration.TestingIterations,
                 TimeoutSeconds = configuration.TestingTimeout,
                 MaxFairSchedulingSteps = configuration.MaxFairSchedulingSteps,
@@ -253,9 +253,9 @@ namespace Microsoft.Coyote.SystematicTesting
             public int StrategyBound { get; set; }
 
             /// <summary>
-            /// The random value generator seed, if it was explicitly set.
+            /// The initial random value generator seed used for this test run.
             /// </summary>
-            public uint? Seed { get; set; }
+            public uint Seed { get; set; }
 
             /// <summary>
             /// The number of requested testing iterations.

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.SystematicTesting.Frameworks.XUnit;
@@ -20,6 +21,51 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
         public JsonReportTests(ITestOutputHelper output)
             : base(output)
         {
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportRecordsReplaySeed()
+        {
+            using var recorded = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(1).WithRandomGeneratorSeed(20), () =>
+            {
+                SchedulingPoint.Interleave();
+                Specification.Assert(false, "Replay seed fixture.");
+            });
+            recorded.Run();
+            Assert.False(string.IsNullOrEmpty(recorded.ReproducibleTrace));
+
+            using var replay = TestingEngine.Create(this.GetConfiguration().WithRandomGeneratorSeed(10)
+                .WithReproducibleTrace(recorded.ReproducibleTrace), () =>
+                {
+                    SchedulingPoint.Interleave();
+                    Specification.Assert(false, "Replay seed fixture.");
+                });
+            replay.Run();
+            using var document = JsonDocument.Parse(replay.GetJsonReport());
+            Assert.Equal(20u, document.RootElement.GetProperty("settings").GetProperty("seed").GetUInt32());
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestJsonReportRecordsInitialSeed(bool specifySeed)
+        {
+            var configuration = this.GetConfiguration().WithTestingIterations(3);
+            if (specifySeed)
+            {
+                configuration.WithRandomGeneratorSeed(0);
+            }
+
+            using var engine = TestingEngine.Create(configuration, () => SchedulingPoint.Interleave());
+            uint initialSeed = engine.Scheduler.ValueGenerator.Seed;
+            engine.Run();
+            Assert.NotEqual(initialSeed, engine.Scheduler.ValueGenerator.Seed);
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var root = document.RootElement;
+            Assert.Equal(3, GetTotalPaths(root));
+            var settings = root.GetProperty("settings");
+            Assert.True(settings.TryGetProperty("seed", out var seed), "JSON report omitted the initial random seed.");
+            Assert.Equal(initialSeed, seed.GetUInt32());
         }
 
         [Fact(Timeout = 5000)]

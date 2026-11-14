@@ -65,6 +65,11 @@ namespace Microsoft.Coyote.SystematicTesting
         internal OperationScheduler Scheduler { get; private set; }
 
         /// <summary>
+        /// The seed used to initialize the scheduler before any iteration advances it.
+        /// </summary>
+        private readonly uint InitialRandomSeed;
+
+        /// <summary>
         /// The profiler.
         /// </summary>
         internal Profiler Profiler { get; private set; }
@@ -205,6 +210,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Parse the trace if one is provided, and update any configuration values.
             this.Scheduler = OperationScheduler.Setup(configuration, prefixTrace);
+            this.InitialRandomSeed = this.Scheduler.ValueGenerator.Seed;
 
             // Create a client for gathering and sending optional telemetry data.
             TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration, this.LogWriter);
@@ -518,7 +524,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private JsonTestReport CreateJsonReport(TestReport snapshot, IEnumerable<string> reportPaths) => JsonTestReport.Create(
             snapshot, snapshot.Configuration, this.TestMethodInfo.Name, this.TestMethodInfo.Assembly,
-            this.IsTestRewritten(), this.Scheduler.GetStrategyName(), this.Profiler.Results(), reportPaths);
+            this.IsTestRewritten(), this.Scheduler.GetStrategyName(), this.InitialRandomSeed, this.Profiler.Results(), reportPaths);
 
         /// <summary>
         /// Throws either an <see cref="AssertionFailureException"/>, if a bug was found,

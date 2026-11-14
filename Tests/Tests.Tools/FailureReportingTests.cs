@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
@@ -57,6 +58,20 @@ namespace Microsoft.Coyote.Tools.Tests
                 Assert.Equal("Incomplete", report.GetProperty("verdict").GetProperty("status").GetString());
                 Assert.Contains("NoSchedulingDecisions", report.GetProperty("verdict").GetProperty("reasons").ToString());
                 Assert.Contains("Number of exploration steps", output);
+            });
+        }
+
+        [Fact(Timeout = 20000)]
+        public void TestCliJsonReportRecordsGeneratedInitialSeed()
+        {
+            this.RunCli(string.Empty, 3, 0, (exitCode, output, report) =>
+            {
+                Assert.Equal(0, exitCode);
+                var seedMatch = Regex.Match(output, @"seed:([0-9]+)\] exploration strategy\.");
+                Assert.True(seedMatch.Success, output);
+                var settings = report.GetProperty("settings");
+                Assert.True(settings.TryGetProperty("seed", out var seed), "JSON report omitted the initial random seed.");
+                Assert.Equal(seedMatch.Groups[1].Value, seed.GetRawText());
             });
         }
 

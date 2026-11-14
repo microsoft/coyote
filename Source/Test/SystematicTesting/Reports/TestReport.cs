@@ -394,7 +394,12 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        void ITestReport.SetInternalError(string error)
+        void ITestReport.SetInternalError(string error) => this.RecordInternalError(error);
+
+        /// <summary>
+        /// Records an internal error for the exploration report.
+        /// </summary>
+        internal void RecordInternalError(string error)
         {
             if (!string.IsNullOrEmpty(error))
             {

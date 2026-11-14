@@ -266,9 +266,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 else
                 {
                     this.LogWriter.LogError("... Test failed due to an internal '{0}' exception.", ex.GetType().FullName);
-                    this.TestReport.InternalErrors.Add(ex.ToString());
                 }
 
+                this.TestReport.RecordInternalError(ex.ToString());
                 ExceptionDispatchInfo.Capture(ex).Throw();
             }
             finally

@@ -29,16 +29,20 @@ namespace Microsoft.Coyote.Tools.Tests
         }
 
         [Theory(Timeout = 20000)]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void TestInternalInitializationFailureEmitsJson(bool enableXml)
+        [InlineData("throw-init", false, "InvalidOperationException")]
+        [InlineData("throw-init", true, "InvalidOperationException")]
+        [InlineData("throw-file-not-found", false, "FileNotFoundException")]
+        [InlineData("throw-file-not-found", true, "FileNotFoundException")]
+        public void TestInternalInitializationFailureEmitsJson(string mode, bool enableXml, string exceptionType)
         {
-            this.RunCli("throw-init", 1, 0, (exitCode, output, report) =>
+            this.RunCli(mode, 1, 0, (exitCode, output, report) =>
             {
                 Assert.Equal(1, exitCode);
                 Assert.Contains("Fixture initialization failed.", output);
                 Assert.Equal("InternalError", report.GetProperty("verdict").GetProperty("status").GetString());
-                Assert.Contains("Fixture initialization failed.", report.GetProperty("internalErrors")[0].GetString());
+                string error = Assert.Single(report.GetProperty("internalErrors").EnumerateArray()).GetString();
+                Assert.Contains(exceptionType, error);
+                Assert.Contains("Fixture initialization failed.", error);
             }, enableXml);
         }
 
@@ -266,6 +270,11 @@ namespace Microsoft.Coyote.Tools.Tests
             if (mode == "throw-init")
             {
                 throw new InvalidOperationException("Fixture initialization failed.");
+            }
+
+            if (mode == "throw-file-not-found")
+            {
+                throw new FileNotFoundException("Fixture initialization failed.");
             }
 
             if (mode == "slow-init")

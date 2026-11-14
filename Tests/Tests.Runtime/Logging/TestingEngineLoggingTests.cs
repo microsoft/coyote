@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Found 100.00% buggy execution paths.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
-                "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
+                "[coyote::report] Number of exploration steps in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
             Assert.Equal(expectedObserved, observed);
@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Found 100.00% buggy execution paths.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
-                "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
+                "[coyote::report] Number of exploration steps in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
             Assert.Equal(expectedObserved, observed);
@@ -242,7 +242,7 @@ namespace Microsoft.Coyote.Runtime.Tests.Logging
                 "[coyote::report] Found 100.00% buggy execution paths.",
                 "[coyote::report] Controlled 2 operations: 1 (), 1 (), 1 ().",
                 "[coyote::report] Degree of operation grouping: 1 (), 1 (), 1 ().",
-                "[coyote::report] Number of scheduling decisions in fair terminating execution paths: 0 (), 0 (), 0 ().");
+                "[coyote::report] Number of exploration steps in fair terminating execution paths: 0 (), 0 (), 0 ().");
             this.TestOutput.WriteLine($"Observed (length: {observed.Length}):");
             this.TestOutput.WriteLine(observed);
             Assert.Equal(expectedObserved, observed);

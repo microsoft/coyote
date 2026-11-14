@@ -81,6 +81,11 @@ namespace Microsoft.Coyote.Runtime
         internal int StepCount => this.Strategy.GetStepCount();
 
         /// <summary>
+        /// Whether the current iteration made an operation or delay scheduling decision.
+        /// </summary>
+        internal bool HasSchedulingDecisions { get; private set; }
+
+        /// <summary>
         /// True if the max number of steps that should be explored has been
         /// reached in the current iteration, else false.
         /// </summary>
@@ -221,6 +226,7 @@ namespace Microsoft.Coyote.Runtime
         /// <returns>True to start the specified test iteration, else false to stop exploring.</returns>
         internal bool InitializeNextIteration(uint iteration, LogWriter logWriter)
         {
+            this.HasSchedulingDecisions = false;
             if (iteration > 0)
             {
                 // Advance in round-robin order without mutating the portfolio while reports can read it.
@@ -275,6 +281,7 @@ namespace Microsoft.Coyote.Runtime
                     }
 
                     this.Trace.AddSchedulingDecision(current, current.LastSchedulingPoint, next);
+                    this.HasSchedulingDecisions = true;
                     return true;
                 }
             }
@@ -331,8 +338,12 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="next">The next delay.</param>
         /// <returns>True if there is a next delay, else false.</returns>
         internal bool GetNextDelay(IEnumerable<ControlledOperation> ops, ControlledOperation current,
-            int maxValue, out int next) =>
-            (this.Strategy as FuzzingStrategy).GetNextDelay(ops, current, maxValue, out next);
+            int maxValue, out int next)
+        {
+            bool hasDelay = ((FuzzingStrategy)this.Strategy).GetNextDelay(ops, current, maxValue, out next);
+            this.HasSchedulingDecisions |= hasDelay;
+            return hasDelay;
+        }
 
         /// <summary>
         /// Sets a checkpoint in the currently explored execution trace, that allows replaying all

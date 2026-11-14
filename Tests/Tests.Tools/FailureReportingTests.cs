@@ -43,6 +43,20 @@ namespace Microsoft.Coyote.Tools.Tests
         }
 
         [Theory(Timeout = 20000)]
+        [InlineData("boolean-choice")]
+        [InlineData("integer-choice")]
+        public void TestChoiceOnlyCliIsIncompleteInStrictMode(string mode)
+        {
+            this.RunCli(mode, 1, 0, (exitCode, output, report) =>
+            {
+                Assert.True(exitCode is 4, $"Expected exit code 4, got {exitCode}.\n{output}");
+                Assert.Equal("Incomplete", report.GetProperty("verdict").GetProperty("status").GetString());
+                Assert.Contains("NoSchedulingDecisions", report.GetProperty("verdict").GetProperty("reasons").ToString());
+                Assert.Contains("Number of exploration steps", output);
+            });
+        }
+
+        [Theory(Timeout = 20000)]
         [InlineData(false)]
         [InlineData(true)]
         public void TestZeroExecutionCliIsIncomplete(bool initializePastTimeout)
@@ -263,9 +277,20 @@ namespace Microsoft.Coyote.Tools.Tests
         [Test]
         public static void Run()
         {
-            if (Environment.GetEnvironmentVariable("COYOTE_REPORT_FAILURE_MODE") != "timeout-after-path-without-decisions")
+            string mode = Environment.GetEnvironmentVariable("COYOTE_REPORT_FAILURE_MODE");
+            switch (mode)
             {
-                SchedulingPoint.Interleave();
+                case "boolean-choice":
+                    Microsoft.Coyote.Random.Generator.Create().NextBoolean();
+                    break;
+                case "integer-choice":
+                    Microsoft.Coyote.Random.Generator.Create().NextInteger(2);
+                    break;
+                case "timeout-after-path-without-decisions":
+                    break;
+                default:
+                    SchedulingPoint.Interleave();
+                    break;
             }
         }
 

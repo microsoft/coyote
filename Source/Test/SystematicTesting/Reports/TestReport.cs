@@ -155,6 +155,18 @@ namespace Microsoft.Coyote.SystematicTesting
         public int TotalExploredUnfairSteps { get; internal set; }
 
         /// <summary>
+        /// Whether any path made a scheduling decision. Older reports only recorded exploration steps.
+        /// </summary>
+        [DataMember(EmitDefaultValue = false)]
+        private bool? HasSchedulingDecisions { get; set; }
+
+        /// <summary>
+        /// Uses the original step-based heuristic for reports that predate separate scheduling tracking.
+        /// </summary>
+        private bool HasRecordedSchedulingDecisions =>
+            this.HasSchedulingDecisions ?? (this.MaxExploredFairSteps > 0 || this.MaxExploredUnfairSteps > 0);
+
+        /// <summary>
         /// Number of times the fair max steps bound was hit in fair tests.
         /// </summary>
         [DataMember]
@@ -280,8 +292,10 @@ namespace Microsoft.Coyote.SystematicTesting
 
         /// <inheritdoc/>
         void ITestReport.SetSchedulingStatistics(bool isBugFound, string bugReport, int numOperations, int concurrencyDegree,
-            int groupingDegree, int executionSteps, bool isMaxStepsBoundReached, bool isExecutionPathFair)
+            int groupingDegree, int executionSteps, bool isMaxStepsBoundReached, bool isExecutionPathFair,
+            bool? hasSchedulingDecisions)
         {
+            this.HasSchedulingDecisions = hasSchedulingDecisions;
             if (isBugFound)
             {
                 this.NumOfFoundBugs++;
@@ -451,6 +465,7 @@ namespace Microsoft.Coyote.SystematicTesting
             lock (this.Lock)
             {
                 this.CoverageInfo.Merge(testReport.CoverageInfo);
+                this.HasSchedulingDecisions = this.HasRecordedSchedulingDecisions || testReport.HasRecordedSchedulingDecisions;
 
                 this.NumOfFoundBugs += testReport.NumOfFoundBugs;
 
@@ -607,8 +622,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     reasons.Add(IncompleteExplorationReason.InsufficientExecutionPaths);
                 }
 
-                if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 &&
-                    this.MaxExploredFairSteps <= 0 && this.MaxExploredUnfairSteps <= 0)
+                if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 && !this.HasRecordedSchedulingDecisions)
                 {
                     reasons.Add(IncompleteExplorationReason.NoSchedulingDecisions);
                 }
@@ -739,7 +753,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Number of scheduling decisions in fair terminating execution paths: {1} (min), {2} (avg), {3} (max).",
+                    "{0} Number of exploration steps in fair terminating execution paths: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinExploredFairSteps < 0 ? 0 : this.MinExploredFairSteps,
                     this.TotalExploredFairSteps / this.NumOfExploredFairPaths,
@@ -773,7 +787,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 report.AppendLine();
                 report.AppendFormat(
-                    "{0} Number of scheduling decisions in unfair terminating execution paths: {1} (min), {2} (avg), {3} (max).",
+                    "{0} Number of exploration steps in unfair terminating execution paths: {1} (min), {2} (avg), {3} (max).",
                     prefix.Equals("...") ? "....." : prefix,
                     this.MinExploredUnfairSteps < 0 ? 0 : this.MinExploredUnfairSteps,
                     this.TotalExploredUnfairSteps / this.NumOfExploredUnfairPaths,

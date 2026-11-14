@@ -2593,7 +2593,7 @@ namespace Microsoft.Coyote.Runtime
                 int groupingDegree = this.OperationMap.Values.Select(op => op.Group).Distinct().Count();
                 report.SetSchedulingStatistics(isBugFound, this.BugReport, this.OperationMap.Count, (int)this.MaxConcurrencyDegree,
                     groupingDegree, this.Scheduler.StepCount, this.IsSchedulingStepsBoundReached,
-                    this.Scheduler.IsIterationFair);
+                    this.Scheduler.IsIterationFair, this.Scheduler.HasSchedulingDecisions);
                 if (isBugFound)
                 {
                     report.SetUnhandledException(this.UnhandledException);

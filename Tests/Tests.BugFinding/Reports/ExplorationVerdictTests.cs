@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -379,6 +380,43 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
             var verdict = report.GetVerdict();
             Assert.Equal(ExplorationStatus.Incomplete, verdict.Status);
             Assert.Contains(IncompleteExplorationReason.NoSchedulingDecisions, verdict.Reasons);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestChoiceOnlyVerdictSurvivesCloneAndMerge()
+        {
+            var configuration = this.GetConfiguration().WithTestingIterations(1);
+            var choiceOnly = this.RunSystematicTest(() => Microsoft.Coyote.Random.Generator.Create().NextBoolean(),
+                configuration: configuration);
+            Assert.Contains(IncompleteExplorationReason.NoSchedulingDecisions, choiceOnly.Clone().GetVerdict().Reasons);
+
+            var merged = new TestReport(configuration);
+            Assert.True(merged.Merge(choiceOnly));
+            Assert.Contains(IncompleteExplorationReason.NoSchedulingDecisions, merged.GetVerdict().Reasons);
+
+            var scheduled = this.RunSystematicTest(() => SchedulingPoint.Interleave(), configuration: configuration);
+            Assert.True(merged.Merge(scheduled));
+            Assert.Equal(ExplorationStatus.Complete, merged.GetVerdict().Status);
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false, ExplorationStatus.Incomplete)]
+        [InlineData(true, ExplorationStatus.Complete)]
+        public void TestFuzzingVerdictRequiresSchedulingDecision(bool schedule, ExplorationStatus expectedStatus)
+        {
+            var report = this.RunSystematicTest(() =>
+            {
+                Microsoft.Coyote.Random.Generator.Create().NextBoolean();
+                if (schedule)
+                {
+                    SchedulingPoint.Interleave();
+                }
+            }, configuration: this.GetConfiguration().WithTestingIterations(1)
+                .WithSystematicFuzzingEnabled().WithMaxFuzzingDelay(1));
+
+            var verdict = report.GetVerdict();
+            Assert.Equal(expectedStatus, verdict.Status);
+            Assert.Equal(!schedule, verdict.Reasons.Contains(IncompleteExplorationReason.NoSchedulingDecisions));
         }
 
         [Fact(Timeout = 5000)]

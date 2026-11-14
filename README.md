@@ -117,7 +117,7 @@ The following rewritten test cases illustrate the difference from the published 
 | --- | --- | --- |
 | Normal scheduling, no bugs, no limitations | Exit `0` | `Complete`, exit `0` |
 | Paths truncated at the scheduling-step limit, no bugs | Exit `0`; text reports the limit being reached | `Incomplete`, reason `TruncatedExecutionPaths`, exit `4` |
-| Test executes but makes no scheduling decisions | Exit `0`; text reports zero scheduling steps | `Incomplete`, reason `NoSchedulingDecisions`, exit `4` |
+| Test executes but makes no scheduling decisions, including tests that only make random choices | Exit `0` | `Incomplete`, reason `NoSchedulingDecisions`, exit `4` |
 
 Other incomplete reasons include `UncontrolledInvocations`, `NoExecutionPaths`,
 `InsufficientExecutionPaths`, `TestingCanceled`, `ExecutionInterrupted` and `TestAssemblyNotRewritten`. A strategy that reports

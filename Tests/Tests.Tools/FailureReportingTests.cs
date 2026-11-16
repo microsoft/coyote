@@ -48,6 +48,27 @@ namespace Microsoft.Coyote.Tools.Tests
         }
 
         [Theory(Timeout = 20000)]
+        [InlineData("throw-formatting", false, "ThrowingDiagnosticFileNotFoundException")]
+        [InlineData("throw-formatting", true, "ThrowingDiagnosticFileNotFoundException")]
+        [InlineData("empty-formatting", false, "EmptyDiagnosticException")]
+        [InlineData("empty-formatting", true, "EmptyDiagnosticException")]
+        [InlineData("null-formatting", false, "NullDiagnosticException")]
+        [InlineData("null-formatting", true, "NullDiagnosticException")]
+        public void TestUnformattableInitializationFailureEmitsJson(string mode, bool enableXml, string exceptionType)
+        {
+            this.RunCli(mode, 1, 0, (exitCode, output, report) =>
+            {
+                Assert.Equal(1, exitCode);
+                Assert.Contains("Fixture initialization failed.", output);
+                Assert.DoesNotContain("Exception formatting failed.", output);
+                Assert.Equal("InternalError", report.GetProperty("verdict").GetProperty("status").GetString());
+                string diagnostic = Assert.Single(report.GetProperty("internalErrors").EnumerateArray()).GetString();
+                Assert.False(string.IsNullOrEmpty(diagnostic));
+                Assert.Contains(exceptionType, diagnostic);
+            }, enableXml);
+        }
+
+        [Theory(Timeout = 20000)]
         [InlineData("boolean-choice")]
         [InlineData("integer-choice")]
         public void TestChoiceOnlyCliIsIncompleteInStrictMode(string mode)
@@ -292,6 +313,21 @@ namespace Microsoft.Coyote.Tools.Tests
                 throw new FileNotFoundException("Fixture initialization failed.");
             }
 
+            if (mode == "throw-formatting")
+            {
+                throw new ThrowingDiagnosticFileNotFoundException();
+            }
+
+            if (mode == "empty-formatting")
+            {
+                throw new EmptyDiagnosticException();
+            }
+
+            if (mode == "null-formatting")
+            {
+                throw new NullDiagnosticException();
+            }
+
             if (mode == "slow-init")
             {
                 NativeInitialization.Delay();
@@ -316,6 +352,36 @@ namespace Microsoft.Coyote.Tools.Tests
                     SchedulingPoint.Interleave();
                     break;
             }
+        }
+
+        private sealed class ThrowingDiagnosticFileNotFoundException : FileNotFoundException
+        {
+            internal ThrowingDiagnosticFileNotFoundException()
+                : base("Fixture initialization failed.")
+            {
+            }
+
+            public override string ToString() => throw new InvalidOperationException("Exception formatting failed.");
+        }
+
+        private sealed class EmptyDiagnosticException : Exception
+        {
+            internal EmptyDiagnosticException()
+                : base("Fixture initialization failed.")
+            {
+            }
+
+            public override string ToString() => string.Empty;
+        }
+
+        private sealed class NullDiagnosticException : Exception
+        {
+            internal NullDiagnosticException()
+                : base("Fixture initialization failed.")
+            {
+            }
+
+            public override string ToString() => null;
         }
 
         [SkipRewriting("Preserve native TestInit timing for the timeout regression.")]

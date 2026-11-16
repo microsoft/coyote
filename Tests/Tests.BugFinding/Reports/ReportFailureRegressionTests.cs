@@ -26,6 +26,32 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
         {
         }
 
+        [Theory(Timeout = 5000)]
+        [InlineData("throws")]
+        [InlineData("empty")]
+        [InlineData("null")]
+        public void TestInternalErrorFormattingPreservesOriginalException(string mode)
+        {
+            Exception original = mode switch
+            {
+                "throws" => new ThrowingDiagnosticFileNotFoundException(),
+                "empty" => new EmptyDiagnosticException(),
+                _ => new NullDiagnosticException()
+            };
+            using var engine = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(1), () => { });
+            engine.RegisterStartIterationCallBack(_ => throw original);
+
+            Exception thrown = Record.Exception(engine.Run);
+            Assert.True(ReferenceEquals(original, thrown), "The engine must rethrow the original exception instance.");
+            Assert.Equal(ExplorationStatus.InternalError, engine.TestReport.GetVerdict().Status);
+            string diagnostic = Assert.Single(engine.TestReport.InternalErrors);
+            Assert.False(string.IsNullOrEmpty(diagnostic));
+            Assert.Contains(original.GetType().FullName, diagnostic);
+            using var report = JsonDocument.Parse(engine.GetJsonReport());
+            Assert.Equal("InternalError", report.RootElement.GetProperty("verdict").GetProperty("status").GetString());
+            Assert.Equal(diagnostic, Assert.Single(report.RootElement.GetProperty("internalErrors").EnumerateArray()).GetString());
+        }
+
         [Fact(Timeout = 10000)]
         public void TestIgnoredNativeDeadlockIsIncomplete()
         {
@@ -327,6 +353,21 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
                 ExplorationStatus.Incomplete : ExplorationStatus.Complete, replay.TestReport.GetVerdict().Status);
             Assert.Equal(outcome is 1 ? 1 : 0, replay.TestReport.NumOfFoundBugs);
             Assert.Equal(outcome is 2 ? 1 : 0, replay.TestReport.NumOfTruncatedPaths);
+        }
+
+        private sealed class ThrowingDiagnosticFileNotFoundException : FileNotFoundException
+        {
+            public override string ToString() => throw new InvalidOperationException("Exception formatting failed.");
+        }
+
+        private sealed class EmptyDiagnosticException : Exception
+        {
+            public override string ToString() => string.Empty;
+        }
+
+        private sealed class NullDiagnosticException : Exception
+        {
+            public override string ToString() => null;
         }
 
         [DataContract]

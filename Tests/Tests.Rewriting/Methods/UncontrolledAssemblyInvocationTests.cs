@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -95,6 +97,23 @@ namespace Microsoft.Coyote.Rewriting.Tests
 
                 public static ValueTask<TRight> GetGenericTypeTask<T>() => ValueTask.FromResult<TRight>(default(TRight));
             }
+        }
+
+        [SkipRewriting("Must not be rewritten.")]
+        private sealed class ValueTaskEnumerator : IAsyncEnumerator<int>
+        {
+            private readonly Task<bool> Task;
+
+            internal ValueTaskEnumerator(bool isCompleted)
+            {
+                this.Task = isCompleted ? System.Threading.Tasks.Task.FromResult(true) : new TaskCompletionSource<bool>().Task;
+            }
+
+            public int Current => 0;
+
+            public ValueTask<bool> MoveNextAsync() => new ValueTask<bool>(this.Task);
+
+            public ValueTask DisposeAsync() => new ValueTask(this.Task);
         }
 #endif
 #pragma warning restore CA1000 // Do not declare static members on generic types
@@ -252,6 +271,47 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
 #if NET
+        [Theory(Timeout = 5000)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        public void TestForeignValueTaskStoredInAsyncStateMachine(bool isGeneric, bool isCompleted)
+        {
+            Func<Task> test = async () =>
+            {
+                IAsyncEnumerator<int> enumerator = new ValueTaskEnumerator(isCompleted);
+                if (isGeneric)
+                {
+                    ValueTask<bool> next = enumerator.MoveNextAsync();
+                    await Task.Yield();
+                    Assert.True(next.IsCompleted);
+                    Assert.True(await next);
+                }
+                else
+                {
+                    ValueTask disposed = enumerator.DisposeAsync();
+                    await Task.Yield();
+                    Assert.True(disposed.IsCompleted);
+                    await disposed;
+                }
+            };
+
+            if (isCompleted)
+            {
+                this.Test(test);
+            }
+            else
+            {
+                string method = isGeneric ? "IAsyncEnumerator.MoveNextAsync" : "IAsyncDisposable.DisposeAsync";
+                this.TestWithError(test, errorChecker: error =>
+                {
+                    Assert.Contains(method, error);
+                    Assert.Contains("not intercepted and controlled", error);
+                });
+            }
+        }
+
         [Fact(Timeout = 5000)]
         public void TestUncontrolledMethodReturnsValueTask()
         {

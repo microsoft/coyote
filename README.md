@@ -43,17 +43,23 @@ starts, but there is one schedule where the task starts fast enough to set `valu
 the assertion to fail. Of course, this is a very naive example and the bug is obvious, but you could
 imagine much more complicated race conditions that are hidden in complex execution paths.
 
-The way Coyote works, is that you first convert the above test to a concurrency unit test using the
-Coyote `TestingEngine` API:
+The example below uses the exploration verdict API. The published `1.7.11` packages do not include
+this API, the strict CLI options, or machine-readable JSON reports. Use the CLI and libraries
+[built from the same source revision](docs/get-started/build-source.md).
+
+Use the Coyote `TestingEngine` API to turn the above test into a concurrency unit test:
 ```csharp
+using Microsoft.Coyote;
 using Microsoft.Coyote.SystematicTesting;
 
 [Fact]
 public async Task CoyoteTestTask()
 {
   var configuration = Configuration.Create().WithTestingIterations(10);
-  var engine = TestingEngine.Create(configuration, TestTask);
+  using var engine = TestingEngine.Create(configuration, TestTask);
   engine.Run();
+  engine.ThrowIfBugFound();
+  Assert.Equal(ExplorationStatus.Complete, engine.TestReport.GetVerdict().Status);
 }
 ```
 
@@ -67,15 +73,116 @@ beginning to the end for N iterations (in the above example N was configured to 
 hood, Coyote uses intelligent search strategies to explore all kinds of execution paths that might
 hide a bug in each iteration.
 
-The awesome thing is that once a bug is found, Coyote gives you a trace through the `engine.TestReport`
-API that you can use to reliably *reproduce* the bug as many times as you want, making debugging and
-fixing the issue significantly easier.
+When a reproducible trace is available, read it from `engine.ReproducibleTrace` and use it to
+[replay the bug](docs/get-started/using-coyote.md#reproducing-and-debugging-traces).
+
+## Exploration verdicts and CI
+
+Finding zero bugs does not necessarily mean that a test explored useful interleavings. For example,
+execution paths can reach a scheduling-step limit, or the test can execute without making any
+scheduling decisions. Inspect the exploration verdict as well as the bug count:
+
+| Verdict | Meaning |
+| --- | --- |
+| `Complete` | The exploration reported no bugs, internal errors, or incomplete reasons. Warnings can still be present. |
+| `Incomplete` | No bug was found, but exploration had limitations listed in `reasons`. |
+| `BugFound` | At least one bug was found; `bugs.reports` contains the diagnostic messages. |
+| `InternalError` | The test report contains an internal testing error. |
+
+`Complete` does not prove that every possible execution was explored. A `BugFound` verdict can also
+include incomplete reasons that affect confidence in reproducing the bug. Internal errors and bugs
+take priority over an incomplete verdict.
+
+For CI with `coyote test`, use an assembly with a [Coyote test entry point](docs/get-started/using-coyote.md#test-entry-point).
+The CLI discovers methods marked with `[Microsoft.Coyote.SystematicTesting.Test]`. If the assembly
+has multiple Coyote tests, use `--method` to select one. When the test and the code under test are
+in the same assembly, rewrite that assembly and run:
+
+```plain
+coyote rewrite path/to/Tests.dll
+coyote test path/to/Tests.dll --iterations 1000 --strict --json-report
+```
+
+To rewrite multiple assemblies, list them in a [rewrite configuration](docs/concepts/binary-rewriting.md#configuration)
+and pass it to `coyote rewrite`. If the configuration sets a separate output directory, point
+`coyote test` at the rewritten test assembly in that directory.
+
+The CLI normally returns `0` when no bugs were found, `2` when a bug was found, and `3` for an
+internal testing error. With `--strict`, an `Incomplete` verdict returns `4` instead of `0`.
+Command or setup errors return `1`. Treat nonzero exit codes as unsuccessful test runs.
+
+The following rewritten test cases illustrate the difference from the published `1.7.11` CLI:
+
+| Test case | Published `1.7.11` | This branch with `--strict` |
+| --- | --- | --- |
+| Normal scheduling, no bugs, no limitations | Exit `0` | `Complete`, exit `0` |
+| Paths truncated at the scheduling-step limit, no bugs | Exit `0`; text reports the limit being reached | `Incomplete`, reason `TruncatedExecutionPaths`, exit `4` |
+| Test executes but makes no scheduling decisions, including tests that only make random choices | Exit `0` | `Incomplete`, reason `NoSchedulingDecisions`, exit `4` |
+
+Other incomplete reasons include `UncontrolledInvocations`, `NoExecutionPaths`,
+`InsufficientExecutionPaths`, `TestingCanceled`, `ExecutionInterrupted` and `TestAssemblyNotRewritten`. A strategy that reports
+exhaustion can finish before the requested iteration count without adding `InsufficientExecutionPaths`;
+other limitations still apply. `InsufficientExecutionPaths` is only reported when no timeout is configured.
+
+`reasons` identify exploration limitations, while `warnings` do not change the verdict by themselves.
+For example, fair paths that exceed the unfair step bound normally produce an
+`ExceededUnfairStepsBound` warning; `--strict-bounds` enables strict exploration and treats this as an
+incomplete reason instead. In-process callers can use `Configuration.WithStrictBoundCheckingEnabled()`
+to apply the same warning-to-reason rule. A timeout before any paths were explored adds `NoExecutionPaths`
+and `TestingTimedOut` reasons. Reaching the time budget after exploring paths produces a `TestingTimedOut`
+warning; other incomplete reasons can still prevent a `Complete` verdict.
+Uncontrolled concurrency also adds `UncontrolledInvocations` when the runtime cannot identify a source
+method, so the list of named uncontrolled calls can be empty. A step bound of zero is disabled.
+Paths that finish normally exactly at their step limit are not counted as truncated.
+Fair paths that finish exactly at the unfair step bound are not counted as exceeding it.
+An ignored potential deadlock or an unexpected `TaskCanceledException` that ends exploration while
+the engine has not been canceled records `ExecutionInterrupted`.
+A replay scheduling mismatch or normal completion with unconsumed trace steps records an internal error.
+With `--json-report`, an internal setup failure also attempts to emit its diagnostic report before
+returning the original command error (`1`); report emission does not hide the original exception.
+
+In-process callers can inspect `engine.TestReport.GetVerdict()` and obtain JSON with
+`engine.GetJsonReport()`. As shown in the unit-test example above, assert the required verdict explicitly;
+`ThrowIfBugFound()` preserves the bug diagnostic, while the verdict assertion also rejects incomplete
+exploration. The strict CLI exit-code policy does not automatically fail an in-process test wrapper.
+To emit report files in-process, enable `Configuration.WithJsonReportEnabled()` and call
+`engine.TryEmitReports(...)` with an existing output directory. `GetJsonReport()` returns the JSON string
+without the `artifacts` field and does not emit files.
+
+## JSON reports
+
+`--json-report` emits a `.report.json` file alongside the other reports. Its main fields are:
+
+| Field | Contents |
+| --- | --- |
+| `coyoteVersion`, `testName` | Coyote assembly version and test method name, when available. |
+| `assembly` | Test-entry assembly name, path, SHA-256 and `isRewritten` flag. |
+| `settings` | Strategy, initial seed (including one generated by Coyote), requested iterations, time and step bounds, and strict-mode settings. |
+| `verdict` | `status`, incomplete `reasons`, and non-fatal `warnings`. |
+| `bugs`, `internalErrors`, `uncontrolledInvocations` | Bug count and messages, internal errors, and detected uncontrolled calls. |
+| `uncontrolledConcurrencyDetected` | Whether the runtime detected uncontrolled concurrency, including when its source method is unknown. |
+| `exploration` | Fair, unfair and unique path counts, truncation counts, the number of visited state hashes, scheduling steps, controlled operations and concurrency statistics. |
+| `artifacts` | Paths to emitted traces and other diagnostic reports, when present. |
+| `elapsedSeconds` | Execution time measured by the testing engine. |
+
+Statistics such as scheduling steps use `min`, `avg` and `max`; averages are integer values. Null
+fields are omitted. `coyoteVersion` is an assembly version, not a source revision identifier.
+The assembly hash identifies the test entry, not the Coyote engine or every dependency, and
+`isRewritten` does not prove that all concurrent APIs were controlled. State counts depend on the
+configured state hashing and are not a business-state coverage percentage.
+JSON verdicts and statistics use a snapshot of the accumulated results. The CLI uses the same snapshot
+for these JSON fields, the console summary and exit code, including when a background iteration finishes
+after a timeout. Trace and coverage artifacts are emitted separately from this statistics snapshot.
+
+The path and concurrency statistics were already available in text reports; JSON makes them directly
+usable by automation. The new verdict and strict exit code distinguish "no bugs found" from incomplete
+exploration. For more details, see [machine-readable results](docs/get-started/using-coyote.md#machine-readable-results).
 
 ## Get started
 
 Getting started with Coyote is easy! First, follow this
 [guide](https://microsoft.github.io/coyote/#get-started/install/) to install the `coyote`
-command-line tool from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote/). You are now ready
+command-line tool from [NuGet](https://www.nuget.org/packages/Microsoft.Coyote.CLI/). You are now ready
 to check out the Coyote [website](https://microsoft.github.io/coyote/) for tutorials, documentation,
 how-tos, samples and more information about the project. Enjoy!
 

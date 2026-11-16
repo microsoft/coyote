@@ -52,12 +52,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Set of callbacks to invoke at the start of each iteration.
         /// </summary>
-        private readonly ISet<Action<uint>> StartIterationCallbacks;
+        private readonly HashSet<Action<uint>> StartIterationCallbacks;
 
         /// <summary>
         /// Set of callbacks to invoke at the end of each iteration.
         /// </summary>
-        private readonly ISet<Action<uint>> EndIterationCallbacks;
+        private readonly HashSet<Action<uint>> EndIterationCallbacks;
 
         /// <summary>
         /// The scheduler used by the runtime during testing.
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The profiler.
         /// </summary>
-        internal Profiler Profiler { get; private set; }
+        internal Profiler Profiler { get; }
 
         /// <summary>
         /// The testing task cancellation token source.

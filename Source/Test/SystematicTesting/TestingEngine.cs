@@ -695,6 +695,10 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             TestReport report = new TestReport(this.Configuration);
             runtime.PopulateTestReport(report);
+            if (this.Scheduler.IsReplaying && runtime.ExecutionStatus is ExecutionStatus.PathExplored && report.InternalErrors.Count is 0)
+            {
+                report.RecordCompletedReplayPaths();
+            }
 
             var coverageInfo = runtime.BuildCoverageInfo();
             report.CoverageInfo.Merge(coverageInfo);

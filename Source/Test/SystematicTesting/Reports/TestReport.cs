@@ -233,6 +233,12 @@ namespace Microsoft.Coyote.SystematicTesting
         internal bool IsExplorationExhausted { get; private set; }
 
         /// <summary>
+        /// Number of execution paths that completed replay without a trace error.
+        /// </summary>
+        [DataMember(EmitDefaultValue = false)]
+        private int NumOfCompletedReplayPaths;
+
+        /// <summary>
         /// Lock for the test report.
         /// </summary>
         private object Lock;
@@ -444,6 +450,17 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// Records that the paths in this iteration report completed replay.
+        /// </summary>
+        internal void RecordCompletedReplayPaths()
+        {
+            lock (this.Lock)
+            {
+                this.NumOfCompletedReplayPaths = this.NumOfExploredFairPaths + this.NumOfExploredUnfairPaths;
+            }
+        }
+
+        /// <summary>
         /// Records how the exploration was interrupted while statistics can still be merging.
         /// </summary>
         internal void RecordExplorationTermination(bool isCanceled)
@@ -521,6 +538,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 this.NumOfExploredFairPaths += testReport.NumOfExploredFairPaths;
                 this.NumOfExploredUnfairPaths += testReport.NumOfExploredUnfairPaths;
+                this.NumOfCompletedReplayPaths += testReport.NumOfCompletedReplayPaths;
 
                 this.TotalExploredFairSteps += testReport.TotalExploredFairSteps;
                 this.MaxExploredFairSteps = Math.Max(this.MaxExploredFairSteps, testReport.MaxExploredFairSteps);
@@ -622,7 +640,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 if (this.NumOfFoundBugs is 0 && totalExploredPaths > 0 && this.Configuration.TestingTimeout is 0 &&
-                    totalExploredPaths < this.Configuration.TestingIterations && !this.IsExplorationExhausted)
+                    totalExploredPaths < this.Configuration.TestingIterations && !this.IsExplorationExhausted &&
+                    totalExploredPaths != this.NumOfCompletedReplayPaths)
                 {
                     reasons.Add(IncompleteExplorationReason.InsufficientExecutionPaths);
                 }

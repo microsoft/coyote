@@ -1,6 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.IO;
+#if NET
+using System.Threading.Channels;
+#endif
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -252,6 +257,33 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
 #if NET
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledValueTaskStoredOrReturned()
+        {
+            this.Test(async () =>
+            {
+                var buffer = new byte[1];
+                ValueTask<int> read = new MemoryStream(new byte[] { 42 }).ReadAsync(buffer.AsMemory());
+                await Task.Yield();
+                Assert.Equal(1, await read);
+                Assert.Equal(42, buffer[0]);
+
+                await ReturnValueTask();
+                Assert.Equal(1, await ReturnGenericValueTask());
+
+                var channel = Channel.CreateUnbounded<int>();
+                Assert.True(channel.Writer.TryWrite(123));
+                Assert.Equal(123, await ReadChannel(channel.Reader));
+            });
+        }
+
+        private static ValueTask ReturnValueTask() => new MemoryStream().DisposeAsync();
+
+        private static ValueTask<int> ReturnGenericValueTask() =>
+            new MemoryStream(new byte[] { 1 }).ReadAsync(new byte[1].AsMemory());
+
+        private static ValueTask<T> ReadChannel<T>(ChannelReader<T> reader) => reader.ReadAsync();
+
         [Fact(Timeout = 5000)]
         public void TestUncontrolledMethodReturnsValueTask()
         {

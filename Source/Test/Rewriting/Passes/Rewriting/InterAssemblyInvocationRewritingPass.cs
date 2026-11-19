@@ -184,8 +184,22 @@ namespace Microsoft.Coyote.Rewriting
             }
             else
             {
+                if (isParamByReference)
+                {
+                    var variable = new VariableDefinition(returnType);
+                    this.Method.Body.Variables.Add(variable);
+                    this.Method.Body.InitLocals = true;
+                    instructions.Add(this.Processor.Create(OpCodes.Stloc, variable));
+                    instructions.Add(this.Processor.Create(OpCodes.Ldloca, variable));
+                }
+
                 instructions.Add(this.Processor.Create(OpCodes.Ldstr, methodName));
                 instructions.Add(this.Processor.Create(OpCodes.Call, interceptionMethod));
+                if (interceptionMethod.ReturnType.IsByReference)
+                {
+                    instructions.Add(this.Processor.Create(OpCodes.Ldobj, returnType));
+                }
+
                 return instructions;
             }
 

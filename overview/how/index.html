@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/overview/how/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How does it work - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "How does it work?", url: "#_top", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../videos/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../videos/" class="btn btn-xs btn-link">
+        Videos
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../benefits/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../benefits/" class="btn btn-xs btn-link">
+        Key benefits
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="how-does-it-work">How does it work?</h2>
+<p>First, you need to write a <a href="../../concepts/concurrency-unit-testing/">concurrency unit test</a>. These
+tests allow (and encourage) the use of concurrency and
+<a href="../../concepts/non-determinism/">non-determinism</a>, which you would normally avoid in traditional
+unit tests due to flakiness. By writing such a test, Coyote allows you to exercise what happens, for
+example, when <a href="../../tutorials/first-concurrency-unit-test/">two requests execute concurrently</a> in
+your service, as if it was deployed in production.</p>
+<p>To use Coyote, you do not need to change a single line in your production code! Using <a href="../../concepts/binary-rewriting/">binary
+rewriting</a>, the <code>coyote rewrite</code> tool will instrument your
+program-under-test with hooks and stubs that allow Coyote to take control of <code>Task</code> objects and
+related concurrency types from the .NET Task Parallel Library. This is where the magic happens.
+Coyote controls the execution of each <code>Task</code> so that it can explore various different interleavings
+to find and deterministically reproduce concurrency bugs.</p>
+<p>Although Coyote supports testing unmodified task-based programs, it also gives you the option to use
+the Coyote in-memory <a href="../../concepts/actors/overview/">actor and state machine types</a> from the
+<code>Microsoft.Coyote.Actors</code> library. This is a more advanced asynchronous reactive programming model.
+This approach requires you to change the design of your application, but gives you powerful (and
+battle-tested inside Azure) constructs for building highly-reliable applications.</p>
+<p>Regardless if you use Coyote binary rewriting on your unmodified program or wrote your code using
+Coyote actors, the next step is to use Coyote to systematically test your code! The <code>coyote test</code>
+tool takes over the scheduling of a Coyote program. It is able to do this reliably because it deeply
+understands the concurrency in .NET applications. The tool knows all concurrent operations in a test
+as well as sources of synchronization between them. By controlling the program schedule, Coyote can
+reliably explore different interleavings of operations.</p>
+<p>The <code>coyote test</code> tool uses several state-of-the-art exploration strategies that have been known to
+find very deep bugs easily. The tool can run a <em>portfolio</em> of available strategies in parallel,
+maximizing chances of revealing bugs. Coyote refers to these exploration strategies as <em>scheduling
+strategies</em> and makes it easy to incorporate new strategies, as they come out of
+<a href="../publications/">research</a>. New scheduling strategies are being developed in Microsoft
+Research based on a wealth of experience gathered from the Microsoft product groups that are using
+Coyote today.</p>
+<p>During testing, Coyote will repeatedly run a test from start to completion, each time exercising
+different scheduling choices. This methodology has proven to be very effective at providing high
+coverage, especially <em>concurrency</em> coverage, in a short amount of time. In a similar way, the tool
+can also take over other sources of non-determinism, such as the delivery of timeouts or injection
+of failures.</p>
+<p>If a bug is found, the <code>coyote test</code> tool reports a <em>reproducible</em> bug trace that provides the
+global order of all scheduling decisions and nondeterministic choices made during the execution of a
+test. The trace can be replayed reliably over and over again, until the bug is identified. This
+makes a bug reported by the tool significantly easier to debug than regular unit-/integration-tests
+and logs from production or stress tests, which are typically nondeterministic. No more
+<a href="https://en.wikipedia.org/wiki/Heisenbug">Heisenbugs</a>!</p>
+<p>See <a href="../../concepts/actors/state-machine-demo/">animating state machine demo</a> for a visual
+explanation of what Coyote does when it is looking for bugs.</p>
+<p>Follow this <a href="../../tutorials/first-concurrency-unit-test/">tutorial</a> to to write your first
+concurrency unit test with Coyote. For more information see dealing with
+<a href="../../concepts/non-determinism/">nondeterminism</a> and <a href="../../concepts/concurrency-unit-testing/">concurrency unit
+Testing</a>.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../videos/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../videos/" class="btn btn-xs btn-link">
+        Videos
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../benefits/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../benefits/" class="btn btn-xs btn-link">
+        Key benefits
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

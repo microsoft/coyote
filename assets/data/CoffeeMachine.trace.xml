@@ -1,0 +1,624 @@
+<Log>
+  <CreateMonitor type="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" isEntry="True" isInHotState="False" />
+  <CreateMonitor type="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor" state="Init" isEntry="True" isInHotState="False" />
+  <CreateStateMachine id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorName="778" creatorType="task" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Init" action="OnInit" />
+  <CreateActor id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <CreateActor id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <CreateActor id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <Random result="False" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor" />
+  <Random result="4" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" />
+  <Random result="11" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver+StartTestEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver+StartTestEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Init" event="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver+StartTestEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" currState="Init" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver.Test" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Init" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Test" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Test" action="OnStartTest" />
+  <CreateStateMachine id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <Random result="0" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" senderState="Test" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+MakeCoffeeEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+MakeCoffeeEvent" />
+  <Random result="2" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <CreateStateMachine id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <CreateTimer owner="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" due="00:00:03" period="-00:00:00.0010000" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="Init" action="OnInit" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="Init" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="Init" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="Init" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="Init" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" currState="Init" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.CheckSensors" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="Init" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" action="OnCheckSensors" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" action="OnRegisterClient" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterLevelEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadDoorOpenEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadDoorOpenEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadDoorOpenEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" action="OnReadDoorOpen" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorOpenEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorOpenEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadPortaFilterCoffeeLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadPortaFilterCoffeeLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorOpenEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" action="OnDoorOpen" />
+  <State id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="Setup" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="7" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnRegisterClient" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnPumpWater" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnWaterHeaterButton" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnReadWaterLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" action="OnWaterLevel" />
+  <Random result="20" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnRegisterClient" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnGrinderButton" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" action="OnHopperLevel" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadPortaFilterCoffeeLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadPortaFilterCoffeeLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PortaFilterCoffeeLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PortaFilterCoffeeLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PortaFilterCoffeeLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" action="OnPortaFilterCoffeeLevel" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" currState="CheckSensors" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.HeatingWater" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="CheckSensors" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="HeatingWater" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="HeatingWater" action="OnStartHeating" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor+BusyEvent" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" isEntry="False" isInHotState="False" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" isEntry="True" isInHotState="True" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterTemperatureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterTemperatureEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterTemperatureEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnReadWaterTemperature" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="HeatingWater" action="MonitorWaterTemperature" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnWaterHeaterButton" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor" state="Init" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.BusyEvent" />
+  <CreateStateMachine id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" />
+  <CreateTimer owner="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" due="00:00:00.1000000" period="00:00:00.1000000" />
+  <State id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="Setup" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="7" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="0" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Random result="True" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" senderType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" senderState="Active" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="4" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="3" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="5" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="9" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="3" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="6" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="0" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Random result="True" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" senderType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" senderState="Active" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="3" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="0" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Random result="True" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" senderType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" senderState="Active" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="3" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="3" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="MonitorWaterTemperature" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="HeatingWater" action="MonitorWaterTemperature" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="HeatingWater" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" currState="HeatingWater" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.Ready" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="HeatingWater" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="Ready" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="Ready" action="OnReady" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="Ready" event="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor+IdleEvent" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" isEntry="False" isInHotState="True" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" isEntry="True" isInHotState="False" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="Ready" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+MakeCoffeeEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" currState="Ready" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.MakingCoffee" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="Ready" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="MakingCoffee" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="MakingCoffee" action="OnMakeCoffee" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="MakingCoffee" event="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor+BusyEvent" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" isEntry="False" isInHotState="False" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" isEntry="True" isInHotState="True" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="MakingCoffee" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" currState="MakingCoffee" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.GrindingBeans" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="MakingCoffee" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="OnGrindingBeans" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="MonitorWaterTemperature" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHotEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHotEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank+HeaterTimerEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="MonitorWaterTemperature" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHotEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHotEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnWaterHeaterButton" />
+  <StopTimer owner="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" />
+  <Send target="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Actors.HaltEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnGrinderButton" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor" state="Init" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.BusyEvent" />
+  <CreateStateMachine id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" />
+  <CreateTimer owner="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" due="00:00:00.1000000" period="00:00:00.1000000" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="0" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Random result="False" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="9" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="3" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="6" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="0" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Random result="False" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="5" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="8" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="6" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" action="HandleTimeout" />
+  <Random result="0" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Random result="True" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" senderName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" senderType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" senderState="Active" event="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" event="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" />
+  <Raise id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" currState="Active" newState="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Inactive" />
+  <State id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Active" isEntry="False" />
+  <State id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Inactive" isEntry="True" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Test" event="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" />
+  <StopTimer owner="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" />
+  <Send target="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" senderState="Test" event="Microsoft.Coyote.Actors.HaltEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Test" action="HandleTimer" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Test" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" currState="Test" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver.Stop" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Test" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stop" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stop" action="OnStopTest" />
+  <StopTimer owner="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" senderState="Stop" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+TerminateEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+TerminateEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Inactive" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <State id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Inactive" isEntry="False" />
+  <PopUnhandled id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" state="Inactive" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Halt id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(6)" inboxSize="0" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" action="HandleTimeout" />
+  <Random result="7" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DequeueEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <State id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" isEntry="False" />
+  <PopUnhandled id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Halt id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(7)" inboxSize="0" />
+  <State id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="Setup" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="5" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="8" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="0" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Random result="False" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="5" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="2" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="8" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="4" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="4" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <DefaultEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random result="0" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Random result="True" creatorName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" creatorType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" senderType="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer" senderState="Active" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder+GrinderTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder+GrinderTimerEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder+GrinderTimerEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="MonitorGrinder" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PortaFilterCoffeeLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PortaFilterCoffeeLevelEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperEmptyEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperEmptyEvent" />
+  <StopTimer owner="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" />
+  <Send target="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Actors.HaltEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <State id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" isEntry="False" />
+  <PopUnhandled id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Halt id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(8)" inboxSize="0" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="MonitorHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+TerminateEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" state="GrindingBeans" action="OnTerminate" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnGrinderButton" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnPumpWater" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <Halt id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" inboxSize="3" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor+IdleEvent" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" isEntry="False" isInHotState="True" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" isEntry="True" isInHotState="False" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnWaterHeaterButton" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(5)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+HaltedEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+HaltedEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stop" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+HaltedEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stop" action="OnCoffeeMachineHalted" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stop" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" currState="Stop" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver.Stopped" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stop" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stopped" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stopped" action="OnStopped" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stopped" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" currState="Stopped" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver.Test" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Stopped" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Test" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" state="Test" action="OnStartTest" />
+  <CreateStateMachine id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <Random result="2" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" senderState="Test" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+MakeCoffeeEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+MakeCoffeeEvent" />
+  <Random result="4" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <CreateStateMachine id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer(10)" creatorName="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" creatorType="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver" />
+  <CreateTimer owner="Microsoft.Coyote.Samples.CoffeeMachineActors.FailoverDriver(1)" due="00:00:05" period="-00:00:00.0010000" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="Init" action="OnInit" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="Init" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnRegisterClient" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="Init" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="Init" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="Init" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" currState="Init" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.CheckSensors" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="Init" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" action="OnCheckSensors" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PumpWaterEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnPumpWater" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterHeaterButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnWaterHeaterButton" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnReadWaterLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterLevelEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadDoorOpenEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadDoorOpenEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadPortaFilterCoffeeLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadPortaFilterCoffeeLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" action="OnWaterLevel" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnRegisterClient" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnGrinderButton" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadHopperLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.HopperLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" action="OnHopperLevel" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadPortaFilterCoffeeLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnReadPortaFilterCoffeeLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PortaFilterCoffeeLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PortaFilterCoffeeLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.PortaFilterCoffeeLevelEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" action="OnPortaFilterCoffeeLevel" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DumpGrindsButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DumpGrindsButtonEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DumpGrindsButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnDumpGrindsButton" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor" state="Init" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.BusyEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.RegisterClientEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" action="OnRegisterClient" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadDoorOpenEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" action="OnReadDoorOpen" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor(4)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockDoorSensor" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorOpenEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorOpenEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" event="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorOpenEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" action="OnDoorOpen" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" currState="CheckSensors" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.HeatingWater" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="CheckSensors" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="HeatingWater" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="HeatingWater" action="OnStartHeating" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor+BusyEvent" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" isEntry="False" isInHotState="False" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" isEntry="True" isInHotState="True" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterTemperatureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterTemperatureEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadWaterTemperatureEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" action="OnReadWaterTemperature" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank(2)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockWaterTank" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="HeatingWater" event="Microsoft.Coyote.Samples.CoffeeMachineActors.WaterTemperatureEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="HeatingWater" action="MonitorWaterTemperature" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="HeatingWater" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" currState="HeatingWater" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.Ready" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="HeatingWater" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="Ready" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="Ready" action="OnReady" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="Ready" event="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor+IdleEvent" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" isEntry="False" isInHotState="True" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" isEntry="True" isInHotState="False" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="Ready" event="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine+MakeCoffeeEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" currState="Ready" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.MakingCoffee" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="Ready" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="MakingCoffee" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="MakingCoffee" action="OnMakeCoffee" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="MakingCoffee" event="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor+BusyEvent" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Idle" isEntry="False" isInHotState="False" />
+  <MonitorState monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.LivenessMonitor" state="Busy" isEntry="True" isInHotState="True" />
+  <Raise id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="MakingCoffee" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" currState="MakingCoffee" newState="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine.GrindingBeans" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="MakingCoffee" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="GrindingBeans" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="GrindingBeans" action="OnGrindingBeans" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Send target="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine" senderState="GrindingBeans" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.ReadHopperLevelEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
+  <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnGrinderButton" />
+  <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor" state="Init" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.BusyEvent" />
+  <ErrorState id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="GrindingBeans"/>
+  <AssertionFailure>&lt;ErrorLog&gt; Please do not turn on grinder if there are no beans in the hopper</AssertionFailure>
+  <AssertionFailure>&lt;StackTrace&gt;    at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(String text, Boolean killTasks, Boolean cancelExecution)
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.Assert(Boolean predicate, String s, Object[] args)
+   at Microsoft.Coyote.Actors.Actor.Assert(Boolean predicate, String s, Object[] args)
+   at Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder.OnGrinderButtonChanged()
+   at Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder.OnGrinderButton(Event e)
+   at Microsoft.Coyote.Actors.Actor.&lt;InvokeActionAsync&gt;d__69.MoveNext()
+   at System.Runtime.CompilerServices.AsyncTaskMethodBuilder.Start[TStateMachine](TStateMachine&amp; stateMachine)
+   at Microsoft.Coyote.Actors.Actor.InvokeActionAsync(CachedDelegate cachedAction, Event e)
+   at Microsoft.Coyote.Actors.Actor.&lt;HandleEventAsync&gt;d__68.MoveNext()
+   at System.Runtime.CompilerServices.AsyncTaskMethodBuilder.Start[TStateMachine](TStateMachine&amp; stateMachine)
+   at Microsoft.Coyote.Actors.Actor.HandleEventAsync(Event e)
+   at Microsoft.Coyote.Actors.Actor.&lt;RunEventHandlerAsync&gt;d__67.MoveNext()
+   at System.Runtime.CompilerServices.AsyncTaskMethodBuilder.Start[TStateMachine](TStateMachine&amp; stateMachine)
+   at Microsoft.Coyote.Actors.Actor.RunEventHandlerAsync()
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.&lt;&gt;c__DisplayClass32_0.&lt;&lt;RunActorEventHandler&gt;b__0&gt;d.MoveNext()
+   at System.Runtime.CompilerServices.AsyncVoidMethodBuilder.Start[TStateMachine](TStateMachine&amp; stateMachine)
+   at Microsoft.Coyote.SystematicTesting.ControlledRuntime.&lt;&gt;c__DisplayClass32_0.&lt;RunActorEventHandler&gt;b__0()
+   at System.Threading.Tasks.Task.Execute()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean preserveSyncCtx)
+   at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean preserveSyncCtx)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task&amp; currentTaskSlot)
+   at System.Threading.Tasks.Task.ExecuteEntry(Boolean bPreventDoubleExecution)
+   at Microsoft.Coyote.SystematicTesting.InterceptingTaskScheduler.&lt;&gt;c__DisplayClass5_0.&lt;Execute&gt;b__0(Object _)
+   at System.Threading.QueueUserWorkItemCallback.System.Threading.IThreadPoolWorkItem.ExecuteWorkItem()
+   at System.Threading.ThreadPoolWorkQueue.Dispatch()
+</AssertionFailure>
+  <Strategy strategy="pct">pct[priority change points '10' [1, 36, 106, 175, 274, 296, 308, 333, 382, 393], seed '1819820870']</Strategy>
+</Log>

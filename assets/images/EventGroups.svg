@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="513.919996643066" height="355.32750045776368" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="513.919996643066" height="355.32750045776368" fill="#1E1E1E" />
+  <g transform="translate(20,20.0000004577637)">
+    <g id="A-&gt;B">
+      <path d="M 255.180038932147,83.6075 L 202.257799983197,124.098642821366" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 195.109961067853,129.5675 L 205.482607497628,126.667809319449 C 203.068001046699,125.157581919936 201.447598919696,123.039703722797 200.621401116621,120.314174728032 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="229.934221052924" y="118.39148005853748" fill="#A0A0A0">CreateActor</text>
+    </g>
+    <g id="B-&gt;C">
+      <path d="M 173.596314142678,155.5275 L 157.670154006051,200.973935532734" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 154.693685857322,209.4675 L 161.77579023025,201.353080880251 C 158.928459853053,201.41489377699 156.411848159048,200.532977288478 154.225955148236,198.707331414714 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="99.738575389304884" y="177.78631396568662" fill="#A0A0A0">CreateActor</text>
+    </g>
+    <g id="B-&gt;E">
+      <path d="M 190.004073842303,155.5275 L 233.215333217195,202.823111288409" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 239.285926157697,209.4675 L 235.493884540068,199.38680456912 C 234.199687100393,201.923764186112 232.230979333996,203.722458390705 229.587761240876,204.7828871829 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="210.38553064361602" y="171.86030928523385" fill="#A0A0A0">CreateActor</text>
+    </g>
+    <g id="C-&gt;D">
+      <path d="M 175.145,231.094686147186 L 347.63942516012,290.758342295643" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 356.145,293.700313852814 L 348.00190420332,286.651201082678 C 348.075272798219,289.49825713418 347.203577522021,292.018427457107 345.386818374724,294.21171205146 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="211.40012048720018" y="277.88290104531319" fill="#A0A0A0">SendEvent</text>
+    </g>
+    <g id="CreateActor(&quot;A&quot;,Op)-&gt;A">
+      <path d="M 271.656849169335,25.9599995422363 L 271.904796433304,48.6480374008863" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 272.003147473731,57.6475 L 275.893629695085,47.6043855385727 C 273.238050151691,48.6334668763785 270.571542714917,48.662607925394 267.894107384762,47.691808685619 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="CurrentOperation==Op-&gt;B">
+      <path d="M 163.393609566185,83.6075 L 172.711284805461,120.836789067153" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 174.896390433815,129.5675 L 176.348811261354,118.895552017568 C 174.004723462179,120.513069714804 171.417846148743,121.160508419502 168.588179321045,120.837868131661 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="CurrentOperation==Op1-&gt;C">
+      <path d="M 71.4155882352941,155.5275 L 128.016957904871,203.63866421914" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 134.874411764706,209.4675 L 129.845612267493,199.943258528007 C 128.880489131665,202.622745128794 127.153426678077,204.654583309486 124.664424906729,206.038773070082 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="CurrentOperation==Op2-&gt;A">
+      <path d="M 361.629996643066,53.6389911578558 L 305.987067134312,64.2026659125502" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 297.145,65.8813108399592 L 307.715583450306,67.9459574247547 C 306.235755271706,65.5126017843002 305.738378996918,62.8927300408003 306.223454625943,60.0863421942549 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="CurrentOperation==OpWhenEventIsDequeued-&gt;D">
+      <path d="M 381.145,243.4075 L 381.145,280.3675" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 381.145,289.3675 L 385.145,279.3675 C 382.478333333333,280.3675 379.811666666667,280.3675 377.145,279.3675 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="EventGroup==G-&gt;E">
+      <path d="M 283.809330413016,155.5275 L 261.428476513036,201.379557092523" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 257.480669586984,209.4675 L 265.461763019254,202.235477625493 C 262.626690277107,201.964417377864 260.230262748966,200.794696807182 258.27248043483,198.726315913446 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="A">
+      <rect x="247.145" y="57.6475" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="268.145" y="75.5975" fill="#3D3D3D">A</text>
+    </g>
+    <g id="B">
+      <rect x="153.145" y="129.5675" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="174.145" y="147.51749999999998" fill="#3D3D3D">B</text>
+    </g>
+    <g id="C">
+      <rect x="125.145" y="209.4675" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="146.14499999999998" y="227.4175" fill="#3D3D3D">C</text>
+    </g>
+    <g id="CreateActor(&quot;A&quot;,Op)">
+      <rect x="211.399996643066" y="-4.57763672301326E-07" rx="3" ry="3" width="120.23" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="221.399996643066" y="17.949999542236327" fill="#3D3D3D">CreateActor("A", g)</text>
+    </g>
+    <g id="CurrentOperation==Op">
+      <rect x="104" y="57.6475" rx="2" ry="2" width="112.29" height="25.96" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+      <text x="114" y="75.5975" fill="#3D3D3D">EventGroup == g</text>
+    </g>
+    <g id="CurrentOperation==Op1">
+      <rect y="129.5675" rx="2" ry="2" width="112.29" height="25.96" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+      <text x="10" y="147.51749999999998" fill="#3D3D3D">EventGroup == g</text>
+    </g>
+    <g id="CurrentOperation==Op2">
+      <rect x="361.629996643066" y="29.9999995422363" rx="2" ry="2" width="112.29" height="25.96" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+      <text x="371.629996643066" y="47.9499995422363" fill="#3D3D3D">EventGroup == g</text>
+    </g>
+    <g id="CurrentOperation==OpWhenEventIsDequeued">
+      <rect x="306.566666666667" y="201.4875" rx="2" ry="2" width="149.156666666667" height="41.92" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+      <g>
+        <text x="316.566666666667" y="219.4375" fill="#3D3D3D">EventGroup == g 
+</text>
+        <text x="316.566666666667" y="235.3975" fill="#3D3D3D">when event is dequeued</text>
+      </g>
+    </g>
+    <g id="D">
+      <rect x="356.145" y="289.3675" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="376.145" y="307.3175" fill="#3D3D3D">D</text>
+    </g>
+    <g id="E">
+      <rect x="226.145" y="209.4675" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="247.145" y="227.4175" fill="#3D3D3D">E</text>
+    </g>
+    <g id="EventGroup==G">
+      <rect x="234" y="129.5675" rx="2" ry="2" width="112.29" height="25.96" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+      <text x="244" y="147.51749999999998" fill="#3D3D3D">EventGroup == g</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,113 @@
+.player-button {
+    cursor:pointer;
+    height:100%;
+    outline:0;
+    background-color:transparent;
+    border:none;
+    padding:0;
+    font: 400 13.333px Arial;
+    margin:0;
+    border-radius:2px;
+}
+button:hover {
+    font-size:109%;
+    background-color:#d0d0f0;
+}
+.player-controls {
+    float:left;
+    height:36px;
+}
+.play-button {
+    width:46px;
+}
+.fastforward-button {
+    width:46px;
+}
+.pause-button {
+    width:46px;
+}
+.fullscreen-button {
+    width:46px;
+}
+.normal-screen-button {
+    width:46px;
+}
+.player-button-fill {
+    fill: #4F87AD;
+}
+.player-progress-bar {
+    float:left;
+    height:36px;
+    outline:0;
+    background-color:transparent;
+    border:none;
+    padding:0;
+    margin:0;
+}
+
+.hover-button-effect-corner-0,.hover-button-effect-corner-1,.hover-button-effect-corner-2,.hover-button-effect-corner-3 {
+    -moz-transform: none;
+    -ms-transform: none;
+    -webkit-transform: none;
+    transform: none
+}
+
+@keyframes hover-button-effect-corner-0-animation {
+    50% {
+        -moz-transform: translate(-1px,-1px);
+        -ms-transform: translate(-1px,-1px);
+        -webkit-transform: translate(-1px,-1px);
+        transform: translate(-1px,-1px)
+    }
+}
+
+@keyframes hover-button-effect-corner-1-animation {
+    50% {
+        -moz-transform: translate(1px,-1px);
+        -ms-transform: translate(1px,-1px);
+        -webkit-transform: translate(1px,-1px);
+        transform: translate(1px,-1px)
+    }
+}
+
+@keyframes hover-button-effect-corner-2-animation {
+    50% {
+        -moz-transform: translate(1px,1px);
+        -ms-transform: translate(1px,1px);
+        -webkit-transform: translate(1px,1px);
+        transform: translate(1px,1px)
+    }
+}
+
+@keyframes hover-button-effect-corner-3-animation {
+    50% {
+        -moz-transform: translate(-1px,1px);
+        -ms-transform: translate(-1px,1px);
+        -webkit-transform: translate(-1px,1px);
+        transform: translate(-1px,1px)
+    }
+}
+
+.hover-button-effect:not([aria-disabled=true]):hover .hover-button-effect-corner-0 {
+    -moz-animation: hover-button-effect-corner-0-animation .4s cubic-bezier(0.4,0.0,0.2,1);
+    -webkit-animation: hover-button-effect-corner-0-animation .4s cubic-bezier(0.4,0.0,0.2,1);
+    animation: hover-button-effect-corner-0-animation .4s cubic-bezier(0.4,0.0,0.2,1)
+}
+
+.hover-button-effect:not([aria-disabled=true]):hover .hover-button-effect-corner-1 {
+    -moz-animation: hover-button-effect-corner-1-animation .4s cubic-bezier(0.4,0.0,0.2,1);
+    -webkit-animation: hover-button-effect-corner-1-animation .4s cubic-bezier(0.4,0.0,0.2,1);
+    animation: hover-button-effect-corner-1-animation .4s cubic-bezier(0.4,0.0,0.2,1)
+}
+
+.hover-button-effect:not([aria-disabled=true]):hover .hover-button-effect-corner-2 {
+    -moz-animation: hover-button-effect-corner-2-animation .4s cubic-bezier(0.4,0.0,0.2,1);
+    -webkit-animation: hover-button-effect-corner-2-animation .4s cubic-bezier(0.4,0.0,0.2,1);
+    animation: hover-button-effect-corner-2-animation .4s cubic-bezier(0.4,0.0,0.2,1)
+}
+
+.hover-button-effect:not([aria-disabled=true]):hover .hover-button-effect-corner-3 {
+    -moz-animation: hover-button-effect-corner-3-animation .4s cubic-bezier(0.4,0.0,0.2,1);
+    -webkit-animation: hover-button-effect-corner-3-animation .4s cubic-bezier(0.4,0.0,0.2,1);
+    animation: hover-button-effect-corner-3-animation .4s cubic-bezier(0.4,0.0,0.2,1)
+}

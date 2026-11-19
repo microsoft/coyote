@@ -126,6 +126,13 @@ namespace Microsoft.Coyote.Rewriting
         {
             var instructions = new List<Instruction>();
             bool isParamByReference = interceptionMethod.Parameters[0].ParameterType.IsByReference;
+            if (returnType.IsByReference && isParamByReference)
+            {
+                instructions.Add(this.Processor.Create(OpCodes.Ldstr, methodName));
+                instructions.Add(this.Processor.Create(OpCodes.Call, interceptionMethod));
+                return instructions;
+            }
+
             if (nextInstruction.OpCode == OpCodes.Stsfld &&
                 nextInstruction.Operand is FieldReference fieldReference)
             {
@@ -219,7 +226,12 @@ namespace Microsoft.Coyote.Rewriting
         private MethodReference CreateInterceptionMethod(Type type, MethodReference methodReference,
             string interceptionMethodName)
         {
-            var returnType = methodReference.ReturnType;
+            var returnType = GetUnmodifiedType(methodReference.ReturnType);
+            if (returnType is ByReferenceType referenceType)
+            {
+                returnType = GetUnmodifiedType(referenceType.ElementType);
+            }
+
             TypeDefinition providerType = this.Module.ImportReference(type).Resolve();
             MethodReference wrapMethod = null;
             if (returnType is GenericInstanceType genericType)
@@ -246,7 +258,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private TypeReference CreateInterceptedReturnType(MethodReference methodReference)
         {
-            var returnType = methodReference.ReturnType;
+            var returnType = GetUnmodifiedType(methodReference.ReturnType);
             if (returnType is GenericInstanceType genericType)
             {
                 GenericInstanceType resolvedType = ResolveGenericTypeArguments(genericType, methodReference);
@@ -258,6 +270,16 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return returnType;
+        }
+
+        private static TypeReference GetUnmodifiedType(TypeReference type)
+        {
+            while (type is RequiredModifierType || type is OptionalModifierType)
+            {
+                type = ((TypeSpecification)type).ElementType;
+            }
+
+            return type;
         }
 
         /// <summary>

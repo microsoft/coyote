@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Channels;
 #endif
 using System.Threading.Tasks;
+using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -257,6 +258,75 @@ namespace Microsoft.Coyote.Rewriting.Tests
         }
 
 #if NET
+        [Fact(Timeout = 5000)]
+        public void TestUncontrolledValueTaskReferences()
+        {
+            this.Test(() =>
+            {
+                var provider = new UncontrolledValueTaskReferences<int>();
+                ref ValueTask task = ref provider.GetTask();
+                task = ValueTask.FromException(new InvalidOperationException());
+                Assert.True(provider.GetTask().IsFaulted);
+                ref ValueTask<int> genericTask = ref provider.GetGenericTask();
+                genericTask = new ValueTask<int>(42);
+                Assert.Equal(42, provider.GetGenericTask().Result);
+                Assert.Equal(42, provider.GetReadOnlyTask().Result);
+                ForwardValueTask(provider) = new ValueTask<int>(123);
+                Assert.Equal(123, provider.GetGenericTask().Result);
+                provider.GetMethodTask<long>() = new ValueTask<long>(456);
+                Assert.Equal(456, provider.GetMethodTask<long>().Result);
+            });
+        }
+
+        private static ref ValueTask<int> ForwardValueTask(UncontrolledValueTaskReferences<int> provider) =>
+            ref provider.GetGenericTask();
+
+        [Fact(Timeout = 5000)]
+        public void TestControlledTaskReturnedByReference()
+        {
+            this.Test(async () =>
+            {
+                var completion = new TaskCompletionSource<int>();
+                var provider = new UncontrolledValueTaskReferences<int>();
+                provider.SetGenericTask(new ValueTask<int>(completion.Task));
+                ValueTask<int> task = provider.GetGenericTask();
+                Task producer = Task.Run(() => completion.SetResult(42));
+                Assert.Equal(42, await task);
+                await producer;
+            },
+            configuration: this.GetConfiguration().WithTestingIterations(20)
+                .WithPartiallyControlledConcurrencyAllowed(false).WithSystematicFuzzingFallbackEnabled(false));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void TestUncontrolledPendingValueTask(bool isGeneric, bool isReference)
+        {
+            this.TestWithError(() =>
+            {
+                var provider = new UncontrolledValueTaskReferences<int>();
+                provider.SetPendingTasks();
+                if (isGeneric)
+                {
+                    _ = isReference ? provider.GetGenericTask() : provider.GetGenericTaskValue();
+                }
+                else
+                {
+                    _ = isReference ? provider.GetTask() : provider.GetTaskValue();
+                }
+            },
+            errorChecker: (error) =>
+            {
+                Assert.Contains("returned task", error);
+                Assert.Contains("not intercepted and controlled", error);
+            },
+            configuration: this.GetConfiguration().WithPartiallyControlledConcurrencyAllowed(false)
+                .WithSystematicFuzzingFallbackEnabled(false));
+        }
+
         [Fact(Timeout = 5000)]
         public void TestUncontrolledValueTaskStoredOrReturned()
         {

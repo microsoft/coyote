@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Coyote.Testing;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -83,8 +84,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Creates a <see cref="JsonTestReport"/> from the specified test report and context.
         /// </summary>
         internal static JsonTestReport Create(TestReport report, Configuration configuration, string testName,
-            Assembly testAssembly, bool isTestRewritten, string strategy, uint initialSeed, double elapsedSeconds,
-            IEnumerable<string> artifactPaths)
+            Assembly testAssembly, bool isTestRewritten, string strategy, PortfolioStrategyInfo[] portfolioStrategies,
+            uint initialSeed, double elapsedSeconds, IEnumerable<string> artifactPaths)
         {
             var verdict = report.GetVerdict();
             int totalExploredPaths = report.NumOfExploredFairPaths + report.NumOfExploredUnfairPaths;
@@ -96,7 +97,8 @@ namespace Microsoft.Coyote.SystematicTesting
             result.Settings = new JsonTestSettings
             {
                 Strategy = strategy,
-                StrategyBound = configuration.StrategyBound,
+                StrategyBound = portfolioStrategies is null ? (int?)configuration.StrategyBound : null,
+                PortfolioStrategies = portfolioStrategies,
                 Seed = initialSeed,
                 Iterations = configuration.TestingIterations,
                 TimeoutSeconds = configuration.TestingTimeout,
@@ -250,7 +252,12 @@ namespace Microsoft.Coyote.SystematicTesting
             /// <summary>
             /// The bound used by the exploration strategy, if any.
             /// </summary>
-            public int StrategyBound { get; set; }
+            public int? StrategyBound { get; set; }
+
+            /// <summary>
+            /// The initial portfolio members in scheduling order, if a portfolio was used.
+            /// </summary>
+            public PortfolioStrategyInfo[] PortfolioStrategies { get; set; }
 
             /// <summary>
             /// The initial random value generator seed used for this test run.

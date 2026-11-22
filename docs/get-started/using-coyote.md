@@ -186,6 +186,11 @@ This is useful when the tester is driven by scripts or by automated agents that 
 whether a passing run can be trusted. The same report is available in-process through the
 `TestingEngine.GetJsonReport` API, and the verdict through the `TestReport.GetVerdict` API.
 
+When a run starts with a portfolio, `settings.strategy` is `"portfolio"` and
+`settings.portfolioStrategies` lists its initial members in scheduling order. Each member has a
+`strategy` name and, if applicable, a `strategyBound`. Single-strategy reports keep
+`settings.strategyBound`; portfolio reports omit it because each member has its own settings.
+
 ### Portfolio testing
 
 The Coyote tester supports running a portfolio of different exploration strategies during testing.

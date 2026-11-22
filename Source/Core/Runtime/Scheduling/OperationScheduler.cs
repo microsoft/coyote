@@ -357,6 +357,12 @@ namespace Microsoft.Coyote.Runtime
         internal string GetStrategyName() => this.Strategy.GetName();
 
         /// <summary>
+        /// Returns the portfolio members in scheduling order, or null for a single strategy.
+        /// </summary>
+        internal PortfolioStrategyInfo[] GetPortfolioStrategies() => this.Portfolio.Count > 1 ?
+            this.Portfolio.Select(strategy => new PortfolioStrategyInfo(strategy)).ToArray() : null;
+
+        /// <summary>
         /// Returns a description of the current exploration strategy in text format.
         /// </summary>
         internal string GetDescription() => this.Portfolio.Count > 1 ?

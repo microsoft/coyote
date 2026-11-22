@@ -187,6 +187,11 @@ namespace Microsoft.Coyote.Testing
         internal abstract string GetName();
 
         /// <summary>
+        /// Returns the strategy-specific bound, if any.
+        /// </summary>
+        internal virtual int? GetStrategyBound() => null;
+
+        /// <summary>
         /// Returns a description of the strategy.
         /// </summary>
         internal abstract string GetDescription();

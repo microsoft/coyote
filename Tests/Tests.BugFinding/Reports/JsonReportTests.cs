@@ -11,6 +11,7 @@ using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.SystematicTesting.Frameworks.XUnit;
+using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -42,7 +43,69 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
                 });
             replay.Run();
             using var document = JsonDocument.Parse(replay.GetJsonReport());
-            Assert.Equal(20u, document.RootElement.GetProperty("settings").GetProperty("seed").GetUInt32());
+            Assert.Equal(1, replay.TestReport.NumOfFoundBugs);
+            Assert.Empty(replay.TestReport.InternalErrors);
+            var settings = document.RootElement.GetProperty("settings");
+            Assert.Equal(20u, settings.GetProperty("seed").GetUInt32());
+            Assert.Equal("random", settings.GetProperty("strategy").GetString());
+            Assert.Equal(0, settings.GetProperty("strategyBound").GetInt32());
+            Assert.False(settings.TryGetProperty("portfolioStrategies", out _));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(true, 0)]
+        [InlineData(true, 1)]
+        [InlineData(true, 3)]
+        [InlineData(true, 5)]
+        [InlineData(false, 3)]
+        public void TestJsonReportRecordsPortfolio(bool isFair, int iterations)
+        {
+            var configuration = this.GetConfiguration().WithPortfolioMode(isFair).WithTestingIterations((uint)iterations);
+            using var engine = TestingEngine.Create(configuration, () => SchedulingPoint.Interleave());
+            engine.Run();
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            Assert.Equal(iterations, GetTotalPaths(document.RootElement));
+            AssertPortfolioSettings(document.RootElement.GetProperty("settings"), isFair);
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(7)]
+        public void TestJsonReportRecordsSingleStrategyBound(int bound)
+        {
+            var configuration = this.GetConfiguration().WithPrioritizationStrategy(false, (uint)bound);
+            using var engine = TestingEngine.Create(configuration, () => SchedulingPoint.Interleave());
+            engine.Run();
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var settings = document.RootElement.GetProperty("settings");
+            Assert.Equal("prioritization", settings.GetProperty("strategy").GetString());
+            Assert.Equal(bound, settings.GetProperty("strategyBound").GetInt32());
+            Assert.False(settings.TryGetProperty("portfolioStrategies", out _));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestJsonReportRecordsInitialStrategyWithFuzzing(bool startWithFuzzing)
+        {
+            var configuration = this.GetConfiguration().WithTestingIterations(2)
+                .WithSystematicFuzzingEnabled(startWithFuzzing).WithSystematicFuzzingFallbackEnabled();
+            using var engine = TestingEngine.Create(configuration, () => AsyncProvider.GetPendingTasks().Single().Wait(0));
+            engine.Run();
+            Assert.Equal(SchedulingPolicy.Fuzzing, engine.Scheduler.SchedulingPolicy);
+            Assert.Empty(engine.TestReport.InternalErrors);
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var settings = document.RootElement.GetProperty("settings");
+            if (startWithFuzzing)
+            {
+                Assert.Equal("random", settings.GetProperty("strategy").GetString());
+                Assert.Equal(0, settings.GetProperty("strategyBound").GetInt32());
+                Assert.False(settings.TryGetProperty("portfolioStrategies", out _));
+            }
+            else
+            {
+                AssertPortfolioSettings(settings, isFair: true);
+            }
         }
 
         [Theory(Timeout = 5000)]
@@ -182,6 +245,9 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
                 Assert.Equal(1, root.GetProperty("bugs").GetProperty("count").GetInt32());
                 Assert.Contains("Reachable.", root.GetProperty("bugs").GetProperty("reports")[0].GetString());
                 Assert.Equal(1, GetTotalPaths(root));
+                AssertPortfolioSettings(root.GetProperty("settings"), isFair: true);
+                using var apiReport = JsonDocument.Parse(engine.GetJsonReport());
+                Assert.Equal(apiReport.RootElement.GetProperty("settings").GetRawText(), root.GetProperty("settings").GetRawText());
 
                 var artifacts = root.GetProperty("artifacts");
                 Assert.True(File.Exists(artifacts.GetProperty("readableTrace").GetString()));
@@ -207,6 +273,21 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
             engine.SetLogger(logger);
             engine.Run();
             return engine;
+        }
+
+        private static void AssertPortfolioSettings(JsonElement settings, bool isFair)
+        {
+            Assert.Equal("portfolio", settings.GetProperty("strategy").GetString());
+            Assert.Equal(isFair ? "fair" : "unfair", settings.GetProperty("portfolioMode").GetString());
+            Assert.False(settings.TryGetProperty("strategyBound", out _));
+            var members = settings.GetProperty("portfolioStrategies");
+            string prefix = isFair ? "fair-" : string.Empty;
+            Assert.Equal(new[] { "random", "probabilistic", prefix + "prioritization", prefix + "delay-bounding" },
+                members.EnumerateArray().Select(member => member.GetProperty("strategy").GetString()));
+            Assert.False(members[0].TryGetProperty("strategyBound", out _));
+            Assert.Equal(3, members[1].GetProperty("strategyBound").GetInt32());
+            Assert.Equal(10, members[2].GetProperty("strategyBound").GetInt32());
+            Assert.Equal(10, members[3].GetProperty("strategyBound").GetInt32());
         }
 
         private static int GetTotalPaths(JsonElement root) =>

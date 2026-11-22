@@ -19,6 +19,7 @@ using Microsoft.Coyote.Logging;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Telemetry;
+using Microsoft.Coyote.Testing;
 using Microsoft.Coyote.Visualization;
 
 using SynchronizedBlock = Microsoft.Coyote.Rewriting.Types.Threading.Monitor.SynchronizedBlock;
@@ -68,6 +69,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The seed used to initialize the scheduler before any iteration advances it.
         /// </summary>
         private readonly uint InitialRandomSeed;
+
+        /// <summary>
+        /// The portfolio installed at startup, before any fallback to fuzzing.
+        /// </summary>
+        private readonly PortfolioStrategyInfo[] InitialPortfolio;
 
         /// <summary>
         /// The profiler.
@@ -211,6 +217,7 @@ namespace Microsoft.Coyote.SystematicTesting
             // Parse the trace if one is provided, and update any configuration values.
             this.Scheduler = OperationScheduler.Setup(configuration, prefixTrace);
             this.InitialRandomSeed = this.Scheduler.ValueGenerator.Seed;
+            this.InitialPortfolio = this.Scheduler.GetPortfolioStrategies();
 
             // Create a client for gathering and sending optional telemetry data.
             TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration, this.LogWriter);
@@ -540,7 +547,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private JsonTestReport CreateJsonReport(TestReport snapshot, IEnumerable<string> reportPaths) => JsonTestReport.Create(
             snapshot, snapshot.Configuration, this.TestMethodInfo.Name, this.TestMethodInfo.Assembly,
-            this.IsTestRewritten(), this.Scheduler.GetStrategyName(), this.InitialRandomSeed, this.Profiler.Results(), reportPaths);
+            this.IsTestRewritten(), this.InitialPortfolio is null ? this.Scheduler.GetStrategyName() : "portfolio",
+            this.InitialPortfolio, this.InitialRandomSeed, this.Profiler.Results(), reportPaths);
 
         /// <summary>
         /// Throws either an <see cref="AssertionFailureException"/>, if a bug was found,

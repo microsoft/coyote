@@ -172,6 +172,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal override string GetName() => (this.IsFair ? ExplorationStrategy.FairDelayBounding : ExplorationStrategy.DelayBounding).GetName();
 
         /// <inheritdoc/>
+        internal override int? GetStrategyBound() => this.MaxDelaysPerIteration;
+
+        /// <inheritdoc/>
         internal override string GetDescription() =>
             $"{this.GetName()}[bound:{this.MaxDelaysPerIteration},seed:{this.RandomValueGenerator.Seed}]";
 

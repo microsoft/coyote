@@ -18,6 +18,8 @@
   bug reports, uncontrolled invocations, settings and emitted report paths, as well as the
   `TestingEngine.GetJsonReport` API for getting the same report in-process.
 - Added support for the `net11.0` target framework.
+- Fixed rewriting assemblies with extern methods that have no IL, such as
+  `[UnsafeAccessor]` methods.
 - Upgraded the `System.Text.Json` package to `v8.0.4` for the `netstandard2.0`
   target framework, due to a vulnerability.
 - Dropped support for the `netcoreapp3.1` target framework, which reached end of

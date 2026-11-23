@@ -182,7 +182,11 @@ namespace Microsoft.Coyote.Rewriting
 
                     foreach (var method in type.Methods.ToArray())
                     {
-                        if (method.Body is null && !(pass is MemberTypeRewritingPass))
+                        // Only the signature of a method without IL can be rewritten. Besides abstract methods,
+                        // this includes extern methods that are not P/Invokes, such as [UnsafeAccessor] ones,
+                        // which Cecil gives an empty body.
+                        if ((method.Body is null || method.Body.Instructions.Count is 0) &&
+                            !(pass is MemberTypeRewritingPass))
                         {
                             continue;
                         }

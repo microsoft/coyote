@@ -43,10 +43,6 @@ starts, but there is one schedule where the task starts fast enough to set `valu
 the assertion to fail. Of course, this is a very naive example and the bug is obvious, but you could
 imagine much more complicated race conditions that are hidden in complex execution paths.
 
-The example below uses the exploration verdict API. The published `1.7.11` packages do not include
-this API, the strict CLI options, or machine-readable JSON reports. Use the CLI and libraries
-[built from the same source revision](docs/get-started/build-source.md).
-
 Use the Coyote `TestingEngine` API to turn the above test into a concurrency unit test:
 ```csharp
 using Microsoft.Coyote;
@@ -59,7 +55,6 @@ public async Task CoyoteTestTask()
   using var engine = TestingEngine.Create(configuration, TestTask);
   engine.Run();
   engine.ThrowIfBugFound();
-  Assert.Equal(ExplorationStatus.Complete, engine.TestReport.GetVerdict().Status);
 }
 ```
 

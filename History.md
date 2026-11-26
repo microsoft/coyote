@@ -1,4 +1,4 @@
-## vNext
+## v1.8.0
 - Fixed normally completed replays with unconsumed trace steps being reported as successful.
 - Fixed fair paths completing exactly at the unfair step bound being counted as exceeding it,
   which could produce a spurious warning or reject a completed run with `--strict-bounds`.
@@ -17,7 +17,7 @@
   emitting a machine-readable `.report.json` file with the verdict, exploration statistics,
   bug reports, uncontrolled invocations, settings and emitted report paths, as well as the
   `TestingEngine.GetJsonReport` API for getting the same report in-process.
-- Added support for the `net11.0` target framework.
+- Added .NET 10 compatibility support and support for the `net11.0` target framework.
 - Fixed rewriting assemblies with extern methods that have no IL, such as
   `[UnsafeAccessor]` methods.
 - Upgraded the `System.Text.Json` package to `v8.0.4` for the `netstandard2.0`

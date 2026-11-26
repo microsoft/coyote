@@ -9,8 +9,8 @@ authors:
 - family-names: "Lal"
   given-names: "Akash"
 title: "Coyote"
-version: 1.7.11
-date-released: 2020-02-28
+version: 1.8.0
+date-released: 2026-11-26
 url: "https://github.com/microsoft/coyote"
 preferred-citation:
   type: article

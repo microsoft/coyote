@@ -105,6 +105,38 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
             Assert.Contains(IncompleteExplorationReason.InsufficientExecutionPaths, engine.TestReport.GetVerdict().Reasons);
         }
 
+        [Theory(Timeout = 10000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestCheckpointPrefixMustBeConsumed(bool isConsumed)
+        {
+            int iteration = 0;
+            using var engine = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(2), () =>
+            {
+                iteration++;
+                if (iteration is 1 || isConsumed)
+                {
+                    var generator = Microsoft.Coyote.Random.Generator.Create();
+                    generator.NextBoolean();
+                    generator.NextBoolean();
+                    SchedulingPoint.SetCheckpoint();
+                }
+            });
+            engine.Run();
+
+            var verdict = engine.TestReport.GetVerdict();
+            if (isConsumed)
+            {
+                Assert.Empty(engine.TestReport.InternalErrors);
+                Assert.Equal(new[] { IncompleteExplorationReason.NoSchedulingDecisions }, verdict.Reasons);
+            }
+            else
+            {
+                Assert.Contains(engine.TestReport.InternalErrors, error => error.Contains("before consuming all recorded steps"));
+                Assert.Equal(ExplorationStatus.InternalError, verdict.Status);
+            }
+        }
+
         [Fact(Timeout = 10000)]
         public void TestReplayRetainsIterationCheckAfterMidTraceMismatch()
         {

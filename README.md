@@ -78,8 +78,9 @@ When a reproducible trace is available, read it from `engine.ReproducibleTrace` 
 
 ## Exploration reports
 
-A test that finds no bugs might still have explored few interleavings. To check the exploration
-verdict and emit a machine-readable report, run:
+If a test finds no bugs, that does not prove the exploration was complete. Exploration reports show
+what the test explored and where it stopped short. To check the exploration verdict and emit a
+machine-readable report, run:
 
 ```plain
 coyote test path/to/Tests.dll --iterations 1000 --json-report --strict

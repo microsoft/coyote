@@ -1,4 +1,4 @@
-## vNext
+## v1.8.0
 - Fixed normally completed replays with unconsumed trace steps being reported as successful.
 - Fixed fair paths completing exactly at the unfair step bound being counted as exceeding it,
   which could produce a spurious warning or reject a completed run with `--strict-bounds`.

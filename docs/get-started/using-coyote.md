@@ -26,7 +26,8 @@ coyote rewrite ${PATH}
 
 `${PATH}` is the path to the assembly (`*.dll`, `*.exe`) to rewrite or to a [JSON rewriting
 configuration file](../concepts/binary-rewriting.md#configuration) that lists all assemblies to
-rewrite.
+rewrite. If the configuration uses a separate output directory, run `coyote test` on the rewritten
+test assembly in that directory.
 
 Type `coyote rewrite -?` to see the full command line options. You can also read this [introductory
 tutorial](../tutorials/first-concurrency-unit-test.md) to see how Coyote can be used to rewrite the
@@ -82,7 +83,8 @@ public static void Execute()
 }
 ```
 
-The above method acts as the entry point to each testing iteration.
+The above method acts as the entry point to each testing iteration. If the assembly has multiple
+Coyote test methods, use `--method` to select one.
 
 The `coyote` test tool supports calling the following test method signatures:
 
@@ -125,17 +127,44 @@ iteration forever. This is related to [liveness checking](../how-to/liveness-che
 
 ### Machine-readable results
 
+The exploration verdict API, strict CLI options, and JSON reports described here are available
+in the current source, but not in the published `1.7.11` packages. Use the CLI and libraries
+[built from the same source revision](build-source.md).
+
+#### Verdicts and exit codes
+
+| Verdict | Meaning |
+| --- | --- |
+| `Complete` | No bugs, internal errors, or incomplete reasons were reported. Warnings can still be present. |
+| `Incomplete` | No bug was found, but exploration had limitations listed in `reasons`. |
+| `BugFound` | At least one bug was found; `bugs.reports` contains the diagnostic messages. |
+| `InternalError` | The test report contains an internal testing error. |
+
+A `Complete` verdict does not prove that every possible program execution was explored.
+A `BugFound` verdict can also include incomplete reasons that affect confidence in reproducing
+the bug. Internal errors take priority over bugs, and bugs take priority over incomplete exploration.
+`reasons` identify exploration limitations; `warnings` do not change the verdict by themselves.
+
 By default, the `coyote` tester exits with code `0` when no bugs were found, `2` when a bug was
-found, and `3` on an internal error. Exit code `0` does not by itself mean that the exploration
-was exhaustive: the test might have invoked APIs that Coyote does not control (see [uncontrolled
+found, and `3` on an internal testing error. Command or setup errors return `1`.
+Treat all nonzero exit codes as unsuccessful runs. Exit code `0` does not by itself mean that
+the exploration was exhaustive: the test might have invoked APIs that Coyote does not control (see [uncontrolled
 concurrency](../concepts/binary-rewriting.md)), some iterations might have been truncated by the
 `--max-steps` bound, or the test might not contain any scheduling decisions at all. The tester
 summarizes these conditions as an _exploration verdict_ at the end of the test report, and the
 `--strict` flag makes it exit with code `4` when the verdict is `Incomplete`. The `--strict-bounds`
-flag additionally treats fair execution paths that exceeded the unfair `--max-steps` bound as
-incomplete exploration, which is otherwise only reported as a warning.
+flag enables strict exploration and additionally treats fair execution paths that exceeded the
+unfair `--max-steps` bound as incomplete exploration (`ExceededUnfairStepsBound`), which is
+otherwise only reported as a warning.
 Fair paths that finish normally exactly at the unfair bound do not produce this warning
 or incomplete reason; only paths with more decisions than that positive bound are counted.
+A step bound of zero is disabled. Paths that finish normally exactly at their step limit are
+not counted as truncated (`TruncatedExecutionPaths`).
+
+Tests that execute without scheduling decisions add `NoSchedulingDecisions`, including tests
+that only make random choices. Uncontrolled concurrency adds `UncontrolledInvocations` even
+when the runtime cannot identify a source method, so the list of named uncontrolled calls can
+be empty.
 
 An exploration that executes no paths is `Incomplete` with reason `NoExecutionPaths`, including
 when `--iterations 0` is used or test initialization exceeds the timeout. If the timeout expires
@@ -149,8 +178,9 @@ A detected bug or an internal error retains its verdict and exit-code priority.
 
 An ignored potential deadlock or an unexpected `TaskCanceledException` that ends exploration while
 the engine has not been canceled adds `ExecutionInterrupted`, even when some paths were explored.
-A replay scheduling mismatch records an internal error and its diagnostic. When an internal setup
-exception aborts the command, `--json-report` also attempts to emit the failure report; the command
+A replay scheduling mismatch or normal completion with unconsumed trace steps records an internal
+error and its diagnostic. When an internal setup exception aborts the command, `--json-report`
+also attempts to emit the failure report; the command
 keeps its original error exit code (`1`), and a secondary report-writing failure does not replace
 the original exception.
 
@@ -166,30 +196,59 @@ prove that every dependency or native concurrent API was rewritten and controlle
 
 The internal DFS strategy can report that no execution paths remain before the requested iteration
 budget is reached. The engine then omits `InsufficientExecutionPaths`; other incomplete reasons
-and warnings still apply. When reports are merged, exhaustion is retained only if every report
-with explored paths recorded it. Reports with no explored paths are neutral for exhaustion,
+and warnings still apply. `InsufficientExecutionPaths` is only reported when no timeout is configured.
+When reports are merged, exhaustion is retained only if every report with explored paths recorded
+it. Reports with no explored paths are neutral for exhaustion,
 but their recorded limitations still apply. Merged verdicts use the destination configuration
 and aggregate path counts, so they do not establish that each contributing run met its own budget.
-A `Complete` verdict means the exploration reported no bugs, internal errors, or incomplete reasons.
-Warnings can still be present. This verdict does not prove that every possible program execution was
-explored.
 
-The timeout ends the wait for testing; it does not synchronously terminate arbitrary user
-initialization or an iteration still running in the background. Reports use the statistics
-available when they are read or generated; background iterations can still update them.
+#### JSON reports
 
-Use the `--json-report` flag to also emit a `.report.json` file next to the other reports. The
-file contains the verdict with its reasons, the exploration statistics, the bug reports, the
-detected uncontrolled invocations, the settings used during testing, the identity of the tested
-assembly, and the paths of the other emitted reports (such as the reproducible `.trace` file).
-This is useful when the tester is driven by scripts or by automated agents that need to decide
-whether a passing run can be trusted. The same report is available in-process through the
-`TestingEngine.GetJsonReport` API, and the verdict through the `TestReport.GetVerdict` API.
+`--json-report` emits a `.report.json` file next to the other reports for use by automation.
+The path and concurrency statistics are also available in text reports. The main JSON fields are:
+
+| Field | Contents |
+| --- | --- |
+| `coyoteVersion`, `testName` | Coyote assembly version and test method name, when available. |
+| `assembly` | Test-entry assembly name, path, SHA-256 and `isRewritten` flag. |
+| `settings` | Strategy, initial seed (including one generated by Coyote), requested iterations, time and step bounds, and strict-mode settings. |
+| `verdict` | `status`, incomplete `reasons`, and non-fatal `warnings`. |
+| `bugs`, `internalErrors`, `uncontrolledInvocations` | Bug count and messages, internal errors, and detected uncontrolled calls. |
+| `uncontrolledConcurrencyDetected` | Whether the runtime detected uncontrolled concurrency, including when its source method is unknown. |
+| `exploration` | Fair, unfair and unique path counts, truncation counts, visited state hashes, scheduling steps, controlled operations and concurrency statistics. |
+| `artifacts` | Paths to emitted traces and other diagnostic reports, when present. |
+| `elapsedSeconds` | Execution time measured by the testing engine. |
+
+Statistics such as scheduling steps use `min`, `avg` and `max`; averages are integer values.
+Null fields are omitted. `coyoteVersion` is an assembly version, not a source revision identifier.
+The assembly hash identifies the test entry, not the Coyote engine or every dependency, and
+`isRewritten` does not prove that all concurrent APIs were controlled. State counts depend on
+the configured state hashing and are not a business-state coverage percentage.
 
 When a run starts with a portfolio, `settings.strategy` is `"portfolio"` and
 `settings.portfolioStrategies` lists its initial members in scheduling order. Each member has a
 `strategy` name and, if applicable, a `strategyBound`. Single-strategy reports keep
 `settings.strategyBound`; portfolio reports omit it because each member has its own settings.
+
+The timeout ends the wait for testing; it does not synchronously terminate arbitrary user
+initialization or an iteration still running in the background. JSON verdicts and statistics use
+a snapshot of the accumulated results. The CLI uses the same snapshot for these JSON fields,
+the console summary, and the exit code, even if a background iteration finishes after a timeout.
+Trace and coverage artifacts are emitted separately from this statistics snapshot. Separate
+in-process report calls can read different snapshots if background iterations update the results.
+
+#### In-process reporting
+
+Inspect `engine.TestReport.GetVerdict()` and obtain JSON with `engine.GetJsonReport()`.
+Assert the required verdict explicitly in a unit-test wrapper:
+`engine.ThrowIfBugFound()` preserves the bug diagnostic, but does not reject incomplete exploration.
+The strict CLI exit-code policy does not automatically fail an in-process test wrapper.
+Use `Configuration.WithStrictBoundCheckingEnabled()` to apply the same warning-to-reason rule
+as `--strict-bounds`.
+
+To emit JSON report files in-process, enable `Configuration.WithJsonReportEnabled()` and call
+`engine.TryEmitReports(...)` with an existing output directory. `GetJsonReport()` returns a JSON
+string without the `artifacts` field and does not emit files.
 
 ### Portfolio testing
 

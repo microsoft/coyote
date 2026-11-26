@@ -76,23 +76,16 @@ hide a bug in each iteration.
 When a reproducible trace is available, read it from `engine.ReproducibleTrace` and use it to
 [replay the bug](docs/get-started/using-coyote.md#reproducing-and-debugging-traces).
 
-## Exploration verdicts and CI
+## Exploration reports
 
-Finding zero bugs does not necessarily mean that a test explored useful interleavings.
-For CI, rewrite the test and production binaries, then run an assembly with a
-[Coyote test entry point](docs/get-started/using-coyote.md#test-entry-point). When both are in the
-same assembly:
+A test that finds no bugs might still have explored few interleavings. To check the exploration
+verdict and emit a machine-readable report, run:
 
 ```plain
-coyote rewrite path/to/Tests.dll
-coyote test path/to/Tests.dll --iterations 1000 --strict --json-report
+coyote test path/to/Tests.dll --iterations 1000 --json-report --strict
 ```
 
-`--strict` returns exit code `4` for incomplete exploration; treat all nonzero exit codes as
-unsuccessful runs. `--json-report` emits a `.report.json` file with the verdict and diagnostics.
-`Complete` means no bugs, internal errors, or incomplete reasons were reported, not that every
-possible execution was explored. See [machine-readable results](docs/get-started/using-coyote.md#machine-readable-results)
-for verdicts, `--strict-bounds`, exit codes, JSON fields, and in-process reporting.
+See [exploration verdicts and reports](docs/how-to/exploration-reports.md) for details.
 
 ## Get started
 

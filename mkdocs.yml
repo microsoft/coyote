@@ -86,6 +86,7 @@ nav:
   - Integrate with a unit testing framework: how-to/unit-testing.md
   - Find liveness bugs effectively: how-to/liveness-checking.md
   - Track code and actor activity coverage: how-to/coverage.md
+  - Check exploration verdicts and reports: how-to/exploration-reports.md
 - Samples:
   - Overview: samples/overview.md
   - Task-based C# programs:

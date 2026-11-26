@@ -10,6 +10,7 @@ authors:
   given-names: "Akash"
 title: "Coyote"
 version: 1.8.0
+date-released: 2020-02-28
 url: "https://github.com/microsoft/coyote"
 preferred-citation:
   type: article

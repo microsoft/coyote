@@ -52,8 +52,9 @@ using Microsoft.Coyote.SystematicTesting;
 public async Task CoyoteTestTask()
 {
   var configuration = Configuration.Create().WithTestingIterations(10);
-  var engine = TestingEngine.Create(configuration, TestTask);
+  using var engine = TestingEngine.Create(configuration, TestTask);
   engine.Run();
+  engine.ThrowIfBugFound();
 }
 ```
 

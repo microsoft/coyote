@@ -50,6 +50,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal override string GetName() => ExplorationStrategy.Probabilistic.GetName();
 
         /// <inheritdoc/>
+        internal override int? GetStrategyBound() => this.Bound;
+
+        /// <inheritdoc/>
         internal override string GetDescription() =>
             $"{this.GetName()}[bound:{this.Bound},seed:{this.RandomValueGenerator.Seed}']";
 

@@ -180,6 +180,9 @@ namespace Microsoft.Coyote.Testing.Interleaving
         internal override string GetName() => (this.IsFair ? ExplorationStrategy.FairPrioritization : ExplorationStrategy.Prioritization).GetName();
 
         /// <inheritdoc/>
+        internal override int? GetStrategyBound() => this.MaxPriorityChangesPerIteration;
+
+        /// <inheritdoc/>
         internal override string GetDescription() =>
             $"{this.GetName()}[bound:{this.MaxPriorityChangesPerIteration},seed:{this.RandomValueGenerator.Seed}]";
 

@@ -29,6 +29,12 @@ namespace Microsoft.Coyote.Cli
         /// <summary>
         /// Indicates that the tool terminated with an internal error.
         /// </summary>
-        InternalError = 3
+        InternalError = 3,
+
+        /// <summary>
+        /// Indicates that no bugs were found, but the exploration was incomplete (for example due
+        /// to uncontrolled invocations or truncated execution paths) and strict mode was enabled.
+        /// </summary>
+        IncompleteExploration = 4
     }
 }

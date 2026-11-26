@@ -1,0 +1,297 @@
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.SystematicTesting.Frameworks.XUnit;
+using Microsoft.Coyote.Tests.Common.Tasks;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace Microsoft.Coyote.BugFinding.Tests.Reports
+{
+    public class JsonReportTests : BaseBugFindingTest
+    {
+        public JsonReportTests(ITestOutputHelper output)
+            : base(output)
+        {
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportRecordsReplaySeed()
+        {
+            using var recorded = TestingEngine.Create(this.GetConfiguration().WithTestingIterations(1).WithRandomGeneratorSeed(20), () =>
+            {
+                SchedulingPoint.Interleave();
+                Specification.Assert(false, "Replay seed fixture.");
+            });
+            recorded.Run();
+            Assert.False(string.IsNullOrEmpty(recorded.ReproducibleTrace));
+
+            using var replay = TestingEngine.Create(this.GetConfiguration().WithRandomGeneratorSeed(10)
+                .WithReproducibleTrace(recorded.ReproducibleTrace), () =>
+                {
+                    SchedulingPoint.Interleave();
+                    Specification.Assert(false, "Replay seed fixture.");
+                });
+            replay.Run();
+            using var document = JsonDocument.Parse(replay.GetJsonReport());
+            Assert.Equal(1, replay.TestReport.NumOfFoundBugs);
+            Assert.Empty(replay.TestReport.InternalErrors);
+            var settings = document.RootElement.GetProperty("settings");
+            Assert.Equal(20u, settings.GetProperty("seed").GetUInt32());
+            Assert.Equal("random", settings.GetProperty("strategy").GetString());
+            Assert.Equal(0, settings.GetProperty("strategyBound").GetInt32());
+            Assert.False(settings.TryGetProperty("portfolioStrategies", out _));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(true, 0)]
+        [InlineData(true, 1)]
+        [InlineData(true, 3)]
+        [InlineData(true, 5)]
+        [InlineData(false, 3)]
+        public void TestJsonReportRecordsPortfolio(bool isFair, int iterations)
+        {
+            var configuration = this.GetConfiguration().WithPortfolioMode(isFair).WithTestingIterations((uint)iterations);
+            using var engine = TestingEngine.Create(configuration, () => SchedulingPoint.Interleave());
+            engine.Run();
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            Assert.Equal(iterations, GetTotalPaths(document.RootElement));
+            AssertPortfolioSettings(document.RootElement.GetProperty("settings"), isFair);
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(0)]
+        [InlineData(7)]
+        public void TestJsonReportRecordsSingleStrategyBound(int bound)
+        {
+            var configuration = this.GetConfiguration().WithPrioritizationStrategy(false, (uint)bound);
+            using var engine = TestingEngine.Create(configuration, () => SchedulingPoint.Interleave());
+            engine.Run();
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var settings = document.RootElement.GetProperty("settings");
+            Assert.Equal("prioritization", settings.GetProperty("strategy").GetString());
+            Assert.Equal(bound, settings.GetProperty("strategyBound").GetInt32());
+            Assert.False(settings.TryGetProperty("portfolioStrategies", out _));
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestJsonReportRecordsInitialStrategyWithFuzzing(bool startWithFuzzing)
+        {
+            var configuration = this.GetConfiguration().WithTestingIterations(2)
+                .WithSystematicFuzzingEnabled(startWithFuzzing).WithSystematicFuzzingFallbackEnabled();
+            using var engine = TestingEngine.Create(configuration, () => AsyncProvider.GetPendingTasks().Single().Wait(0));
+            engine.Run();
+            Assert.Equal(SchedulingPolicy.Fuzzing, engine.Scheduler.SchedulingPolicy);
+            Assert.Empty(engine.TestReport.InternalErrors);
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var settings = document.RootElement.GetProperty("settings");
+            if (startWithFuzzing)
+            {
+                Assert.Equal("random", settings.GetProperty("strategy").GetString());
+                Assert.Equal(0, settings.GetProperty("strategyBound").GetInt32());
+                Assert.False(settings.TryGetProperty("portfolioStrategies", out _));
+            }
+            else
+            {
+                AssertPortfolioSettings(settings, isFair: true);
+            }
+        }
+
+        [Theory(Timeout = 5000)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestJsonReportRecordsInitialSeed(bool specifySeed)
+        {
+            var configuration = this.GetConfiguration().WithTestingIterations(3);
+            if (specifySeed)
+            {
+                configuration.WithRandomGeneratorSeed(0);
+            }
+
+            using var engine = TestingEngine.Create(configuration, () => SchedulingPoint.Interleave());
+            uint initialSeed = engine.Scheduler.ValueGenerator.Seed;
+            engine.Run();
+            Assert.NotEqual(initialSeed, engine.Scheduler.ValueGenerator.Seed);
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var root = document.RootElement;
+            Assert.Equal(3, GetTotalPaths(root));
+            var settings = root.GetProperty("settings");
+            Assert.True(settings.TryGetProperty("seed", out var seed), "JSON report omitted the initial random seed.");
+            Assert.Equal(initialSeed, seed.GetUInt32());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportForZeroIterations()
+        {
+            using var logger = new TestOutputLogger(this.TestOutput);
+            using var engine = RunEngine(() => { },
+                this.GetConfiguration().WithTestingIterations(0).WithStrictExplorationEnabled(), logger);
+
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var root = document.RootElement;
+            Assert.Equal(0, GetTotalPaths(root));
+            Assert.Equal("Incomplete", root.GetProperty("verdict").GetProperty("status").GetString());
+            Assert.Contains("NoExecutionPaths",
+                root.GetProperty("verdict").GetProperty("reasons").EnumerateArray().Select(element => element.GetString()));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportForTimeBudgetWarning()
+        {
+            using var engine = TestingEngine.Create(this.GetConfiguration().WithTestingTimeout(1)
+                .WithStrictExplorationEnabled(), () => { });
+            engine.TestReport.NumOfExploredFairPaths = 1;
+            engine.TestReport.MaxExploredFairSteps = 1;
+            engine.TestReport.RecordExplorationTermination(isCanceled: false);
+
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var verdict = document.RootElement.GetProperty("verdict");
+            Assert.Equal("Complete", verdict.GetProperty("status").GetString());
+            Assert.Equal(0, verdict.GetProperty("reasons").GetArrayLength());
+            Assert.Equal("TestingTimedOut", verdict.GetProperty("warnings")[0].GetString());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportForCompleteExploration()
+        {
+            using var logger = new TestOutputLogger(this.TestOutput);
+            using var engine = RunEngine(
+                async () =>
+                {
+                    var entry = new SharedEntry();
+                    var task1 = entry.GetWriteResultWithDelayAsync(3);
+                    var task2 = entry.GetWriteResultWithDelayAsync(5);
+                    await Task.WhenAll(task1, task2);
+                },
+                this.GetConfiguration().WithTestingIterations(10),
+                logger);
+
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var root = document.RootElement;
+            Assert.Equal(typeof(TestingEngine).Assembly.GetName().Version.ToString(),
+                root.GetProperty("coyoteVersion").GetString());
+            Assert.Equal("Complete", root.GetProperty("verdict").GetProperty("status").GetString());
+            Assert.Equal(0, root.GetProperty("verdict").GetProperty("reasons").GetArrayLength());
+            Assert.Equal(0, root.GetProperty("bugs").GetProperty("count").GetInt32());
+            Assert.Equal(0, root.GetProperty("uncontrolledInvocations").GetArrayLength());
+            Assert.Equal(10, GetTotalPaths(root));
+            Assert.True(root.GetProperty("assembly").GetProperty("isRewritten").GetBoolean());
+            Assert.False(root.GetProperty("settings").GetProperty("isStrictExplorationEnabled").GetBoolean());
+            Assert.Equal(10, root.GetProperty("settings").GetProperty("iterations").GetInt32());
+            Assert.False(root.TryGetProperty("artifacts", out _));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportForIncompleteExploration()
+        {
+            using var logger = new TestOutputLogger(this.TestOutput);
+            using var engine = RunEngine(
+                () =>
+                {
+                    var task = new Task(() => { });
+                    task.ContinueWith(_ => { }, TaskScheduler.Current);
+                },
+                this.GetConfiguration()
+                    .WithPartiallyControlledConcurrencyAllowed()
+                    .WithStrictExplorationEnabled()
+                    .WithTestingIterations(5),
+                logger);
+
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var root = document.RootElement;
+            var verdict = root.GetProperty("verdict");
+            Assert.Equal("Incomplete", verdict.GetProperty("status").GetString());
+            Assert.Contains("UncontrolledInvocations",
+                verdict.GetProperty("reasons").EnumerateArray().Select(element => element.GetString()));
+            Assert.Equal(0, verdict.GetProperty("warnings").GetArrayLength());
+            Assert.True(root.GetProperty("uncontrolledInvocations").GetArrayLength() > 0);
+            Assert.True(root.GetProperty("settings").GetProperty("isPartiallyControlledConcurrencyAllowed").GetBoolean());
+            Assert.True(root.GetProperty("settings").GetProperty("isStrictExplorationEnabled").GetBoolean());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportIsEmittedWithArtifacts()
+        {
+            using var logger = new TestOutputLogger(this.TestOutput);
+            using var engine = RunEngine(
+                () =>
+                {
+                    Specification.Assert(false, "Reachable.");
+                },
+                this.GetConfiguration().WithTestingIterations(10).WithJsonReportEnabled(),
+                logger);
+
+            string directory = Path.Combine(Path.GetTempPath(), "coyote-tests", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            try
+            {
+                Assert.True(engine.TryEmitReports(directory, "test", out IEnumerable<string> paths));
+                string jsonPath = paths.Single(path => path.EndsWith(".report.json", StringComparison.Ordinal));
+
+                using var document = JsonDocument.Parse(File.ReadAllText(jsonPath));
+                var root = document.RootElement;
+                Assert.Equal("BugFound", root.GetProperty("verdict").GetProperty("status").GetString());
+                Assert.Equal(1, root.GetProperty("bugs").GetProperty("count").GetInt32());
+                Assert.Contains("Reachable.", root.GetProperty("bugs").GetProperty("reports")[0].GetString());
+                Assert.Equal(1, GetTotalPaths(root));
+                AssertPortfolioSettings(root.GetProperty("settings"), isFair: true);
+                using var apiReport = JsonDocument.Parse(engine.GetJsonReport());
+                Assert.Equal(apiReport.RootElement.GetProperty("settings").GetRawText(), root.GetProperty("settings").GetRawText());
+
+                var artifacts = root.GetProperty("artifacts");
+                Assert.True(File.Exists(artifacts.GetProperty("readableTrace").GetString()));
+                Assert.True(File.Exists(artifacts.GetProperty("reproducibleTrace").GetString()));
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        private static TestingEngine RunEngine(Action test, Configuration configuration, TestOutputLogger logger)
+        {
+            var engine = TestingEngine.Create(configuration, test);
+            engine.SetLogger(logger);
+            engine.Run();
+            return engine;
+        }
+
+        private static TestingEngine RunEngine(Func<Task> test, Configuration configuration, TestOutputLogger logger)
+        {
+            var engine = TestingEngine.Create(configuration, test);
+            engine.SetLogger(logger);
+            engine.Run();
+            return engine;
+        }
+
+        private static void AssertPortfolioSettings(JsonElement settings, bool isFair)
+        {
+            Assert.Equal("portfolio", settings.GetProperty("strategy").GetString());
+            Assert.Equal(isFair ? "fair" : "unfair", settings.GetProperty("portfolioMode").GetString());
+            Assert.False(settings.TryGetProperty("strategyBound", out _));
+            var members = settings.GetProperty("portfolioStrategies");
+            string prefix = isFair ? "fair-" : string.Empty;
+            Assert.Equal(new[] { "random", "probabilistic", prefix + "prioritization", prefix + "delay-bounding" },
+                members.EnumerateArray().Select(member => member.GetProperty("strategy").GetString()));
+            Assert.False(members[0].TryGetProperty("strategyBound", out _));
+            Assert.Equal(3, members[1].GetProperty("strategyBound").GetInt32());
+            Assert.Equal(10, members[2].GetProperty("strategyBound").GetInt32());
+            Assert.Equal(10, members[3].GetProperty("strategyBound").GetInt32());
+        }
+
+        private static int GetTotalPaths(JsonElement root) =>
+            root.GetProperty("exploration").GetProperty("fairPaths").GetInt32() +
+            root.GetProperty("exploration").GetProperty("unfairPaths").GetInt32();
+    }
+}

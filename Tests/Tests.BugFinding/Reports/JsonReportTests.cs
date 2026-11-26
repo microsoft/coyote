@@ -108,6 +108,39 @@ namespace Microsoft.Coyote.BugFinding.Tests.Reports
             }
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestJsonReportRecordsInitialSingleStrategyAfterFallback()
+        {
+            var configuration = this.GetConfiguration().WithTestingIterations(2)
+                .WithDelayBoundingStrategy(false, 7).WithSystematicFuzzingFallbackEnabled();
+            using var engine = TestingEngine.Create(configuration, () => AsyncProvider.GetPendingTasks().Single().Wait(0));
+            engine.Run();
+            Assert.Equal(SchedulingPolicy.Fuzzing, engine.Scheduler.SchedulingPolicy);
+            using var document = JsonDocument.Parse(engine.GetJsonReport());
+            var settings = document.RootElement.GetProperty("settings");
+            Assert.Equal("delay-bounding", settings.GetProperty("strategy").GetString());
+            Assert.Equal(7, settings.GetProperty("strategyBound").GetInt32());
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestTextReportUsesSnapshotConfiguration()
+        {
+            var configuration = this.GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(2);
+            using var engine = TestingEngine.Create(configuration, () =>
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    SchedulingPoint.Interleave();
+                }
+            });
+            engine.Run();
+            var snapshot = engine.TestReport.CreateSnapshot();
+            string expected = engine.GetReport(snapshot);
+            Assert.Contains("max-steps bound of '2'", expected);
+            configuration.WithMaxSchedulingSteps(17);
+            Assert.Equal(expected, engine.GetReport(snapshot));
+        }
+
         [Theory(Timeout = 5000)]
         [InlineData(false)]
         [InlineData(true)]

@@ -76,6 +76,11 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly PortfolioStrategyInfo[] InitialPortfolio;
 
         /// <summary>
+        /// The name of the initial exploration strategy, which is preserved if the scheduler falls back to fuzzing.
+        /// </summary>
+        private readonly string InitialStrategyName;
+
+        /// <summary>
         /// The profiler.
         /// </summary>
         internal Profiler Profiler { get; }
@@ -218,6 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Scheduler = OperationScheduler.Setup(configuration, prefixTrace);
             this.InitialRandomSeed = this.Scheduler.ValueGenerator.Seed;
             this.InitialPortfolio = this.Scheduler.GetPortfolioStrategies();
+            this.InitialStrategyName = this.InitialPortfolio is null ? this.Scheduler.GetStrategyName() : "portfolio";
 
             // Create a client for gathering and sending optional telemetry data.
             TelemetryClient = TelemetryClient.GetOrCreate(this.Configuration, this.LogWriter);
@@ -533,7 +539,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 return report.ToString();
             }
 
-            return snapshot.GetText(this.Configuration, "...");
+            return snapshot.GetText(snapshot.Configuration ?? this.Configuration, "...");
         }
 
         /// <summary>
@@ -547,8 +553,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private JsonTestReport CreateJsonReport(TestReport snapshot, IEnumerable<string> reportPaths) => JsonTestReport.Create(
             snapshot, snapshot.Configuration, this.TestMethodInfo.Name, this.TestMethodInfo.Assembly,
-            this.IsTestRewritten(), this.InitialPortfolio is null ? this.Scheduler.GetStrategyName() : "portfolio",
-            this.InitialPortfolio, this.InitialRandomSeed, this.Profiler.Results(), reportPaths);
+            this.IsTestRewritten(), this.InitialStrategyName, this.InitialPortfolio, this.InitialRandomSeed, this.Profiler.Results(), reportPaths);
 
         /// <summary>
         /// Throws either an <see cref="AssertionFailureException"/>, if a bug was found,

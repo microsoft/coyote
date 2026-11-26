@@ -370,11 +370,12 @@ namespace Microsoft.Coyote.Runtime
             this.Strategy.GetDescription();
 
         /// <summary>
-        /// Checks that a normally completed replay consumed the recorded trace.
+        /// Checks that a normally completed execution consumed the recorded trace prefix, which
+        /// is either a replayed trace or a checkpoint set during a previous iteration.
         /// </summary>
         internal void CheckReplayCompletion()
         {
-            if (this.IsReplaying && this.Strategy is InterleavingStrategy strategy)
+            if (this.Strategy is InterleavingStrategy strategy)
             {
                 strategy.CheckReplayCompletion();
             }

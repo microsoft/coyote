@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.2.min.js"></script>
+
+    </head>
+    <body>
+        <script src="animation.js"></script>
+        <svg id="animation" viewbox="0,0,1920,1080" width="100%">
+            <style>
+              .title { font: bold 50px sans-serif; fill:white; }
+            </style>
+            <defs>
+                <filter id="glow-filter" x="0" y="0" width="125%">
+                    <feGaussianBlur stdDeviation="5" />
+                    <feOffset dx="0" dy="0"/>
+                    <feMerge>
+                        <feMergeNode/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                <filter id="glow-filter-2" x="-25%" y="-25%" width="150%" height="150%">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
+                    <feOffset dx="0" dy="0"/>
+                    <feMerge>
+                        <feMergeNode/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+            <rect fill="#151520" width="100%" height="100%"/>
+        </svg>
+    </body>
+    <script>
+        $(document).ready(function () {
+            svg = $("#animation")[0];
+            hero_animation.start(svg);
+        });
+    </script>
+</html>

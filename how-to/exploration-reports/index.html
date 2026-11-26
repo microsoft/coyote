@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/how-to/exploration-reports/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Check exploration verdicts and reports - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../css/main.css" rel="stylesheet">
+    <link href="../../css/player-controls.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Check exploration verdicts and reports", url: "#_top", children: [
+              {title: "Produce an exploration report", url: "#produce-an-exploration-report" },
+              {title: "Verdicts", url: "#verdicts" },
+              {title: "Exit codes and strict mode", url: "#exit-codes-and-strict-mode" },
+              {title: "Incomplete reasons and warnings", url: "#incomplete-reasons-and-warnings" },
+              {title: "JSON reports", url: "#json-reports" },
+              {title: "In-process reporting", url: "#in-process-reporting" },
+              {title: "Example: continuous integration", url: "#example-continuous-integration" },
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../assets/js/analytics.js"></script>
+      <script src="../../assets/js/plugins.js"></script>
+      <script src="../../assets/js/animate_trace.js"></script>
+      <script src="../../assets/js/animation.js"></script>
+      <script src="../../assets/js/progress_bar.js"></script>
+      <script src="../../assets/js/trace_model.js"></script>
+      <script src="../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../samples/overview/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../samples/overview/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../coverage/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../coverage/" class="btn btn-xs btn-link">
+        Track code and actor activity coverage
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="check-exploration-verdicts-and-reports">Check exploration verdicts and reports</h2>
+<p>Finding zero bugs does not necessarily mean that a test explored useful interleavings. The test
+might have invoked APIs that Coyote does not control, some iterations might have been truncated,
+or the test might not make any scheduling decisions. Coyote summarizes these conditions as an
+<em>exploration verdict</em>, and can emit it with the exploration statistics as a machine-readable JSON
+report.</p>
+<p>The exploration verdict API, strict CLI options, and JSON reports described here are available
+in the current source, but not in the published <code>1.7.11</code> packages. Use the CLI and libraries
+<a href="../../get-started/build-source/">built from the same source revision</a>.</p>
+<h3 id="produce-an-exploration-report">Produce an exploration report</h3>
+<p>Run the <code>coyote</code> tester on a <a href="../../concepts/binary-rewriting/">rewritten</a> assembly that has a
+<a href="../../get-started/using-coyote/#test-entry-point">test entry point</a>:</p>
+<pre><code class="language-plain">coyote test path/to/Tests.dll --iterations 1000 --json-report --strict
+</code></pre>
+<p>The tester prints the verdict at the end of the test report. <code>--json-report</code> also writes a
+<code>.report.json</code> file next to the other reports, and <code>--strict</code> fails the run when exploration is
+incomplete. To check the verdict from a unit test, see <a href="#in-process-reporting">in-process reporting</a>.</p>
+<h3 id="verdicts">Verdicts</h3>
+<table>
+<thead>
+<tr>
+<th>Verdict</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Complete</code></td>
+<td>No bugs, internal errors, or incomplete reasons were reported. Warnings can still be present.</td>
+</tr>
+<tr>
+<td><code>Incomplete</code></td>
+<td>No bug was found, but exploration had limitations listed in <code>reasons</code>.</td>
+</tr>
+<tr>
+<td><code>BugFound</code></td>
+<td>At least one bug was found; <code>bugs.reports</code> contains the diagnostic messages.</td>
+</tr>
+<tr>
+<td><code>InternalError</code></td>
+<td>The test report contains an internal testing error.</td>
+</tr>
+</tbody>
+</table>
+<p>A <code>Complete</code> verdict does not prove that every possible program execution was explored.
+A <code>BugFound</code> verdict can also include incomplete reasons that affect confidence in reproducing
+the bug. Internal errors take priority over bugs, and bugs take priority over incomplete exploration.
+<code>reasons</code> identify exploration limitations; <code>warnings</code> do not change the verdict by themselves.</p>
+<h3 id="exit-codes-and-strict-mode">Exit codes and strict mode</h3>
+<p>By default, the <code>coyote</code> tester exits with code <code>0</code> when no bugs were found, <code>2</code> when a bug was
+found, and <code>3</code> on an internal testing error. Command or setup errors return <code>1</code>.
+Treat all nonzero exit codes as unsuccessful runs. Exit code <code>0</code> does not by itself mean that
+the exploration was exhaustive. The <code>--strict</code> flag makes the tester exit with code <code>4</code> when the
+verdict is <code>Incomplete</code>. A detected bug or an internal error retains its verdict and exit-code
+priority.</p>
+<p>The <code>--strict-bounds</code> flag enables strict exploration and additionally treats fair execution paths
+that exceeded the unfair <code>--max-steps</code> bound as incomplete exploration (<code>ExceededUnfairStepsBound</code>),
+which is otherwise only reported as a warning.</p>
+<h3 id="incomplete-reasons-and-warnings">Incomplete reasons and warnings</h3>
+<p>Fair paths that finish normally exactly at the unfair bound do not produce the
+<code>ExceededUnfairStepsBound</code> warning
+or incomplete reason; only paths with more decisions than that positive bound are counted.
+A step bound of zero is disabled. Paths that finish normally exactly at their step limit are
+not counted as truncated (<code>TruncatedExecutionPaths</code>).</p>
+<p>Tests that execute without scheduling decisions add <code>NoSchedulingDecisions</code>, including tests
+that only make random choices. Uncontrolled concurrency adds <code>UncontrolledInvocations</code> even
+when the runtime cannot identify a source method, so the list of named uncontrolled calls can
+be empty.</p>
+<p>An exploration that executes no paths is <code>Incomplete</code> with reason <code>NoExecutionPaths</code>, including
+when <code>--iterations 0</code> is used or test initialization exceeds the timeout. If the timeout expires
+before any paths were explored, <code>TestingTimedOut</code> is also an incomplete reason. After paths were
+explored, reaching the testing time budget is instead a <code>TestingTimedOut</code> warning. Such a run
+can be <code>Complete</code> if no other incomplete reasons were detected; uncontrolled invocations,
+truncated paths and other limitations still make it <code>Incomplete</code>. A call to <code>TestingEngine.Stop</code>
+is reported as reason <code>TestingCanceled</code> even if some paths were explored.</p>
+<p>An ignored potential deadlock or an unexpected <code>TaskCanceledException</code> that ends exploration while
+the engine has not been canceled adds <code>ExecutionInterrupted</code>, even when some paths were explored.
+A replay scheduling mismatch or normal completion with unconsumed trace steps records an internal
+error and its diagnostic. When an internal setup exception aborts the command, <code>--json-report</code>
+also attempts to emit the failure report; the command
+keeps its original error exit code (<code>1</code>), and a secondary report-writing failure does not replace
+the original exception.</p>
+<p>If the test entry assembly has no rewriting signature matching the current Coyote version,
+the engine records <code>TestAssemblyNotRewritten</code>. In the absence of a bug or internal error,
+the verdict is <code>Incomplete</code>, even when an explicit scheduling point produces nonzero step counts.
+This also applies to actor-only tests and tests run through an in-process delegate: the delegate&rsquo;s
+actual assembly is checked.
+Testing continues so bugs and reports are still available. A run with no bug or internal error
+exits with code <code>4</code> with <code>--strict</code>, or <code>0</code> without it. Automation should accept the new reason
+in the JSON report. A matching signature only identifies the test entry assembly; it does not
+prove that every dependency or native concurrent API was rewritten and controlled.</p>
+<p>The internal DFS strategy can report that no execution paths remain before the requested iteration
+budget is reached. The engine then omits <code>InsufficientExecutionPaths</code>; other incomplete reasons
+and warnings still apply. <code>InsufficientExecutionPaths</code> is only reported when no timeout is configured.
+When reports are merged, exhaustion is retained only if every report with explored paths recorded
+it. Reports with no explored paths are neutral for exhaustion,
+but their recorded limitations still apply. Merged verdicts use the destination configuration
+and aggregate path counts, so they do not establish that each contributing run met its own budget.</p>
+<h3 id="json-reports">JSON reports</h3>
+<p><code>--json-report</code> emits a <code>.report.json</code> file next to the other reports for use by automation.
+The path and concurrency statistics are also available in text reports. The main JSON fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coyoteVersion</code>, <code>testName</code></td>
+<td>Coyote assembly version and test method name, when available.</td>
+</tr>
+<tr>
+<td><code>assembly</code></td>
+<td>Test-entry assembly name, path, SHA-256 and <code>isRewritten</code> flag.</td>
+</tr>
+<tr>
+<td><code>settings</code></td>
+<td>Strategy, initial seed (including one generated by Coyote), requested iterations, time and step bounds, and strict-mode settings.</td>
+</tr>
+<tr>
+<td><code>verdict</code></td>
+<td><code>status</code>, incomplete <code>reasons</code>, and non-fatal <code>warnings</code>.</td>
+</tr>
+<tr>
+<td><code>bugs</code>, <code>internalErrors</code>, <code>uncontrolledInvocations</code></td>
+<td>Bug count and messages, internal errors, and detected uncontrolled calls.</td>
+</tr>
+<tr>
+<td><code>uncontrolledConcurrencyDetected</code></td>
+<td>Whether the runtime detected uncontrolled concurrency, including when its source method is unknown.</td>
+</tr>
+<tr>
+<td><code>exploration</code></td>
+<td>Fair, unfair and unique path counts, truncation counts, visited state hashes, scheduling steps, controlled operations and concurrency statistics.</td>
+</tr>
+<tr>
+<td><code>artifacts</code></td>
+<td>Paths to emitted traces and other diagnostic reports, when present.</td>
+</tr>
+<tr>
+<td><code>elapsedSeconds</code></td>
+<td>Execution time measured by the testing engine.</td>
+</tr>
+</tbody>
+</table>
+<p>Statistics such as scheduling steps use <code>min</code>, <code>avg</code> and <code>max</code>; averages are integer values.
+Null fields are omitted. <code>coyoteVersion</code> is an assembly version, not a source revision identifier.
+The assembly hash identifies the test entry, not the Coyote engine or every dependency, and
+<code>isRewritten</code> does not prove that all concurrent APIs were controlled. State counts depend on
+the configured state hashing and are not a business-state coverage percentage.</p>
+<p>When a run starts with a portfolio, <code>settings.strategy</code> is <code>"portfolio"</code> and
+<code>settings.portfolioStrategies</code> lists its initial members in scheduling order. Each member has a
+<code>strategy</code> name and, if applicable, a <code>strategyBound</code>. Single-strategy reports keep
+<code>settings.strategyBound</code>; portfolio reports omit it because each member has its own settings.</p>
+<p>The timeout ends the wait for testing; it does not synchronously terminate arbitrary user
+initialization or an iteration still running in the background. JSON verdicts and statistics use
+a snapshot of the accumulated results. The CLI uses the same snapshot for these JSON fields,
+the console summary, and the exit code, even if a background iteration finishes after a timeout.
+Trace and coverage artifacts are emitted separately from this statistics snapshot. Separate
+in-process report calls can read different snapshots if background iterations update the results.</p>
+<h3 id="in-process-reporting">In-process reporting</h3>
+<p>Inspect <code>engine.TestReport.GetVerdict()</code> and obtain JSON with <code>engine.GetJsonReport()</code>.
+Assert the required verdict explicitly in a unit-test wrapper:
+<code>engine.ThrowIfBugFound()</code> preserves the bug diagnostic, but does not reject incomplete exploration.
+The strict CLI exit-code policy does not automatically fail an in-process test wrapper.
+Use <code>Configuration.WithStrictBoundCheckingEnabled()</code> to apply the same warning-to-reason rule
+as <code>--strict-bounds</code>.</p>
+<p>To emit JSON report files in-process, enable <code>Configuration.WithJsonReportEnabled()</code> and call
+<code>engine.TryEmitReports(...)</code> with an existing output directory. <code>GetJsonReport()</code> returns a JSON
+string without the <code>artifacts</code> field and does not emit files.</p>
+<h3 id="example-continuous-integration">Example: continuous integration</h3>
+<p>To gate a CI pipeline on the exploration verdict, rewrite the test and production binaries, then run
+the tester with <code>--strict</code> and treat every nonzero exit code as a failed run. When the test and the
+code under test are in the same assembly:</p>
+<pre><code class="language-plain">coyote rewrite path/to/Tests.dll
+coyote test path/to/Tests.dll --iterations 1000 --strict --json-report
+</code></pre>
+<p>To rewrite multiple assemblies, list them in a <a href="../../concepts/binary-rewriting/#configuration">rewriting
+configuration</a> and <a href="../../get-started/using-coyote/#rewrite-your-binaries-for-testing">test the rewritten
+assembly</a>. Publish the
+<code>.report.json</code> file as a build artifact to inspect the verdict, reasons and statistics of each run.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../../samples/overview/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../../samples/overview/" class="btn btn-xs btn-link">
+        Overview
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../coverage/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../coverage/" class="btn btn-xs btn-link">
+        Track code and actor activity coverage
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

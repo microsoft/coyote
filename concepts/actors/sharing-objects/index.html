@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="canonical" href="https://microsoft.github.io/coyote/concepts/actors/sharing-objects/">
+    <link rel="shortcut icon" href="/coyote/img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sharing objects - Coyote</title>
+    <link href="/coyote/css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="/coyote/css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="/coyote/css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="/coyote/css/highlight.css">
+    <link href="../../../css/main.css" rel="stylesheet">
+    <link href="../../../css/player-controls.css" rel="stylesheet">
+    <link href="../../../css/syntax.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="/coyote/js/jquery-3.2.1.min.js"></script>
+    <script src="/coyote/js/bootstrap-3.3.7.min.js"></script>
+    <script src="/coyote/js/highlight.pack.js"></script>
+    <script src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '/coyote/';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Safely sharing objects between actors", url: "#_top", children: [
+          ]},
+          {title: "Microsoft.Coyote.Actors.SharedObjects", url: "#microsoftcoyoteactorssharedobjects", children: [
+          ]},
+          {title: "Important remark on using SharedDictionary\u0026lt;TKey, TValue\u0026gt;", url: "#important-remark-on-using-shareddictionarytkey-tvalue", children: [
+          ]},
+          {title: "What about System.Collections.Concurrent?", url: "#what-about-systemcollectionsconcurrent", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="/coyote/js/base.js"></script>
+      <script src="../../../assets/js/analytics.js"></script>
+      <script src="../../../assets/js/plugins.js"></script>
+      <script src="../../../assets/js/animate_trace.js"></script>
+      <script src="../../../assets/js/animation.js"></script>
+      <script src="../../../assets/js/progress_bar.js"></script>
+      <script src="../../../assets/js/trace_model.js"></script>
+      <script src="../../../assets/js/main.js"></script>
+
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<div id="cookie-banner"></div>
+
+
+<div class="wrapper wm-page-content">
+  <div class="container-fluid">
+    <a name="_top"></a>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../logging/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../logging/" class="btn btn-xs btn-link">
+        Logging
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../uncaught-exceptions/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../uncaught-exceptions/" class="btn btn-xs btn-link">
+        Semantics of unhandled exceptions
+      </a>
+    </div>
+    
+  </div>
+
+      
+
+      <h2 id="safely-sharing-objects-between-actors">Safely sharing objects between actors</h2>
+<p>An actor program in Coyote is expected to be free of low-level data races. This means that two
+different actors should not race on access to the same object, unless both accesses are reads.
+Typically, you should build your application with an ownership protocol in mind to associate a
+unique owner actor to an object when writes have to be performed on that object. An exception to
+this rule is when using the thread-safe in-memory data structures provided by the
+<code>Microsoft.Coyote.Actors.SharedObjects</code> namespace.</p>
+<h2 id="microsoftcoyoteactorssharedobjects">Microsoft.Coyote.Actors.SharedObjects</h2>
+<p>Coyote provides multiple thread-safe in-memory data structures that help simplify writing actor
+programs. Instances of these data structures can be shared freely and accessed by multiple actors,
+even when performing write operations. There is a simple API for creating these shared data
+structures. Currently three kinds of shared data structures are available: <code>SharedCounter</code>,
+<code>SharedRegister&lt;T&gt;</code> and <code>SharedDictionary</code>.</p>
+<p>The following code snippet creates and initializes a <code>SharedRegister</code>. It then sends the register to
+a different actor <code>m</code> by stashing it as part of the payload of an event.</p>
+<pre><code class="language-csharp">SharedRegister&lt;int&gt; register = SharedRegister.Create&lt;int&gt;(this.Id.Runtime);
+register.SetValue(100);
+this.SendEvent(m, new MyEvent(register, ...));
+var v = register.GetValue();
+this.Assert(v == 100 || v == 200);
+</code></pre>
+<p>Let&rsquo;s suppose that the target actors <code>m</code>, when it gets this <code>MyEvent</code> message, gets the register and
+does <code>register.SetValue(200)</code>. In this case, a read of the register in the source actor can either
+return the original value <code>100</code> or the value <code>200</code> set by <code>m</code>. In this way, these shared objects
+offer convenient ways of sharing data between actors (without going through explicit message
+creation, send, receive, etc.).</p>
+<p>Furthermore, if the assertion at the end of the code snippet shown above was <code>this.Assert(v == 100)</code>
+then the tester will be able to find and report a violation of the assertion because it understands
+<code>SharedRegister</code> operations as a source of synchronization.</p>
+<p>Internally, these data structures are written so that they use efficient thread-safe implementations
+in production runs of a Coyote program. For instance, <code>SharedCounter</code> uses
+<a href="https://docs.microsoft.com/en-us/dotnet/standard/threading/interlocked-operations"><code>Interlocked</code></a>
+operations, <code>SharedRegister</code> uses small critical sections implemented using locks and
+<code>SharedDictionary</code> uses a
+<a href="https://docs.microsoft.com/en-us/dotnet/api/system.collections.concurrent.concurrentdictionary-2?view=netframework-4.7"><code>ConcurrentDictionary</code></a>.
+However, during test mode (i.e., while running tests under <code>coyote test</code>) the implementation
+automatically switches to use an actor that serializes all accesses to the object. Thus, <code>coyote
+test</code> sees a normal Coyote program with no synchronization operations other than actor creation and
+message passing.</p>
+<p>At the moment, the APIs used to implement <code>Microsoft.Coyote.Actors.SharedObjects</code> are internal to
+Coyote.</p>
+<h2 id="important-remark-on-using-shareddictionarytkey-tvalue">Important remark on using <code>SharedDictionary&lt;TKey, TValue&gt;</code></h2>
+<p>Conceptually you should think of a Coyote SharedObject as a wrapper around a Coyote actor. Thus, you
+need to be careful about stashing references inside a SharedObject and treat it in the same manner
+as sharing references between actors. In the case of a <code>SharedDictionary</code> both the key and the value
+(which are passed by reference into the dictionary) should not be mutated unless first removed from
+the dictionary because this can lead to a data race. Consider two actors that share a
+<code>SharedDictionary</code> object <code>D</code>. If both actors grab the value <code>D[k]</code> at the same key <code>k</code> they will
+each have a reference to the same object, creating the potential for a data race (unless the
+intention is to only do read operations on that object).</p>
+<p>The same note holds for <code>SharedRegister&lt;T&gt;</code> when <code>T</code> is a <code>struct</code> type with reference fields inside
+it.</p>
+<h2 id="what-about-systemcollectionsconcurrent">What about System.Collections.Concurrent?</h2>
+<p>Yes, you can use the .NET thread safe collections to share information across actors but not the
+<code>BlockingCollection</code> as this can block and Coyote will not know about that which will lead to
+deadlocks during testing. The other thread safe collections do not have uncontrolled
+non-determinism, either from Task.Run, or from retry loops, timers or waits.</p>
+<p>The caveat is that Coyote has not instrumented the .NET concurrent collections, and so coyote does
+not systematically explore thread switching in the middle of these operations, therefore Coyote
+will not always find all data race conditions related to concurrent access on these collections.</p>
+
+    <br>
+      
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../logging/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../logging/" class="btn btn-xs btn-link">
+        Logging
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../uncaught-exceptions/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../uncaught-exceptions/" class="btn btn-xs btn-link">
+        Semantics of unhandled exceptions
+      </a>
+    </div>
+    
+  </div>
+
+      <br>
+  </div>
+</div>
+
+<footer class="wm-page-content">
+  
+
+<section class="footer-join pt-40 pb-80">
+  <div class="container-fluid">
+    <div class="row text-center">
+      <div class="col-sm-8 col-sm-offset-2">
+      </div>
+    </div>
+    <div class="row">
+   </div>
+  </div>
+</section>
+<section class="footer-dark pt-60">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="hidden-xs col-sm-5 col-lg-6">
+        <a href="" title="homepage" class="logo-footer">
+          <img src="/coyote/assets/images/icon.png" alt="Coyote">
+        </a>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Coyote</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/">Home</a></li>
+            <li><a href="/coyote/get-started/install/">Install</a></li>
+            <li><a href="https://github.com/microsoft/coyote/"><i class="fa fa-github"></i>
+GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Resources</h4>
+          <ul class="list-unstyled">
+            <li><a href="/coyote/tutorials/first-concurrency-unit-test/">Getting started</a></li>
+            <li><a href="/coyote/tutorials/overview/">Tutorials</a></li>
+            <li><a href="/coyote/ref/Microsoft.Coyote">API documentation</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-sm-2 col-xs-4 footer-dark-col">
+        <nav>
+          <h4>Community</h4>
+          <ul class="list-unstyled">
+            <li><a href="https://github.com/microsoft/coyote/discussions"><i class="fa fa-github"></i>
+GitHub</a></li>
+            <li><a href="https://twitter.com/coyote_dev" target="_blank"><i class="fa fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://teams.microsoft.com/l/channel/19%3a1fe966b4fdc544bca648d89bf25c3c56%40thread.tacv2/General?groupId=7a6d8afc-c23d-4e5d-b9cb-9124118c0220&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47" target="_blank">Teams (Internal)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row footnote pt-50 pb-20">
+      <div class="col-sm-12">
+        <hr>
+      </div>
+      <div class="col-sm-7">
+        <ul class="list-unstyled list-inline footnote-copy">
+          <li><a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="_blank">Privacy & Cookies</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?linkid=2259814" target="_blank">Consumer Health Privacy</a></li>
+          <li><a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="_blank">Terms of Use</a></li>
+          <li><a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks" target="_blank">Trademarks</a></li>
+          <li><a href="https://github.com/microsoft/coyote/blob/main/LICENSE" target="_blank">License</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5 text-right footnote-copy">
+        <ul class="list-unstyled list-inline">
+          <li><span id="copyright"></span></li>
+          <li><a href="https://www.microsoft.com/" target="_blank"><img class="img-responsive" src="/coyote/assets/images/microsoft-logo.svg?v=3" alt="Microsoft">&nbsp;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('table').each(function () {
+        $(this).addClass("table");
+        $(this).addClass("table-bordered");
+        $(this).addClass("table-striped");
+        $(this).addClass("table-condensed");
+      });
+
+    });
+</script>
+
+</body>
+</html>

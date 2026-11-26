@@ -43,9 +43,9 @@ starts, but there is one schedule where the task starts fast enough to set `valu
 the assertion to fail. Of course, this is a very naive example and the bug is obvious, but you could
 imagine much more complicated race conditions that are hidden in complex execution paths.
 
-The example below uses the exploration verdict API. The published `1.7.11` packages do not include
-this API, the strict CLI options, or machine-readable JSON reports. Use the CLI and libraries
-[built from the same source revision](docs/get-started/build-source.md).
+The example below uses the exploration verdict API. This API, the strict CLI options and
+machine-readable JSON reports require Coyote `1.8.0` or later. Use a CLI and libraries of the same
+version, or [build both from the same source revision](docs/get-started/build-source.md).
 
 Use the Coyote `TestingEngine` API to turn the above test into a concurrency unit test:
 ```csharp
@@ -111,9 +111,9 @@ The CLI normally returns `0` when no bugs were found, `2` when a bug was found, 
 internal testing error. With `--strict`, an `Incomplete` verdict returns `4` instead of `0`.
 Command or setup errors return `1`. Treat nonzero exit codes as unsuccessful test runs.
 
-The following rewritten test cases illustrate the difference from the published `1.7.11` CLI:
+The following rewritten test cases illustrate the difference from the `1.7.11` CLI:
 
-| Test case | Published `1.7.11` | This branch with `--strict` |
+| Test case | `1.7.11` | `1.8.0` with `--strict` |
 | --- | --- | --- |
 | Normal scheduling, no bugs, no limitations | Exit `0` | `Complete`, exit `0` |
 | Paths truncated at the scheduling-step limit, no bugs | Exit `0`; text reports the limit being reached | `Incomplete`, reason `TruncatedExecutionPaths`, exit `4` |
